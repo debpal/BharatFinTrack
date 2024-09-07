@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "BharatFinTrack"
+description = "Downloading and analyzing financial data, including indices, stocks, and mutual funds, from India, that is, Bharat."
+authors = [
+  { name="Debasish Pal", email="bestdebasish@gmail.com" },
+]
+readme = "README.md"
+license = { file="LICENSE.txt" }
+requires-python = ">=3.12"
+classifiers = [
+	"Development Status :: 1 - Planning",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+	"Intended Audience :: Education",
+	"Topic :: Office/Business :: Financial",
+	"Topic :: Scientific/Engineering :: Information Analysis"
+]
+dynamic = ["version"]
+
+keywords = [
+    "nse index",
+	"nse total return index",
+	"data download",
+	"data analysis"
+]
+
+
+[project.urls]
+"Homepage" = "https://github.com/debpal/BharatFinTrack"
+
+
+[tool.setuptools.dynamic]
+version = {attr = "BharatFinTrack.__version__"}
