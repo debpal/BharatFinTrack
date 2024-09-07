@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BharatFinTrack package &mdash; BharatFinTrack 0.1.0 documentation</title>
+  <title>BharatFinTrack package &mdash; BharatFinTrack 0.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
 
@@ -45,12 +45,11 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">BharatFinTrack</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">BharatFinTrack package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-BharatFinTrack.core">BharatFinTrack.core module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-BharatFinTrack.nse_track">BharatFinTrack.nse_track module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-BharatFinTrack.nse_tri">BharatFinTrack.nse_tri module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-BharatFinTrack">Module contents</a></li>
 </ul>
 </li>
@@ -87,38 +86,6 @@
 <h1>BharatFinTrack package<a class="headerlink" href="#bharatfintrack-package" title="Permalink to this heading"></a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
-</section>
-<section id="module-BharatFinTrack.core">
-<span id="bharatfintrack-core-module"></span><h2>BharatFinTrack.core module<a class="headerlink" href="#module-BharatFinTrack.core" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="BharatFinTrack.core.Core">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">BharatFinTrack.core.</span></span><span class="sig-name descname"><span class="pre">Core</span></span><a class="headerlink" href="#BharatFinTrack.core.Core" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Contains key functions of the module.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="BharatFinTrack.core.Core.default_headers">
-<span class="sig-name descname"><span class="pre">default_headers</span></span><a class="headerlink" href="#BharatFinTrack.core.Core.default_headers" title="Permalink to this definition"></a></dt>
-<dd><p>HTTP headers for the request.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="BharatFinTrack.core.Core.url_nse_tri">
-<span class="sig-name descname"><span class="pre">url_nse_tri</span></span><a class="headerlink" href="#BharatFinTrack.core.Core.url_nse_tri" title="Permalink to this definition"></a></dt>
-<dd><p>URL link to access NSE total return index data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 <section id="module-BharatFinTrack.nse_track">
 <span id="bharatfintrack-nse-track-module"></span><h2>BharatFinTrack.nse_track module<a class="headerlink" href="#module-BharatFinTrack.nse_track" title="Permalink to this heading"></a></h2>
@@ -166,178 +133,8 @@ and values are their corresponding base dates.</p>
 </dd></dl>
 
 </section>
-<section id="module-BharatFinTrack.nse_tri">
-<span id="bharatfintrack-nse-tri-module"></span><h2>BharatFinTrack.nse_tri module<a class="headerlink" href="#module-BharatFinTrack.nse_tri" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="BharatFinTrack.nse_tri.NSETRI">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">BharatFinTrack.nse_tri.</span></span><span class="sig-name descname"><span class="pre">NSETRI</span></span><a class="headerlink" href="#BharatFinTrack.nse_tri.NSETRI" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Download and analyze NSE total return index data.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="BharatFinTrack.nse_tri.NSETRI.indices_all">
-<span class="sig-name descname"><span class="pre">indices_all</span></span><a class="headerlink" href="#BharatFinTrack.nse_tri.NSETRI.indices_all" title="Permalink to this definition"></a></dt>
-<dd><p>A list of all NSE index names, obtained from the <code class="xref py py-attr docutils literal notranslate"><span class="pre">NSETrack.indices_all</span></code> attribute.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="BharatFinTrack.nse_tri.NSETRI.indices_base_date">
-<span class="sig-name descname"><span class="pre">indices_base_date</span></span><a class="headerlink" href="#BharatFinTrack.nse_tri.NSETRI.indices_base_date" title="Permalink to this definition"></a></dt>
-<dd><p>A dictionary where keys are indices and values are their corresponding base dates,
-obtained from the <code class="xref py py-attr docutils literal notranslate"><span class="pre">NSETrack.indices_base_date</span></code> attribute.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="BharatFinTrack.nse_tri.NSETRI._api_tri">
-<span class="sig-name descname"><span class="pre">_api_tri</span></span><a class="headerlink" href="#BharatFinTrack.nse_tri.NSETRI._api_tri" title="Permalink to this definition"></a></dt>
-<dd><p>A dictionary used to store API-related information for total return indices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="BharatFinTrack.nse_tri.NSETRI.historical_daily_data">
-<span class="sig-name descname"><span class="pre">historical_daily_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#BharatFinTrack.nse_tri.NSETRI.historical_daily_data" title="Permalink to this definition"></a></dt>
-<dd><p>Generate historical daily total return index data
-between start and end dates, both inclusive.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>index_name</strong> (<em>str</em>) – Name of the index. Refer to the <a class="reference internal" href="#BharatFinTrack.nse_tri.NSETRI.indices_all" title="BharatFinTrack.nse_tri.NSETRI.indices_all"><code class="xref py py-attr docutils literal notranslate"><span class="pre">NSETRI.indices_all</span></code></a> attribute.</p></li>
-<li><p><strong>start_date</strong> (<em>str</em><em>, </em><em>optional</em>) – Start date string in the format ‘DD-MMM-YYYY’.
-If None is given, the base date of the index is used as the start date.</p></li>
-<li><p><strong>end_date</strong> (<em>str</em><em>, </em><em>optional</em>) – End date string in the format ‘DD-MMM-YYYY’.
-If None is given, the current date is used as the end date.</p></li>
-<li><p><strong>input_headers</strong> (<em>dict</em><em>, </em><em>optional</em>) – HTTP headers for the request, if different from the default value.
-Refer to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">Core.default_headers</span></code> attribute.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A Pandas DataFrame with two columns: ‘Date’ and ‘Close’.
-The ‘Date’ column contains datetime.date objects,
-and the ‘Close’ column contains the closing float values of the index.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</section>
 <section id="module-BharatFinTrack">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-BharatFinTrack" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="BharatFinTrack.Core">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">BharatFinTrack.</span></span><span class="sig-name descname"><span class="pre">Core</span></span><a class="headerlink" href="#BharatFinTrack.Core" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Contains key functions of the module.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="BharatFinTrack.Core.default_headers">
-<span class="sig-name descname"><span class="pre">default_headers</span></span><a class="headerlink" href="#BharatFinTrack.Core.default_headers" title="Permalink to this definition"></a></dt>
-<dd><p>HTTP headers for the request.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="BharatFinTrack.Core.url_nse_tri">
-<span class="sig-name descname"><span class="pre">url_nse_tri</span></span><a class="headerlink" href="#BharatFinTrack.Core.url_nse_tri" title="Permalink to this definition"></a></dt>
-<dd><p>URL link to access NSE total return index data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="BharatFinTrack.NSETRI">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">BharatFinTrack.</span></span><span class="sig-name descname"><span class="pre">NSETRI</span></span><a class="headerlink" href="#BharatFinTrack.NSETRI" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Download and analyze NSE total return index data.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="BharatFinTrack.NSETRI.indices_all">
-<span class="sig-name descname"><span class="pre">indices_all</span></span><a class="headerlink" href="#BharatFinTrack.NSETRI.indices_all" title="Permalink to this definition"></a></dt>
-<dd><p>A list of all NSE index names, obtained from the <a class="reference internal" href="#BharatFinTrack.NSETrack.indices_all" title="BharatFinTrack.NSETrack.indices_all"><code class="xref py py-attr docutils literal notranslate"><span class="pre">NSETrack.indices_all</span></code></a> attribute.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="BharatFinTrack.NSETRI.indices_base_date">
-<span class="sig-name descname"><span class="pre">indices_base_date</span></span><a class="headerlink" href="#BharatFinTrack.NSETRI.indices_base_date" title="Permalink to this definition"></a></dt>
-<dd><p>A dictionary where keys are indices and values are their corresponding base dates,
-obtained from the <a class="reference internal" href="#BharatFinTrack.NSETrack.indices_base_date" title="BharatFinTrack.NSETrack.indices_base_date"><code class="xref py py-attr docutils literal notranslate"><span class="pre">NSETrack.indices_base_date</span></code></a> attribute.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="BharatFinTrack.NSETRI._api_tri">
-<span class="sig-name descname"><span class="pre">_api_tri</span></span><a class="headerlink" href="#BharatFinTrack.NSETRI._api_tri" title="Permalink to this definition"></a></dt>
-<dd><p>A dictionary used to store API-related information for total return indices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="BharatFinTrack.NSETRI.historical_daily_data">
-<span class="sig-name descname"><span class="pre">historical_daily_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#BharatFinTrack.NSETRI.historical_daily_data" title="Permalink to this definition"></a></dt>
-<dd><p>Generate historical daily total return index data
-between start and end dates, both inclusive.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>index_name</strong> (<em>str</em>) – Name of the index. Refer to the <a class="reference internal" href="#BharatFinTrack.NSETRI.indices_all" title="BharatFinTrack.NSETRI.indices_all"><code class="xref py py-attr docutils literal notranslate"><span class="pre">NSETRI.indices_all</span></code></a> attribute.</p></li>
-<li><p><strong>start_date</strong> (<em>str</em><em>, </em><em>optional</em>) – Start date string in the format ‘DD-MMM-YYYY’.
-If None is given, the base date of the index is used as the start date.</p></li>
-<li><p><strong>end_date</strong> (<em>str</em><em>, </em><em>optional</em>) – End date string in the format ‘DD-MMM-YYYY’.
-If None is given, the current date is used as the end date.</p></li>
-<li><p><strong>input_headers</strong> (<em>dict</em><em>, </em><em>optional</em>) – HTTP headers for the request, if different from the default value.
-Refer to the <a class="reference internal" href="#BharatFinTrack.Core.default_headers" title="BharatFinTrack.Core.default_headers"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Core.default_headers</span></code></a> attribute.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A Pandas DataFrame with two columns: ‘Date’ and ‘Close’.
-The ‘Date’ column contains datetime.date objects,
-and the ‘Close’ column contains the closing float values of the index.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="BharatFinTrack.NSETrack">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">BharatFinTrack.</span></span><span class="sig-name descname"><span class="pre">NSETrack</span></span><a class="headerlink" href="#BharatFinTrack.NSETrack" title="Permalink to this definition"></a></dt>

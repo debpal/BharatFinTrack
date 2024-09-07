@@ -6,10 +6,15 @@
 Welcome to BharatFinTrack's documentation!
 ==========================================
 
+BharatFinTrack is a Python package designed to simplify the process of 
+downloading and analyzing financial data, including indices, stocks, and mutual funds, 
+from India, that is, Bharat.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
    
+   Installation <installation>
    modules
 
 
