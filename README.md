@@ -2,6 +2,8 @@
 
 A Python package designed to simplify the process of downloading and analyzing financial data from India, that is Bharat.
 
+[![Documentation Status](https://readthedocs.org/projects/bharatfintrack/badge/?version=latest)](https://bharatfintrack.readthedocs.io/en/latest/?badge=latest)
+
 
 ### Easy Installation
 
