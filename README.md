@@ -2,6 +2,7 @@
 
 ## Analysis Toolkit
 
+| Feature | Badge|
 | --- | --- |
 | Documemt | [![Documentation Status](https://readthedocs.org/projects/bharatfintrack/badge/?version=latest)](https://bharatfintrack.readthedocs.io/en/latest/?badge=latest) |
 
