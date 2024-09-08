@@ -39,7 +39,7 @@ Here’s a brief example of how to use `BharatFinTrack`:
 ### Present features
 
 - **NSE Indices**
-  - Characteristics of [indices](https://www.niftyindices.com/reports/historical-data) whose data can be accessed.
+  - Characteristics of indices whose data can be accessed.
   - Download of historical daily Total Return Index (TRI) values.
 
 ### Documentation

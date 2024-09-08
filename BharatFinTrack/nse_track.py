@@ -22,7 +22,7 @@ class NSETrack:
         return output
     
     
-    def indices_name(self, category):
+    def get_indices_by_category(self, category):
         
         '''
         Returns NSE indices for a specified category.
@@ -64,24 +64,45 @@ class NSETrack:
             'NIFTY MIDCAP150 MOMENTUM 50'
         ]
         
-        if category not in self.indices_category:
-            raise Exception('Input must be one of {}'.format(self.indices_category))
-        else:
+        if category in self.indices_category:
             pass
+        else:
+            raise Exception(f'Invadid category: {category}')
         
         return indices[category]
     
     
     @property
-    def indices_all(self):
+    def downloadable_indices(self):
         
         '''
         Returns a list of all indices names.
         '''
         
-        output = [j for i in self.indices_category for j in self.indices_name(i)]
+        output = [
+            index for category in self.indices_category for index in self.get_indices_by_category(category)
+        ]
         
         return output
+    
+
+    def is_valid_index(self, index):
+        
+        '''
+        Checks whether a specified NSE index name is valid.
+
+        Parameters
+        ----------
+        index : str
+            The name of the NSE index.
+
+        Returns
+        -------
+        bool
+            True if the index name is valid, False.
+        '''
+        
+        return index in self.downloadable_indices
     
     
     @property
@@ -109,7 +130,57 @@ class NSETrack:
         date_dict = {v: key for key, value in start_date.items() for v in value}
         
         output = dict(
-            map(lambda x: (x, date_dict.get(x, default_date)), self.indices_all)
+            map(lambda x: (x, date_dict.get(x, default_date)), self.downloadable_indices)
         )
         
         return output
+    
+    
+    def get_index_base_date(self, index):
+        
+        '''
+        Returns the base date for a specified NSE index.
+
+        Parameters
+        ----------
+        index : str
+            The name of the NSE index.
+
+        Returns
+        -------
+        str
+            The base date of the index in 'DD-MMM-YYYY' format.
+        '''
+        
+        if self.is_valid_index(index):
+            pass
+        else:
+            raise Exception(f'Invalid index: {index}')
+        
+        return self.indices_base_date[index]
+    
+    
+    def get_index_base_value(self, index):
+        
+        '''
+        Returns the base value for a specified NSE index.
+
+        Parameters
+        ----------
+        index : str
+            The name of the NSE index.
+
+        Returns
+        -------
+        float
+            The base value of the index.
+        '''
+        
+        if self.is_valid_index(index):
+            pass
+        else:
+            raise Exception(f'Invalid index: {index}')
+            
+        base_value = {'NIFTY IT': 100.0}
+        
+        return base_value.get(index, 1000.0)

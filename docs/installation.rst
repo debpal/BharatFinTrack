@@ -5,7 +5,8 @@ Installation
 Installation of the BharatFinTrack package is simple. 
 
 
-**Install from pip**
+Install from pip
+------------------
 
 .. code-block:: console
 
