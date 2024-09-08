@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68.0"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 
@@ -10,7 +10,6 @@ authors = [
   { name="Debasish Pal", email="bestdebasish@gmail.com" },
 ]
 readme = "README.md"
-license = { file="LICENSE.txt" }
 requires-python = ">=3.12"
 classifiers = [
 	"Development Status :: 1 - Planning",

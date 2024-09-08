@@ -5,6 +5,7 @@
 | Feature | Badge|
 | --- | --- |
 | Documemt | [![Documentation Status](https://readthedocs.org/projects/bharatfintrack/badge/?version=latest)](https://bharatfintrack.readthedocs.io/en/latest/?badge=latest) |
+| Version |![PyPI - Version](https://img.shields.io/pypi/v/BharatFinTrack) |
 
 
 ## What is BharatFinTrack?
@@ -17,14 +18,14 @@ BharatFinTrack is a Python package designed to simplify the process of downloadi
 
 ## Easy Installation
 
-To install `BharatFinTrack`, use pip:
+To install, use pip:
 
 ```bash
 pip install BharatFinTrack
 ```
 
 ## Quickstart
-Here’s a brief example of how to use `BharatFinTrack`:
+A brief example of how to start:
 
 ```python
 >>> import BharatFinTrack
@@ -61,4 +62,4 @@ The project is in the conceptualization and planning phases.
 
 ## License
 
-`BharatFinTrack` is released under the MIT License.
+The package is released under the MIT License.
