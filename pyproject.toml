@@ -14,9 +14,9 @@ license = { file="LICENSE.txt" }
 requires-python = ">=3.12"
 classifiers = [
 	"Development Status :: 1 - Planning",
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+	"Programming Language :: Python :: 3",
+	"License :: OSI Approved :: MIT License",
+	"Operating System :: OS Independent",
 	"Intended Audience :: Education",
 	"Topic :: Office/Business :: Financial",
 	"Topic :: Scientific/Engineering :: Information Analysis"
@@ -24,7 +24,7 @@ classifiers = [
 dynamic = ["version"]
 
 keywords = [
-    "nse index",
+	"nse index",
 	"nse total return index",
 	"data download",
 	"data analysis"
@@ -33,6 +33,7 @@ keywords = [
 
 [project.urls]
 "Homepage" = "https://github.com/debpal/BharatFinTrack"
+"Documentation" = "https://bharatfintrack.readthedocs.io/en/latest/"
 
 
 [tool.setuptools.dynamic]

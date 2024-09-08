@@ -1,9 +1,19 @@
 # BharatFinTrack
 
-A Python package designed to simplify the process of downloading and analyzing financial data, including indices, stocks, and mutual funds, from India, that is, Bharat.
+A Python package designed to simplify the process of downloading and analyzing financial data from India, that is Bharat.
+
+
+### Easy Installation
+
+To install `BharatFinTrack`, use pip:
+
+```bash
+pip install BharatFinTrack
+```
 
 
 ### Quickstart
+Here’s a brief example of how to use `BharatFinTrack`:
 
 ```python
 >>> import BharatFinTrack
@@ -17,10 +27,6 @@ A Python package designed to simplify the process of downloading and analyzing f
  'NIFTY 50': '03-Nov-1995',
  'NIFTY IT': '01-Jan-1996',
  'NIFTY BANK': '01-Jan-2000',
- 'NIFTY EV & NEW AGE AUTOMOTIVE': '01-Apr-2005',
- 'NIFTY INDIA DEFENCE': '01-Apr-2005',
- 'NIFTY ALPHA 50': '01-Apr-2005',
- 'NIFTY MIDCAP150 MOMENTUM 50': '01-Apr-2005',
  ...}
 
 # get the list of strategy indices
@@ -30,18 +36,20 @@ A Python package designed to simplify the process of downloading and analyzing f
  ...]
 ```
 
+### Present features
 
-### Easy installation
+- **NSE Indices**
+  - Characteristics of [indices](https://www.niftyindices.com/reports/historical-data) whose data can be accessed.
+  - Download of historical daily Total Return Index (TRI) values.
 
-```
-pip install BharatFinTrack
-```
+### Documentation
+For detailed information, see the [documentation](https://bharatfintrack.readthedocs.io/en/latest/).
 
-### Installation from the GitHub repository
 
-```
-pip install git+https://github.com/debpal/BharatFinTrack.git
-```
+### Development status
+
+The project is in the conceptualization and planning phases.
+
 
 
 ### License
