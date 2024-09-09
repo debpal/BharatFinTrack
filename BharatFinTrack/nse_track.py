@@ -86,10 +86,10 @@ class NSETrack:
         return output
     
 
-    def is_valid_index(self, index):
+    def is_downloadable_index(self, index):
         
         '''
-        Checks whether a specified NSE index name is valid.
+        Checks whether a specified NSE index name is downloadable.
 
         Parameters
         ----------
@@ -152,7 +152,7 @@ class NSETrack:
             The base date of the index in 'DD-MMM-YYYY' format.
         '''
         
-        if self.is_valid_index(index):
+        if self.is_downloadable_index(index):
             pass
         else:
             raise Exception(f'Invalid index: {index}')
@@ -176,7 +176,7 @@ class NSETrack:
             The base value of the index.
         '''
         
-        if self.is_valid_index(index):
+        if self.is_downloadable_index(index):
             pass
         else:
             raise Exception(f'Invalid index: {index}')

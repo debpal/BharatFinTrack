@@ -1,19 +1,10 @@
 # BharatFinTrack
 
-## Analysis Toolkit
-
-| Feature | Badge|
-| --- | --- |
-| Documemt | [![Documentation Status](https://readthedocs.org/projects/bharatfintrack/badge/?version=latest)](https://bharatfintrack.readthedocs.io/en/latest/?badge=latest) |
-| Version |![PyPI - Version](https://img.shields.io/pypi/v/BharatFinTrack) |
-
-
 ## What is BharatFinTrack?
 BharatFinTrack is a Python package designed to simplify the process of downloading and analyzing financial data from India, that is Bharat. The current features of the package include:
 
 - **NSE Indices**
   - Access to characteristics of indices.
-  - Download of historical daily Total Return Index (TRI) values.
 
 
 ## Easy Installation
@@ -50,16 +41,14 @@ A brief example of how to start:
  ...}
 ```
 
-
 ## Documentation
 For detailed information, see the [documentation](https://bharatfintrack.readthedocs.io/en/latest/).
 
+## Toolkit
 
-## Development status
-
-The project is in the conceptualization and planning phases.
-
-
-## License
-
-The package is released under the MIT License.
+| Feature | Badge|
+| --- | --- |
+| Version | ![PyPI - Version](https://img.shields.io/pypi/v/BharatFinTrack) |
+| Staus | ![PyPI - Status](https://img.shields.io/pypi/status/BharatFinTrack) |
+| License | ![PyPI - License](https://img.shields.io/pypi/l/BharatFinTrack) |
+| Documemt | [![Documentation Status](https://readthedocs.org/projects/bharatfintrack/badge/?version=latest)](https://bharatfintrack.readthedocs.io/en/latest/?badge=latest) |

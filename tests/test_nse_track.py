@@ -1,6 +1,5 @@
-import BharatFinTrack
 import pytest
-
+import BharatFinTrack
 
 @pytest.fixture(scope='module')
 def class_instance():
@@ -20,10 +19,10 @@ def test_get_indices_by_category(class_instance):
     assert exc_info.value.args[0] == 'Invadid category: non-existence'
     
     
-def test_is_valid_index(class_instance):
+def test_is_downloadable_index(class_instance):
 
-    assert class_instance.is_valid_index('NIFTY 50') == True
-    assert class_instance.is_valid_index('NIFTY ITI') == False
+    assert class_instance.is_downloadable_index('NIFTY 50') == True
+    assert class_instance.is_downloadable_index('non-existence') == False
     
     
 def test_get_index_base_date(class_instance):
@@ -40,3 +39,9 @@ def test_get_index_base_value(class_instance):
 
     assert class_instance.get_index_base_value('NIFTY 50') == 1000.0
     assert class_instance.get_index_base_value('NIFTY IT') == 100.0
+    
+    # error test
+    with pytest.raises(Exception) as exc_info:
+        class_instance.get_index_base_value('non-existence')
+    assert exc_info.value.args[0] == 'Invalid index: non-existence'
+    

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "BharatFinTrack"
-description = "Downloading and analyzing financial data, including indices, stocks, and mutual funds, from India, that is, Bharat."
+description = "Downloading and analyzing financial data, including indices, stocks, and mutual funds, from India, that is Bharat."
 authors = [
   { name="Debasish Pal", email="bestdebasish@gmail.com" },
 ]
