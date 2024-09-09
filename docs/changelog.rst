@@ -1,6 +1,15 @@
 =============
 Release Notes
-============= 
+=============
+
+
+Version 0.0.2
+-------------
+
+* **Date:** 09-Sep-2024.
+* **Bug Fixes:** Some bug fixes.
+* **Documentation:** Updated `README.md`.
+
 
 Version 0.0.1
 -------------

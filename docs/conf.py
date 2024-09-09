@@ -23,7 +23,8 @@ copyright = '2024, Debasish Pal'
 author = 'Debasish Pal'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+from BharatFinTrack import __version__
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
