@@ -10,7 +10,7 @@ authors = [
   { name="Debasish Pal", email="bestdebasish@gmail.com" },
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 classifiers = [
 	"Development Status :: 1 - Planning",
 	"Programming Language :: Python :: 3",
@@ -21,10 +21,9 @@ classifiers = [
 	"Topic :: Scientific/Engineering :: Information Analysis"
 ]
 dynamic = ["version"]
-
 keywords = [
 	"nse index",
-	"nse total return index",
+	"total return index(TRI)",
 	"data download",
 	"data analysis"
 ]
@@ -37,3 +36,39 @@ keywords = [
 
 [tool.setuptools.dynamic]
 version = {attr = "BharatFinTrack.__version__"}
+
+
+[tool.pytest.ini_options]
+addopts = "-rA -Werror --cov=BharatFinTrack"
+testpaths = [
+    "tests"
+]
+
+
+[tool.mypy]
+files = [
+    "BharatFinTrack",
+    "docs"
+]
+ignore_missing_imports = true
+strict = true
+
+
+[tool.tox]
+legacy_tox_ini = """
+    [tox]
+    envlist = py310, py311
+
+    [testenv]
+    deps = 
+        pytest
+        pytest-cov
+    commands = 
+        pytest --cov=BharatFinTrack
+
+    [testenv:py310]
+    basepython = C:\\Users\\dpal22\\AppData\\Local\\anaconda3\\envs\\py310\\python.exe
+
+    [testenv:py311]
+    basepython = C:\\Users\\dpal22\\AppData\\Local\\anaconda3\\envs\\py311\\python.exe
+"""
