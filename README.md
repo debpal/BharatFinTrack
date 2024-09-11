@@ -46,10 +46,10 @@ For detailed information, see the [documentation](https://bharatfintrack.readthe
 
 ## Toolkit
 
-| Feature | Badge|
+| Status | Description |
 | --- | --- |
-| Version | ![PyPI - Version](https://img.shields.io/pypi/v/BharatFinTrack) |
-| Staus | ![PyPI - Status](https://img.shields.io/pypi/status/BharatFinTrack) |
-| License | ![PyPI - License](https://img.shields.io/pypi/l/BharatFinTrack) |
+| PyPI| ![PyPI - Version](https://img.shields.io/pypi/v/BharatFinTrack) ![PyPI - Status](https://img.shields.io/pypi/status/BharatFinTrack) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/BharatFinTrack) ![PyPI - Wheel](https://img.shields.io/pypi/wheel/BharatFinTrack)|
+| GitHub | ![GitHub last commit](https://img.shields.io/github/last-commit/debpal/BharatFinTrack) [![flake8](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml/badge.svg?branch=master)](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml)	[![mypy](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml/badge.svg?branch=master)](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml) [![pytest](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml/badge.svg?branch=master)](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml) ![GitHub repo size](https://img.shields.io/github/repo-size/debpal/BharatFinTrack) |
 | Documemt | [![Documentation Status](https://readthedocs.org/projects/bharatfintrack/badge/?version=latest)](https://bharatfintrack.readthedocs.io/en/latest/?badge=latest) |
-| GitHub | [![flake8](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml/badge.svg?branch=master)](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml) [![mypy](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml/badge.svg?branch=master)](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml) [![pytest](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml/badge.svg?branch=master)](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml)|
+| License | ![PyPI - License](https://img.shields.io/pypi/l/BharatFinTrack) |
+
