@@ -26,7 +26,7 @@ def test_is_downloadable_index(
     class_instance
 ):
 
-    assert class_instance.is_downloadable_index('NIFTY 50') is True
+    assert class_instance.is_downloadable_index('NIFTY 100') is True
     assert class_instance.is_downloadable_index('non-existence') is False
 
 
@@ -46,7 +46,7 @@ def test_get_index_base_value(
     class_instance
 ):
 
-    assert class_instance.get_index_base_value('NIFTY 50') == 1000.0
+    assert class_instance.get_index_base_value('NIFTY 500') == 1000.0
     assert class_instance.get_index_base_value('NIFTY IT') == 100.0
 
     # error test

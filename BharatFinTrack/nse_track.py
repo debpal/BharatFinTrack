@@ -46,7 +46,8 @@ class NSETrack:
         # broad index
         indices['broad'] = [
             'NIFTY 500',
-            'NIFTY 50'
+            'NIFTY 50',
+            'NIFTY 100'
         ]
 
         # sectoral index
@@ -128,6 +129,7 @@ class NSETrack:
         start_date['03-Nov-1995'] = ['NIFTY 50']
         start_date['01-Jan-1996'] = ['NIFTY IT']
         start_date['01-Jan-2000'] = ['NIFTY BANK']
+        start_date['01-Jan-2003'] = ['NIFTY 100']
         start_date['31-Dec-2003'] = ['NIFTY ALPHA']
         start_date['02-Apr-2018'] = [
             'NIFTY EV & NEW AGE AUTOMOTIVE'
