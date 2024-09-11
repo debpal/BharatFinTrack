@@ -2,9 +2,15 @@ name: mypy
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - master  # Your branch name
+    paths:
+      - '**/*.py'  # Trigger only for changes in Python files
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - master  # Your branch name
+    paths:
+      - '**/*.py'  # Trigger only for changes in Python files
 
 jobs:
   build:
