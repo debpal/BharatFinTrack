@@ -6,15 +6,11 @@ on:
       - master  # Your branch name
     paths:
       - '**/*.py'  # Trigger only for changes in Python files
-    paths-ignore:
-      - 'docs/conf.py'  # Ignore changes to this specific file
   pull_request:
     branches:
       - master  # Your branch name
     paths:
       - '**/*.py'  # Trigger only for changes in Python files
-    paths-ignore:
-      - 'docs/conf.py'  # Ignore changes to this specific file
 
 jobs:
   build:
