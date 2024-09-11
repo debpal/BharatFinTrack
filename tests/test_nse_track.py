@@ -53,16 +53,3 @@ def test_get_index_base_value(
     with pytest.raises(Exception) as exc_info:
         class_instance.get_index_base_value('non-existence')
     assert exc_info.value.args[0] == 'Invalid index: non-existence'
-    
-    
-def test_get_index_base_value_new(
-    class_instance
-):
-
-    assert class_instance.get_index_base_value('NIFTY 50') == 1000.0
-    assert class_instance.get_index_base_value('NIFTY IT') == 100.0
-
-    # error test
-    with pytest.raises(Exception) as exc_info:
-        class_instance.get_index_base_value('non-existence')
-    assert exc_info.value.args[0] == 'Invalid index: non-existence'
