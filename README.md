@@ -1,11 +1,11 @@
 # BharatFinTrack
 
 ## What is BharatFinTrack?
-BharatFinTrack is a Python package designed to simplify the process of downloading and analyzing financial data from India, that is Bharat. The current features of the package include:
+BharatFinTrack is a Python package whose concept originated on September 1, 2024. It is designed to simplify the process of downloading and analyzing financial data from India, that is Bharat. The features of the package include:
 
-- **NSE Indices**
-  - Access to characteristics of indices.
+* [Nifty Indices](https://www.niftyindices.com/) website
 
+    - Provides access to the characteristics of NSE indices.
 
 ## Easy Installation
 
@@ -42,16 +42,15 @@ A brief example of how to start:
 ```
 
 ## Documentation
-For detailed information, see the [documentation](https://bharatfintrack.readthedocs.io/en/latest/).
+For detailed information, see the [documentation](http://bharatfintrack.readthedocs.io/).
+
 
 ## Toolkit
 
-
-
 | <big>Status</big> | <big>Description</big> |
 | --- | --- |
-| **PyPI**| ![PyPI - Version](https://img.shields.io/pypi/v/BharatFinTrack) ![PyPI - Status](https://img.shields.io/pypi/status/BharatFinTrack) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/BharatFinTrack) ![PyPI - Wheel](https://img.shields.io/pypi/wheel/BharatFinTrack)|
-| **GitHub** | ![GitHub last commit](https://img.shields.io/github/last-commit/debpal/BharatFinTrack) [![flake8](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml/badge.svg?branch=master)](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml)	[![mypy](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml/badge.svg?branch=master)](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml) [![pytest](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml/badge.svg?branch=master)](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml) ![GitHub repo size](https://img.shields.io/github/repo-size/debpal/BharatFinTrack) |
+| **PyPI**| ![PyPI - Version](https://img.shields.io/pypi/v/BharatFinTrack) ![PyPI - Status](https://img.shields.io/pypi/status/BharatFinTrack) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/BharatFinTrack) ![PyPI - Wheel](https://img.shields.io/pypi/wheel/BharatFinTrack) ![PyPI - Downloads](https://img.shields.io/pypi/dm/BharatFinTrack)|
+| **GitHub** | ![GitHub last commit](https://img.shields.io/github/last-commit/debpal/BharatFinTrack) [![flake8](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml)	[![mypy](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml) [![pytest](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml) ![GitHub repo size](https://img.shields.io/github/repo-size/debpal/BharatFinTrack) |
 | **Codecov** | [![codecov](https://codecov.io/github/debpal/BharatFinTrack/graph/badge.svg?token=6DIYX8MUTM)](https://codecov.io/github/debpal/BharatFinTrack) |
 | **Read**_the_**Docs** | [![Documentation Status](https://readthedocs.org/projects/bharatfintrack/badge/?version=latest)](https://bharatfintrack.readthedocs.io/en/latest/?badge=latest) |
 | **License** | ![PyPI - License](https://img.shields.io/pypi/l/BharatFinTrack) |

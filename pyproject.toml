@@ -24,16 +24,16 @@ classifiers = [
 ]
 dynamic = ["version"]
 keywords = [
-	"nse index",
-	"total return index(TRI)",
-	"data download",
-	"data analysis"
+	"Nse index",
+	"Total return index(TRI)",
+	"Data download",
+	"Data analysis"
 ]
 
 
 [project.urls]
 "Homepage" = "https://github.com/debpal/BharatFinTrack"
-"Documentation" = "https://bharatfintrack.readthedocs.io/en/latest/"
+"Documentation" = "http://bharatfintrack.readthedocs.io/"
 
 
 [tool.setuptools.dynamic]

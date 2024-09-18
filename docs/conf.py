@@ -12,8 +12,6 @@ from BharatFinTrack import __version__
 project = 'BharatFinTrack'
 copyright = '2024, Debasish Pal'
 author = 'Debasish Pal'
-
-# The full version, including alpha/beta/rc tags
 release = __version__
 
 # -- General configuration ---------------------------------------------------
