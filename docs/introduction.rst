@@ -1,5 +1,5 @@
 =============
-Introdution
+Introduction
 =============
 
 BharatFinTrack is a Python package whose concept originated on September 1, 2024. 
