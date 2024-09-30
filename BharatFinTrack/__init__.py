@@ -1,9 +1,11 @@
-from .nse_track import NSETrack
+from .nse_product import NSEProduct
+from .nse_tri import NSETRI
 
 
 __all__ = [
-    'NSETrack'
+    'NSEProduct',
+    'NSETRI'
 ]
 
 
-__version__ = '0.0.3'
+__version__ = '0.1.0'

@@ -4,24 +4,23 @@
    contain the root `toctree` directive.
 
 Welcome to BharatFinTrack's documentation!
-==========================================
-
-BharatFinTrack is a Python package designed to simplify the process of 
-downloading and analyzing financial data, including indices, stocks, and mutual funds, 
-from India, that is Bharat.
+============================================
 
 .. toctree::
    :maxdepth: 1
    :caption: Contents:
    
-   Installation <installation>
-   API Reference <modules>
-   Release Notes <changelog>
+   introduction
+   installation
+   quickstart
+   data_download
+   modules
+   changelog
 
 
 
 Indices and tables
-==================
+====================
 
 * :ref:`genindex`
 * :ref:`modindex`

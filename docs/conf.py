@@ -29,7 +29,8 @@ templates_path = [
 exclude_patterns = [
     '_build',
     'Thumbs.db',
-    '.DS_Store'
+    '.DS_Store',
+    '.ipynb_checkpoints'
 ]
 
 # -- Options for HTML output -------------------------------------------------

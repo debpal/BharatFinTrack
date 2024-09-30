@@ -1,7 +1,7 @@
-BharatFinTrack.nse\_track module
---------------------------------
+Submodules
+------------
 
-.. automodule:: BharatFinTrack.nse_track
+.. automodule:: BharatFinTrack.core
    :members:
    :undoc-members:
    :show-inheritance:

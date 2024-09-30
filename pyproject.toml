@@ -9,10 +9,16 @@ description = "Downloading and analyzing financial data, including indices, stoc
 authors = [
   { name="Debasish Pal", email="bestdebasish@gmail.com" },
 ]
+dependencies = [
+    "pandas>=2.2.2",
+    "requests>=2.32.3",
+    "openpyxl>=3.1.5",
+    "xlsxwriter>=3.2.0"
+]
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [
-	"Development Status :: 1 - Planning",
+	"Development Status :: 2 - Pre-Alpha",
 	"Programming Language :: Python :: 3.10",
 	"Programming Language :: Python :: 3.11",
 	"Programming Language :: Python :: 3.12",
@@ -24,8 +30,8 @@ classifiers = [
 ]
 dynamic = ["version"]
 keywords = [
-	"Nse index",
-	"Total return index(TRI)",
+	"NSE Index",
+	"NSE TRI",
 	"Data download",
 	"Data analysis"
 ]
@@ -39,9 +45,14 @@ keywords = [
 [tool.setuptools.dynamic]
 version = {attr = "BharatFinTrack.__version__"}
 
+[tool.setuptools.package-data]
+BharatFinTrack = [
+    "data/*"
+]
+
 
 [tool.pytest.ini_options]
-addopts = "-rA -Werror --cov=BharatFinTrack"
+addopts = "-rA -Werror --cov=BharatFinTrack --cov-report=html:cov_BharatFinTrack --cov-report=term -s"
 testpaths = [
     "tests"
 ]
@@ -49,8 +60,7 @@ testpaths = [
 
 [tool.mypy]
 files = [
-    "BharatFinTrack",
-    "docs"
+    "BharatFinTrack"
 ]
 ignore_missing_imports = true
 strict = true
