@@ -2,14 +2,27 @@
 Release Notes
 ===============
 
+
+Version 0.1.1
+--------------
+
+* **Release date:** 02-Oct-2024
+
+* **Feature Additions:** Introduced the :class:`BharatFinTrack.NSEIndex` class, which currently calculates the CAGR(%) of all NSE equity indices
+  (excluding dividend reinvestment) from inception. Additional features are planned for future releases.
+
+* **Documentation:** Updated to reflect the newly introduced features.
+
+* **Development Status:** Upgraded from Pre-Alpha to Alpha.
+
+
 Version 0.1.0
 ---------------
 
 * **Release date:** 30-Sep-2024.
 
 * **Feature Additions:** Introduced :class:`BharatFinTrack.NSETRI` class, which facilitates downloading Total Return Index (TRI) data for all NSE equity indices.
-
-    
+ 
 * **Changes:** 
 
     * Renamed class :class:`BharatFinTrack.NSETrack` to :class:`BharatFinTrack.NSEProduct` for improved clarity.
@@ -17,7 +30,7 @@ Version 0.1.0
 
 * **Documentation:** Added a tutorial on how to use the newly introduced features.
 
-* **Development status:** Upgraded to Pre-Alpha from Planning.
+* **Development status:** Upgraded from Planning to Pre-Alpha.
 
 
 Version 0.0.3

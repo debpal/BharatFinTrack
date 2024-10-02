@@ -13,7 +13,7 @@ Welcome to BharatFinTrack's documentation!
    introduction
    installation
    quickstart
-   data_download
+   functionality
    modules
    changelog
 

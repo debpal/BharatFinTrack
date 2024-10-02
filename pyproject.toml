@@ -13,12 +13,14 @@ dependencies = [
     "pandas>=2.2.2",
     "requests>=2.32.3",
     "openpyxl>=3.1.5",
-    "xlsxwriter>=3.2.0"
+    "xlsxwriter>=3.2.0",
+    "beautifulsoup4>=4.12.3",
+    "matplotlib>=3.9.2"
 ]
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [
-	"Development Status :: 2 - Pre-Alpha",
+	"Development Status :: 3 - Alpha",
 	"Programming Language :: Python :: 3.10",
 	"Programming Language :: Python :: 3.11",
 	"Programming Language :: Python :: 3.12",

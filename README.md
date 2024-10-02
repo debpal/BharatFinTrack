@@ -6,7 +6,8 @@ It is designed to simplify the process of downloading and analyzing financial da
 * [Nifty Indices](https://www.niftyindices.com/)
 
     - Provides access to the characteristics of NSE equity indices.
-    - Facilitates downloading TRI (Total Return Index) data for all NSE equity indices.
+    - Calculates the CAGR(%) of all NSE equity indices (excluding dividend reinvestment) from inception.
+    - Facilitates downloading Total Return Index, including both price and dividend reinvestment, data for all NSE equity indices.
     
     
 ## Roadmap

@@ -8,7 +8,8 @@ from .core import Core
 class NSETRI:
 
     '''
-    Download and analyze NSE TRI (Total Return Index) data.
+    Download and analyze NSE TRI (Total Return Index) data,
+    including both price index and dividend reinvestment.
     '''
 
     @property

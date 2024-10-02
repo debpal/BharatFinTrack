@@ -13,6 +13,12 @@ def nse_product():
 
 
 @pytest.fixture(scope='class')
+def nse_index():
+
+    yield BharatFinTrack.NSEIndex()
+
+
+@pytest.fixture(scope='class')
 def nse_tri():
 
     yield BharatFinTrack.NSETRI()
@@ -55,7 +61,7 @@ def test_save_dataframes_equity_indices(
 
     # pass test
     with tempfile.TemporaryDirectory() as tmp_dir:
-        excel_file = os.path.join(tmp_dir, 'equity_index.xlsx')
+        excel_file = os.path.join(tmp_dir, 'equity.xlsx')
         df = nse_product.save_dataframe_equity_index_parameters(
             excel_file=excel_file
         )
@@ -186,7 +192,7 @@ def test_download_historical_daily_data(
 
     # pass test for saving the output DataFrame to an Excel file
     with tempfile.TemporaryDirectory() as tmp_dir:
-        excel_file = os.path.join(tmp_dir, 'equity_index.xlsx')
+        excel_file = os.path.join(tmp_dir, 'equity.xlsx')
         nse_tri.download_historical_daily_data(
             index='NIFTY 50',
             start_date='23-Sep-2024',
@@ -241,3 +247,26 @@ def test_index_download_historical_daily_data(
         end_date='27-Sep-2024'
     )
     assert float(df.iloc[-1, -1]) == expected_value
+
+
+def test_all_index_cagr_from_inception(
+    nse_index,
+    message
+):
+
+    # pass test
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        excel_file = os.path.join(tmp_dir, 'equity.xlsx')
+        nse_index.all_equity_index_cagr_from_inception(
+            excel_file=excel_file
+        )
+        df = pandas.read_excel(excel_file, index_col=[0, 1])
+        assert df.shape[1] == 9
+        assert len(df.index.get_level_values('Category').unique()) == 5
+
+    # error test for invalid Excel file input
+    with pytest.raises(Exception) as exc_info:
+        nse_index.all_equity_index_cagr_from_inception(
+            excel_file='equily.xl'
+        )
+    assert exc_info.value.args[0] == message['error_excel']
