@@ -107,8 +107,8 @@ Download historical daily TRI data, including both price and dividend reinvestme
     nse_tri = BharatFinTrack.NSETRI()
     nse_tri.download_historical_daily_data(
         index='NIFTY 50',
-    	start_date='23-SEP-2024',
-    	end_date='27-SEP-2024'	
+    	start_date='23-Sep-2024',
+    	end_date='27-Sep-2024'	
     )
 
 
