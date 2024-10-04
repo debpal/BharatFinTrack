@@ -3,6 +3,20 @@ Release Notes
 ===============
 
 
+Version 0.1.2
+--------------
+
+* **Release date:** 04-Oct-2024
+  
+* **Changes:** 
+
+    * Deprecated :meth:`BharatFinTrack.NSEIndex.all_equity_index_cagr_from_inception` and introduced :meth:`BharatFinTrack.NSEIndex.category_sort_equity_cagr_from_launch`.
+    * Added functionality for sorting the CAGR (%) of all NSE equity indices from launch.
+    * Introduced sorting of the CAGR (%) of NSE equity indices from launch while maintaining fixed index categories.
+
+* **Development Status:** Upgraded from Alpha to Beta.
+
+
 Version 0.1.1
 --------------
 

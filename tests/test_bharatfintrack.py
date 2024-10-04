@@ -249,6 +249,45 @@ def test_index_download_historical_daily_data(
     assert float(df.iloc[-1, -1]) == expected_value
 
 
+def test_equity_cagr_from_launch(
+    nse_index,
+    capsys
+):
+
+    nse_index.equity_cagr_from_launch(
+        untracked_indices=True
+    )
+
+    # capture the printed output
+    capture_print = capsys.readouterr()
+
+    assert 'List of untracked download indices' in capture_print.out
+    assert 'List of untracked base indices' in capture_print.out
+
+
+def test_sort_equity_cagr_from_launch(
+    nse_index,
+    message
+):
+
+    # pass test
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        excel_file = os.path.join(tmp_dir, 'equity.xlsx')
+        nse_index.sort_equity_cagr_from_launch(
+            excel_file=excel_file
+        )
+        df = pandas.read_excel(excel_file)
+        assert len(df.index.names) == 1
+
+    # error test for invalid Excel file input
+    with pytest.raises(Exception) as exc_info:
+        nse_index.sort_equity_cagr_from_launch(
+            excel_file='equily.xl'
+        )
+    assert exc_info.value.args[0] == message['error_excel']
+
+
+@pytest.mark.filterwarnings('ignore::DeprecationWarning')
 def test_all_index_cagr_from_inception(
     nse_index,
     message

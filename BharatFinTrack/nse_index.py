@@ -7,6 +7,7 @@ import pandas
 import requests
 import bs4
 import matplotlib
+import warnings
 from .nse_product import NSEProduct
 from .core import Core
 
@@ -14,18 +15,201 @@ from .core import Core
 class NSEIndex:
 
     '''
-    Download and analyze NSE index price data.
+    Download and analyze NSE index price data
+    (excluding dividend reinvestment).
     '''
 
-    def all_equity_index_cagr_from_inception(
+    def equity_cagr_from_launch(
+        self,
+        http_headers: typing.Optional[dict[str, str]] = None,
+        untracked_indices: bool = False
+    ) -> pandas.DataFrame:
+
+        '''
+        Returns a DataFrame with the CAGR(%) of all NSE equity indices from inception.
+
+        Parameters
+        ----------
+        http_headers : dict, optional
+            HTTP headers for the web request. Defaults to
+            :attr:`BharatFinTrack.core.Core.default_http_headers` if not provided.
+
+        untracked_indices : bool, optional
+            Defaults to False. If True, print two lists of untracked indices
+            from downloaded and based files.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame with the CAGR(%) for all NSE equity indices from inception.
+        '''
+
+        # web request headers
+        headers = Core().default_http_headers if http_headers is None else http_headers
+
+        # download data
+        main_url = 'https://www.niftyindices.com'
+        csv_url = main_url + '/reports/daily-reports'
+        response = requests.get(
+            url=csv_url,
+            headers=headers,
+            timeout=30
+        )
+        soup = bs4.BeautifulSoup(
+            markup=response.content,
+            features='html.parser'
+        )
+        for anchor in soup.find_all('a'):
+            if anchor['href'].endswith('.csv') and anchor['id'] == 'dailysnapOneDaybefore':
+                csv_link = main_url + anchor['href']
+                response = requests.get(
+                    url=csv_link,
+                    headers=headers
+                )
+                with tempfile.TemporaryDirectory() as tmp_dir:
+                    download_file = os.path.join(tmp_dir, 'daily.csv')
+                    with open(download_file, 'wb') as download_data:
+                        download_data.write(response.content)
+                    download_df = pandas.read_csv(download_file)
+            else:
+                pass
+
+        # processing downloaded data
+        date_string = datetime.datetime.strptime(
+            download_df.loc[0, 'Index Date'], '%d-%m-%Y'
+        )
+        download_date = date_string.date()
+        download_df = download_df[
+            ['Index Name', 'Index Date', 'Closing Index Value']
+        ]
+        download_df.columns = ['Index Name', 'Date', 'Close']
+        download_df['Index Name'] = download_df['Index Name'].apply(lambda x: x.upper())
+        download_df['Date'] = download_date
+
+        # processing base DataFrame
+        base_df = NSEProduct()._dataframe_equity_index
+        base_df = base_df.reset_index()
+        base_df = base_df.drop(columns=['ID', 'API TRI'])
+        base_df['Base Date'] = base_df['Base Date'].apply(lambda x: x.date())
+
+        # fixing unmatched indices with base indinces in the download Dataframe
+        download_unmatch = {
+            'NIFTY 50 FUTURES INDEX': 'NIFTY 50 FUTURES PR',
+            'NIFTY 50 FUTURES TR INDEX': 'NIFTY 50 FUTURES TR',
+            'NIFTY HEALTHCARE INDEX': 'NIFTY HEALTHCARE'
+        }
+        download_df['Index Name'] = download_df['Index Name'].apply(
+            lambda x: download_unmatch.get(x, x)
+        )
+
+        # computing CAGR(%)
+        cagr_df = base_df.merge(download_df)
+        cagr_df['Close/Base Value'] = cagr_df['Close'] / cagr_df['Base Value']
+        cagr_df['Years'] = list(
+            map(
+                lambda x: dateutil.relativedelta.relativedelta(download_date, x).years, cagr_df['Base Date']
+            )
+        )
+        cagr_df['Days'] = list(
+            map(
+                lambda x, y: (download_date - x.replace(year=x.year + y)).days, cagr_df['Base Date'], cagr_df['Years']
+            )
+        )
+        total_years = cagr_df['Years'] + (cagr_df['Days'] / 365)
+        cagr_df['CAGR(%)'] = 100 * (pow(cagr_df['Close'] / cagr_df['Base Value'], 1 / total_years) - 1)
+
+        # output
+        if untracked_indices is False:
+            pass
+        else:
+            download_index = download_df['Index Name']
+            base_index = base_df['Index Name']
+            untracked_download = list(download_index[~download_index.isin(base_index)])
+            print(f'List of untracked download indices: {untracked_download}')
+            untracked_base = list(base_index[~base_index.isin(download_index)])
+            print(f'List of untracked base indices: {untracked_base}')
+
+        return cagr_df
+
+    def sort_equity_cagr_from_launch(
         self,
         excel_file: str,
         http_headers: typing.Optional[dict[str, str]] = None
     ) -> pandas.DataFrame:
 
         '''
-        Returns a DataFrame with the CAGR(%) of all NSE equity indices
-        (excluding dividend reinvestment) from inception.
+        Returns a DataFrame where equity indices are sorted
+        in descending order of CAGR(%).
+
+        Parameters
+        ----------
+        excel_file : str
+            Path to an Excel file to save the DataFrame.
+
+        http_headers : dict, optional
+            HTTP headers for the web request. Defaults to
+            :attr:`BharatFinTrack.core.Core.default_http_headers` if not provided.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame with the CAGR(%) for all NSE equity indices from inception,
+            sorted in descending order by CAGR(%).
+        '''
+
+        # DataFrame of CAGR(%)
+        cagr_df = self.equity_cagr_from_launch(
+            http_headers=http_headers,
+            untracked_indices=False
+        )
+
+        # sorting DataFrame by CAGR(%)
+        cagr_df = cagr_df.drop(columns=['Category'])
+        cagr_df = cagr_df.sort_values(
+            by=['CAGR(%)', 'Years', 'Days'],
+            ascending=[False, False, False]
+        )
+        output = cagr_df.reset_index(drop=True)
+
+        # saving the DataFrame
+        excel_ext = Core()._excel_file_extension(excel_file)
+        if excel_ext != '.xlsx':
+            raise Exception(
+                f'Input file extension "{excel_ext}" does not match the required ".xlsx".'
+            )
+        else:
+            with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
+                output.to_excel(excel_writer, index=False)
+                workbook = excel_writer.book
+                worksheet = excel_writer.sheets['Sheet1']
+                # format columns
+                for col_num, df_col in enumerate(output.columns):
+                    if df_col == 'Index Name':
+                        worksheet.set_column(col_num, col_num, 60)
+                    elif df_col == 'Close/Base Value':
+                        worksheet.set_column(
+                            col_num, col_num, 15,
+                            workbook.add_format({'num_format': '#,##0.0'})
+                        )
+                    elif df_col == 'CAGR(%)':
+                        worksheet.set_column(
+                            col_num, col_num, 15,
+                            workbook.add_format({'num_format': '#,##0.00'})
+                        )
+                    else:
+                        worksheet.set_column(col_num, col_num, 15)
+
+        return output
+
+    def category_sort_equity_cagr_from_launch(
+        self,
+        excel_file: str,
+        http_headers: typing.Optional[dict[str, str]] = None
+    ) -> pandas.DataFrame:
+
+        '''
+        Returns a multi-index DataFrame where equity indices are sorted
+        in descending order of CAGR(%) from inception within each category.
 
         Parameters
         ----------
@@ -43,89 +227,16 @@ class NSEIndex:
             sorted in descending order by CAGR(%) within each index category.
         '''
 
-        # web request headers
-        headers = Core().default_http_headers if http_headers is None else http_headers
-
-        # download data
-        main_url = 'https://www.niftyindices.com'
-        csv_url = main_url + '/reports/daily-reports'
-        response = requests.get(csv_url, headers=headers)
-        soup = bs4.BeautifulSoup(response.content, 'html.parser')
-        for anchor in soup.find_all('a'):
-            if anchor['href'].endswith('.csv') and anchor['id'] == 'dailysnapOneDaybefore':
-                csv_link = main_url + anchor['href']
-            else:
-                pass
-        response = requests.get(csv_link, headers=headers)
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            daily_file = os.path.join(tmp_dir, 'daily.csv')
-            with open(daily_file, 'wb') as daily_data:
-                daily_data.write(response.content)
-            daily_df = pandas.read_csv(daily_file)
-
-        # processing downloaded data
-        date_string = datetime.datetime.strptime(
-            daily_df.loc[0, 'Index Date'], '%d-%m-%Y'
+        # DataFrame of CAGR(%)
+        cagr_df = self.equity_cagr_from_launch(
+            http_headers=http_headers
         )
-        daily_date = date_string.date()
-        daily_df = daily_df[['Index Name', 'Index Date', 'Closing Index Value']]
-        daily_df.columns = ['Index Name', 'Date', 'Close']
-        daily_df['Index Name'] = daily_df['Index Name'].apply(lambda x: x.upper())
-        exclude_word = [
-            'G-SEC',
-            '1D RATE',
-            'INDIA VIX',
-            'DIVIDEND POINTS'
-        ]
-        exclude_index = daily_df['Index Name'].apply(
-            lambda x: any(word in x for word in exclude_word)
-        )
-        daily_df = daily_df[~exclude_index].reset_index(drop=True)
-        daily_df['Date'] = daily_date
-
-        # processing base DataFrame
-        base_df = NSEProduct()._dataframe_equity_index
-        base_df = base_df.reset_index()
-        category = list(base_df['Category'].unique())
-        base_df = base_df.drop(columns=['ID', 'API TRI'])
-        base_df['Base Date'] = base_df['Base Date'].apply(lambda x: x.date())
-
-        # checking absent indices in both files
-        base_unmatch = {
-            'NIFTY 50 FUTURES INDEX': 'NIFTY 50 FUTURES PR',
-            'NIFTY 50 FUTURES TR INDEX': 'NIFTY 50 FUTURES TR',
-            'NIFTY HEALTHCARE INDEX': 'NIFTY HEALTHCARE'
-        }
-        daily_df['Index Name'] = daily_df['Index Name'].apply(
-            lambda x: base_unmatch.get(x, x)
-        )
-        # base_index = base_df['Index Name']
-        # daily_index = daily_df['Index Name']
-        # unavailable_base = list(base_index[~base_index.isin(daily_index)])
-        # print(f'Base indices {unavailable_base} are not available in daily indices.')
-        # unavailable_daily = list(daily_index[~daily_index.isin(base_index)])
-        # print(f'Daily indices {unavailable_daily} are not available in base indices.')
-
-        # merging data
-        cagr_df = base_df.merge(daily_df)
-        cagr_df['Return(1 INR)'] = (cagr_df['Close'] / cagr_df['Base Value']).round(2)
-        cagr_df['Years'] = list(
-            map(
-                lambda x: dateutil.relativedelta.relativedelta(daily_date, x).years, cagr_df['Base Date']
-            )
-        )
-        cagr_df['Days'] = list(
-            map(
-                lambda x, y: (daily_date - x.replace(year=x.year + y)).days, cagr_df['Base Date'], cagr_df['Years']
-            )
-        )
-        total_years = cagr_df['Years'] + (cagr_df['Days'] / 365)
-        cagr_df['CAGR(%)'] = 100 * (pow(cagr_df['Close'] / cagr_df['Base Value'], 1 / total_years) - 1)
 
         # Convert 'Category' column to categorical data types with a defined order
+        categories = list(cagr_df['Category'].unique())
         cagr_df['Category'] = pandas.Categorical(
             cagr_df['Category'],
-            categories=category,
+            categories=categories,
             ordered=True
         )
 
@@ -136,15 +247,14 @@ class NSEIndex:
         )
 
         # output
-        dfs_category = map(lambda x: cagr_df[cagr_df['Category'] == x], category)
-        dataframes = list(
-            map(
-                lambda x: x.drop(columns=['Category']).reset_index(drop=True), dfs_category
-            )
-        )
+        dataframes = []
+        for category in categories:
+            category_df = cagr_df[cagr_df['Category'] == category]
+            category_df = category_df.drop(columns=['Category']).reset_index(drop=True)
+            dataframes.append(category_df)
         output = pandas.concat(
             dataframes,
-            keys=[word.upper() for word in category],
+            keys=[word.upper() for word in categories],
             names=['Category', 'ID']
         )
 
@@ -163,17 +273,25 @@ class NSEIndex:
                 index_cols = len(output.index.names)
                 # format columns
                 worksheet.set_column(0, index_cols - 1, 15)
-                worksheet.set_column(index_cols, index_cols, 60)
-                worksheet.set_column(index_cols + 1, index_cols + output.shape[1] - 2, 15)
-                worksheet.set_column(
-                    index_cols + output.shape[1] - 1,
-                    index_cols + output.shape[1] - 1, 15,
-                    workbook.add_format({'num_format': '#,##0.0'})
-                )
+                for col_num, df_col in enumerate(output.columns):
+                    if df_col == 'Index Name':
+                        worksheet.set_column(index_cols + col_num, index_cols + col_num, 60)
+                    elif df_col == 'Close/Base Value':
+                        worksheet.set_column(
+                            index_cols + col_num, index_cols + col_num, 15,
+                            workbook.add_format({'num_format': '#,##0.0'})
+                        )
+                    elif df_col == 'CAGR(%)':
+                        worksheet.set_column(
+                            index_cols + col_num, index_cols + col_num, 15,
+                            workbook.add_format({'num_format': '#,##0.00'})
+                        )
+                    else:
+                        worksheet.set_column(index_cols + col_num, index_cols + col_num, 15)
                 # Dataframe colors
                 get_colormap = matplotlib.colormaps.get_cmap('Pastel2')
                 colors = [
-                    get_colormap(count / len(category)) for count in range(len(category))
+                    get_colormap(count / len(dataframes)) for count in range(len(dataframes))
                 ]
                 hex_colors = [
                     '{:02X}{:02X}{:02X}'.format(*[int(num * 255) for num in color]) for color in colors
@@ -190,5 +308,34 @@ class NSEIndex:
                         {'type': 'no_blanks', 'format': color_format}
                     )
                     start_row = end_row + 1
+
+        return output
+
+    def all_equity_index_cagr_from_inception(
+        self,
+        excel_file: str,
+        http_headers: typing.Optional[dict[str, str]] = None
+    ) -> pandas.DataFrame:
+
+        '''
+        .. warning::
+           :meth:`NSEIndex.all_equity_index_cagr_from_inception` is deprecated and will be removed in version 0.1.3.
+           Use :meth:`NSEIndex.category_sort_equity_cagr_from_launch` instead.
+        '''
+
+        message = '''Use the method category_sort_equity_cagr_from_launch(excel_file)
+        instead of the deprecated method all_equity_index_cagr_from_inception(excel_file),
+        which will be removed in version 0.1.3.
+        '''
+        warnings.warn(
+            message,
+            DeprecationWarning,
+            stacklevel=2
+        )
+
+        output = self.category_sort_equity_cagr_from_launch(
+            excel_file=excel_file,
+            http_headers=http_headers
+        )
 
         return output
