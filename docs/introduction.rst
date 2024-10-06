@@ -8,6 +8,12 @@ BharatFinTrack is a Python package designed to simplify the process of downloadi
 * `Nifty Indices <https://www.niftyindices.com/>`_
 
     - Provides access to the characteristics of NSE equity indices.
-    - Calculates the CAGR(%) of all NSE equity indices (excluding dividend reinvestment) from inception.
-    - Facilitates downloading Total Return Index, including both price and dividend reinvestment, data for all NSE equity indices.
+    - Fetches updated values of prices (excluding dividend reinvestment) and Total Return Index (TRI) for all NSE equity indices.
+    - Facilitates downloading TRI data for all NSE equity indices between the specified start and end dates, inclusive.
+    
+    
+* Analysis
+    
+    - Calculates the updated CAGR (%) of all NSE equity index prices and TRI since their inception.
+    - Sorts equity indices by CAGR (%) values since inception.
     

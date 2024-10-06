@@ -13,6 +13,8 @@ Ensure successful installation by running the following commands:
 
     import BharatFinTrack
     nse_product = BharatFinTrack.NSEProduct()
+    nse_index = BharatFinTrack.NSEIndex()
+    nse_tri = BharatFinTrack.NSETRI()
     
     
 NSE Equity Index Characteristics
@@ -36,7 +38,7 @@ Expected output:
 
 
 Index List
-^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
 
 Get the list of all NSE equity indices:
 
@@ -97,28 +99,27 @@ Expected output:
 Download Data
 ---------------
 
-Total Return Index (TRI)
+NSE Indices Summary
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-Download historical daily TRI data, including both price and dividend reinvestment, for the NIFTY 50 index:
+Download the daily summary report for all NSE indices, which is uploaded daily on the `Nifty Indices Reports <https://www.niftyindices.com/reports/daily-reports/>`_, and save
+as 'daily_summary_report.csv' in the specified folder path.
 
 .. code-block:: python
 
-    import BharatFinTrack
-    nse_tri = BharatFinTrack.NSETRI()
+    nse_index.download_daily_summary_report(
+        folder_path=r"C:\Users\Username\Folder"
+    )
+
+
+Total Return Index (TRI)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Download historical daily TRI data, including both price and dividend reinvestment, for the NIFTY 50 index. 
+Currently, the function supports only equity indices. 
+
+.. code-block:: python
+
     nse_tri.download_historical_daily_data(
         index='NIFTY 50',
     	start_date='23-Sep-2024',
     	end_date='27-Sep-2024'	
     )
-
-
-Expected output:
-
-.. code-block:: text
-
-	      Date         Close
-    0	2024-09-23	38505.51
-    1	2024-09-24	38507.55
-    2	2024-09-25	38602.21
-    3	2024-09-26	38916.76
-    4	2024-09-27	38861.64

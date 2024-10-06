@@ -1,6 +1,8 @@
 import typing
 import datetime
+import dateutil.relativedelta
 import pandas
+import matplotlib
 from .nse_product import NSEProduct
 from .core import Core
 
@@ -83,7 +85,7 @@ class NSETRI:
 
         '''
         Downloads historical daily closing values for the specified index
-        between the given start and end dates, both inclusive, and returns them in a DataFrame.
+        between the given start and end dates, both inclusive.
 
         Parameters
         ----------
@@ -165,3 +167,339 @@ class NSETRI:
                 worksheet.set_column(0, 1, 12)
 
         return df
+
+    def download_equity_indices_updated_value(
+        self,
+        excel_file: str,
+        http_headers: typing.Optional[dict[str, str]] = None
+    ) -> pandas.DataFrame:
+
+        '''
+        Returns updated TRI values for all NSE indices.
+
+        Parameters
+        ----------
+        excel_file : str, optional
+            Path to an Excel file to save the DataFrame.
+
+        http_headers : dict, optional
+            HTTP headers for the web request. Defaults to
+            :attr:`BharatFinTrack.core.Core.default_http_headers` if not provided.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame containing updated TRI values for all NSE indices.
+        '''
+
+        # processing base DataFrame
+        base_df = NSEProduct()._dataframe_equity_index
+        base_df = base_df.reset_index()
+        base_df = base_df[base_df['API TRI'] != 'NON OPEN SOURCE'].reset_index(drop=True)
+        base_df = base_df.drop(columns=['ID', 'API TRI'])
+        base_df['Base Date'] = base_df['Base Date'].apply(lambda x: x.date())
+
+        # check the Excel file extension first
+        excel_ext = Core()._excel_file_extension(excel_file)
+        if excel_ext == '.xlsx':
+            pass
+        else:
+            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
+
+        # downloading data
+        today = datetime.date.today()
+        week_ago = today - datetime.timedelta(days=7)
+        end_date = today.strftime('%d-%b-%Y')
+        start_date = week_ago.strftime('%d-%b-%Y')
+        for base_index in base_df.index:
+            index_df = self.download_historical_daily_data(
+                index=base_df.loc[base_index, 'Index Name'],
+                start_date=start_date,
+                end_date=end_date
+            )
+            base_df.loc[base_index, 'Close Date'] = index_df.iloc[-1, 0]
+            base_df.loc[base_index, 'Close Value'] = index_df.iloc[-1, -1]
+
+        # saving the DataFrame
+        with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
+            base_df.to_excel(excel_writer, index=False)
+            worksheet = excel_writer.sheets['Sheet1']
+            # format columns
+            for col_num, df_col in enumerate(base_df.columns):
+                if df_col == 'Index Name':
+                    worksheet.set_column(col_num, col_num, 60)
+                else:
+                    worksheet.set_column(col_num, col_num, 15)
+
+        return base_df
+
+    def sort_equity_value_from_launch(
+        self,
+        input_excel: str,
+        output_excel: str,
+    ) -> pandas.DataFrame:
+
+        '''
+        Returns equity indices sorted in descending order by TRI values since launch.
+
+        Parameters
+        ----------
+        inout_excel : str
+            Path to the input Excel file.
+
+        output_excel : str
+            Path to an output Excel file to save the output DataFrame.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame sorted in descending order by TRI values since launch.
+        '''
+
+        # sorting DataFrame by TRI values
+        df = pandas.read_excel(input_excel)
+        df = df.drop(columns=['Category'])
+        df = df.sort_values(
+            by=['Close Value'],
+            ascending=[False]
+        )
+        df = df.reset_index(drop=True)
+        for col_df in df.columns:
+            if 'Date' in col_df:
+                df[col_df] = df[col_df].apply(lambda x: x.date())
+            else:
+                pass
+
+        # saving the DataFrame
+        excel_ext = Core()._excel_file_extension(output_excel)
+        if excel_ext != '.xlsx':
+            raise Exception(
+                f'Input file extension "{excel_ext}" does not match the required ".xlsx".'
+            )
+        else:
+            with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
+                df.to_excel(excel_writer, index=False)
+                worksheet = excel_writer.sheets['Sheet1']
+                # format columns
+                for col_num, col_df in enumerate(df.columns):
+                    if col_df == 'Index Name':
+                        worksheet.set_column(col_num, col_num, 60)
+                    else:
+                        worksheet.set_column(col_num, col_num, 15)
+
+        return df
+
+    def sort_equity_cagr_from_launch(
+        self,
+        input_excel: str,
+        output_excel: str,
+    ) -> pandas.DataFrame:
+
+        '''
+        Returns equity indices sorted in descending order by CAGR (%) since launch.
+
+        Parameters
+        ----------
+        inout_excel : str
+            Path to the input Excel file.
+
+        output_excel : str
+            Path to an output Excel file to save the output DataFrame.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame sorted in descending order by CAGR (%) values since launch.
+        '''
+
+        # DataFrame processing
+        df = pandas.read_excel(input_excel)
+        df = df.drop(columns=['Category'])
+        for col_df in df.columns:
+            if 'Date' in col_df:
+                df[col_df] = df[col_df].apply(lambda x: x.date())
+            else:
+                pass
+        df['Close/Base'] = df['Close Value'] / df['Base Value']
+        df['Years'] = list(
+            map(
+                lambda x, y: dateutil.relativedelta.relativedelta(x, y).years, df['Close Date'], df['Base Date']
+            )
+        )
+        df['Days'] = list(
+            map(
+                lambda x, y, z: (x - y.replace(year=y.year + z)).days, df['Close Date'], df['Base Date'], df['Years']
+            )
+        )
+        total_years = df['Years'] + (df['Days'] / 365)
+        df['CAGR(%)'] = 100 * (pow(df['Close Value'] / df['Base Value'], 1 / total_years) - 1)
+
+        # sorting DataFrame by CAGR (%) values
+        df = df.sort_values(
+            by=['CAGR(%)', 'Years', 'Days'],
+            ascending=[False, False, False]
+        )
+        df = df.reset_index(drop=True)
+
+        # saving the DataFrame
+        excel_ext = Core()._excel_file_extension(output_excel)
+        if excel_ext != '.xlsx':
+            raise Exception(
+                f'Input file extension "{excel_ext}" does not match the required ".xlsx".'
+            )
+        else:
+            with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
+                df.to_excel(excel_writer, index=False)
+                workbook = excel_writer.book
+                worksheet = excel_writer.sheets['Sheet1']
+                # format columns
+                for col_num, col_df in enumerate(df.columns):
+                    if col_df == 'Index Name':
+                        worksheet.set_column(col_num, col_num, 60)
+                    elif col_df == 'Close Value':
+                        worksheet.set_column(
+                            col_num, col_num, 15,
+                            workbook.add_format({'num_format': '#,##0'})
+                        )
+                    elif col_df == 'Close/Base':
+                        worksheet.set_column(
+                            col_num, col_num, 15,
+                            workbook.add_format({'num_format': '#,##0.0'})
+                        )
+                    elif col_df == 'CAGR(%)':
+                        worksheet.set_column(
+                            col_num, col_num, 15,
+                            workbook.add_format({'num_format': '#,##0.00'})
+                        )
+                    else:
+                        worksheet.set_column(col_num, col_num, 15)
+
+        return df
+
+    def category_sort_equity_cagr_from_launch(
+        self,
+        input_excel: str,
+        output_excel: str,
+    ) -> pandas.DataFrame:
+
+        '''
+        Returns equity indices sorted in descending order by CAGR (%) since launch
+        within each index category.
+
+        Parameters
+        ----------
+        inout_excel : str
+            Path to the input Excel file.
+
+        output_excel : str
+            Path to an output Excel file to save the output DataFrame.
+
+        Returns
+        -------
+        DataFrame
+            A multi-index DataFrame sorted in descending order by CAGR (%) values since launch
+            within each index category.
+        '''
+
+        # DataFrame processing
+        df = pandas.read_excel(input_excel)
+        for col_df in df.columns:
+            if 'Date' in col_df:
+                df[col_df] = df[col_df].apply(lambda x: x.date())
+            else:
+                pass
+        df['Close/Base'] = df['Close Value'] / df['Base Value']
+        df['Years'] = list(
+            map(
+                lambda x, y: dateutil.relativedelta.relativedelta(x, y).years, df['Close Date'], df['Base Date']
+            )
+        )
+        df['Days'] = list(
+            map(
+                lambda x, y, z: (x - y.replace(year=y.year + z)).days, df['Close Date'], df['Base Date'], df['Years']
+            )
+        )
+        total_years = df['Years'] + (df['Days'] / 365)
+        df['CAGR(%)'] = 100 * (pow(df['Close Value'] / df['Base Value'], 1 / total_years) - 1)
+
+        # Convert 'Category' column to categorical data types with a defined order
+        categories = list(df['Category'].unique())
+        df['Category'] = pandas.Categorical(
+            df['Category'],
+            categories=categories,
+            ordered=True
+        )
+
+        # Sorting Dataframe
+        df = df.sort_values(
+            by=['Category', 'CAGR(%)', 'Years', 'Days'],
+            ascending=[True, False, False, False]
+        )
+        dataframes = []
+        for category in categories:
+            category_df = df[df['Category'] == category]
+            category_df = category_df.drop(columns=['Category']).reset_index(drop=True)
+            dataframes.append(category_df)
+        output = pandas.concat(
+            dataframes,
+            keys=[word.upper() for word in categories],
+            names=['Category', 'ID']
+        )
+
+        # saving the DataFrame
+        excel_ext = Core()._excel_file_extension(output_excel)
+        if excel_ext != '.xlsx':
+            raise Exception(
+                f'Input file extension "{excel_ext}" does not match the required ".xlsx".'
+            )
+        else:
+            with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
+                output.to_excel(excel_writer, index=True)
+                workbook = excel_writer.book
+                worksheet = excel_writer.sheets['Sheet1']
+                # number of columns for DataFrame indices
+                index_cols = len(output.index.names)
+                # format columns
+                worksheet.set_column(0, index_cols - 1, 15)
+                for col_num, col_df in enumerate(output.columns):
+                    if col_df == 'Index Name':
+                        worksheet.set_column(index_cols + col_num, index_cols + col_num, 60)
+                    elif col_df == 'Close Value':
+                        worksheet.set_column(
+                            index_cols + col_num, index_cols + col_num, 15,
+                            workbook.add_format({'num_format': '#,##0'})
+                        )
+                    elif col_df == 'Close/Base':
+                        worksheet.set_column(
+                            index_cols + col_num, index_cols + col_num, 15,
+                            workbook.add_format({'num_format': '#,##0.0'})
+                        )
+                    elif col_df == 'CAGR(%)':
+                        worksheet.set_column(
+                            index_cols + col_num, index_cols + col_num, 15,
+                            workbook.add_format({'num_format': '#,##0.00'})
+                        )
+                    else:
+                        worksheet.set_column(index_cols + col_num, index_cols + col_num, 15)
+                # Dataframe colors
+                get_colormap = matplotlib.colormaps.get_cmap('Pastel2')
+                colors = [
+                    get_colormap(count / len(dataframes)) for count in range(len(dataframes))
+                ]
+                hex_colors = [
+                    '{:02X}{:02X}{:02X}'.format(*[int(num * 255) for num in color]) for color in colors
+                ]
+                # coloring of DataFrames
+                start_col = index_cols - 1
+                end_col = index_cols + len(output.columns) - 1
+                start_row = 1
+                for df, color in zip(dataframes, hex_colors):
+                    color_format = workbook.add_format({'bg_color': color})
+                    end_row = start_row + len(df) - 1
+                    worksheet.conditional_format(
+                        start_row, start_col, end_row, end_col,
+                        {'type': 'no_blanks', 'format': color_format}
+                    )
+                    start_row = end_row + 1
+
+        return output

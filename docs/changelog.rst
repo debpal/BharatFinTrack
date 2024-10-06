@@ -3,6 +3,19 @@ Release Notes
 ===============
 
 
+Version 0.1.3
+--------------
+
+* **Release date:** 06-Oct-2024
+  
+* **Feature Additions:**
+    
+    * Fetches updated Total Return Index values for all NSE equity indices.
+    * Sorts the CAGR (%) of all NSE equity TRI values since launch.
+
+* **Bug Fixes:** Issues with the API used to fetch Total Return Index data.
+
+
 Version 0.1.2
 --------------
 
@@ -11,8 +24,9 @@ Version 0.1.2
 * **Changes:** 
 
     * Deprecated :meth:`BharatFinTrack.NSEIndex.all_equity_index_cagr_from_inception` and introduced :meth:`BharatFinTrack.NSEIndex.category_sort_equity_cagr_from_launch`.
-    * Added functionality for sorting the CAGR (%) of all NSE equity indices from launch.
-    * Introduced sorting of the CAGR (%) of NSE equity indices from launch while maintaining fixed index categories.
+    
+* **Feature Additions:** Added functionality for sorting the CAGR (%) of all NSE equity indices since launch.
+
 
 * **Development Status:** Upgraded from Alpha to Beta.
 
@@ -35,7 +49,7 @@ Version 0.1.0
 
 * **Release date:** 30-Sep-2024.
 
-* **Feature Additions:** Introduced :class:`BharatFinTrack.NSETRI` class, which facilitates downloading Total Return Index (TRI) data for all NSE equity indices.
+* **Feature Additions:** Introduced :class:`BharatFinTrack.NSETRI` class, which facilitates downloading Total Return Index data for all NSE equity indices.
  
 * **Changes:** 
 
