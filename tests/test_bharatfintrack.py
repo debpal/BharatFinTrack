@@ -215,14 +215,14 @@ def test_download_historical_daily_data(
     df = nse_tri.download_historical_daily_data(
         index='NIFTY INDIA DEFENCE',
         start_date=None,
-        end_date='06-Apr-2018'
+        end_date='10-Apr-2018'
     )
     assert float(df.iloc[0, -1]) == 1000.00
 
     # pass test for end date being None
     start_date = (datetime.date.today() - datetime.timedelta(days=7)).strftime('%d-%b-%Y')
     df = nse_tri.download_historical_daily_data(
-        index='NIFTY CONSUMER DURABLES',
+        index='NIFTY 50',
         start_date=start_date,
         end_date=None
     )

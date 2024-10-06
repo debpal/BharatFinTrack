@@ -15,6 +15,8 @@ Version 0.1.3
 
 * **Bug Fixes:** Issues with the API used to fetch Total Return Index data.
 
+* **Development Status:** Upgraded from Alpha to Beta.
+
 
 Version 0.1.2
 --------------
@@ -26,9 +28,6 @@ Version 0.1.2
     * Deprecated :meth:`BharatFinTrack.NSEIndex.all_equity_index_cagr_from_inception` and introduced :meth:`BharatFinTrack.NSEIndex.category_sort_equity_cagr_from_launch`.
     
 * **Feature Additions:** Added functionality for sorting the CAGR (%) of all NSE equity indices since launch.
-
-
-* **Development Status:** Upgraded from Alpha to Beta.
 
 
 Version 0.1.1
