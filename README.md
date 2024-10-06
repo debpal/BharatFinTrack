@@ -1,19 +1,24 @@
 # BharatFinTrack
 
 
-BharatFinTrack is a Python package designed to simplify the process of downloading and analyzing financial data from India. Conceptualized on September 1, 2024, and launched on September 8, 2024, this package is tailored for long-term investors seeking to streamline their financial data workflows. It focuses on open-source financial data and currently provides functionality for analyzing NSE equity indices. However, it is important to note that the package does not include features for technical indicators or real-time trading at this time. Active development is ongoing, with exciting new features planned for future releases. The goal of BharatFinTrack is to empower users by offering easy access to open-source data, enabling them to make informed financial decisions. Currently, the package offers the following features:
+BharatFinTrack is a Python package designed to simplify the process of downloading and analyzing financial data from India, that is Bharat. Conceptualized on September 1, 2024, and launched on September 8, 2024, this package is tailored for long-term investors seeking to streamline their financial data workflows. It focuses on open-source financial data and currently provides functionality for analyzing NSE equity indices. However, it is important to note that the package does not include features for technical indicators or real-time trading at this time. Active development is ongoing, with exciting new features planned for future releases. The goal of BharatFinTrack is to empower users by offering easy access to open-source data, enabling them to make informed financial decisions. Currently, the package offers the following features:
 
 
 * [Nifty Indices](https://www.niftyindices.com/)
-
+    
     - Provides access to the characteristics of NSE equity indices.
-    - Calculates the CAGR(%) of all NSE equity indices (excluding dividend reinvestment) from launch.
-    - Facilitates downloading Total Return Index, including both price and dividend reinvestment, data for all NSE equity indices.
+    - Fetches updated values of prices (excluding dividend reinvestment) and Total Return Index (TRI) for all NSE equity indices.
+    - Facilitates downloading TRI data for all NSE equity indices between the specified start and end dates, inclusive.
+    
+* Analysis
+    
+    - Calculates the updated CAGR (%) of all NSE equity index prices and TRI since their inception.
+    - Sorts equity indices by CAGR (%) values since inception.
     
     
 ## Roadmap
 
-* Add support for downloading equity index price data without dividend reinvestment.
+* Add support for downloading equity index price data (excluding dividend reinvestment) for the specified start and end dates.
 * Provide a summary of daily updated values of equity index price data.
 * Include NAV (Net Asset Value) data for mutual funds.
 * Include NAV data for the National Pension System (NPS).
@@ -61,6 +66,12 @@ A brief example of how to start:
 
 ## Documentation
 For detailed information, see the [documentation](http://bharatfintrack.readthedocs.io/).
+
+## Support
+
+If this project has been helpful and you'd like to contribute to its development, consider sponsoring with a coffee! Support will help maintain, improve, and expand this open-source project, ensuring continued valuable tools for the community.
+
+<a href="https://www.buymeacoffee.com/debasish_pal" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 50px !important;width: 180px !important;" ></a>
 
 
 ## Toolkit
