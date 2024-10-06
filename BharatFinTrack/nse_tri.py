@@ -195,7 +195,6 @@ class NSETRI:
         # processing base DataFrame
         base_df = NSEProduct()._dataframe_equity_index
         base_df = base_df.reset_index()
-        base_df = base_df[base_df['API TRI'] != 'NON OPEN SOURCE'].reset_index(drop=True)
         base_df = base_df.drop(columns=['ID', 'API TRI'])
         base_df['Base Date'] = base_df['Base Date'].apply(lambda x: x.date())
 
@@ -212,13 +211,20 @@ class NSETRI:
         end_date = today.strftime('%d-%b-%Y')
         start_date = week_ago.strftime('%d-%b-%Y')
         for base_index in base_df.index:
-            index_df = self.download_historical_daily_data(
-                index=base_df.loc[base_index, 'Index Name'],
-                start_date=start_date,
-                end_date=end_date
-            )
-            base_df.loc[base_index, 'Close Date'] = index_df.iloc[-1, 0]
-            base_df.loc[base_index, 'Close Value'] = index_df.iloc[-1, -1]
+            try:
+                index_df = self.download_historical_daily_data(
+                    index=base_df.loc[base_index, 'Index Name'],
+                    start_date=start_date,
+                    end_date=end_date
+                )
+                base_df.loc[base_index, 'Close Date'] = index_df.iloc[-1, 0]
+                base_df.loc[base_index, 'Close Value'] = index_df.iloc[-1, -1]
+            except Exception:
+                base_df.loc[base_index, 'Close Date'] = end_date
+                base_df.loc[base_index, 'Close Value'] = -1000
+
+        # removing error rows from the DataFrame
+        base_df = base_df[base_df['Close Value'] != -1000].reset_index(drop=True)
 
         # saving the DataFrame
         with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:

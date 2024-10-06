@@ -126,7 +126,7 @@ class Core:
             url=self.url_nse_index_tri_data,
             headers=headers,
             data=payload,
-            timeout=30
+            timeout=15
         )
         response_data = response.json()
         records = json.loads(response_data['d'])

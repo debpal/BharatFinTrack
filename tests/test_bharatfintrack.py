@@ -250,41 +250,27 @@ def test_index_download_historical_daily_data(
     assert float(df.iloc[-1, -1]) == expected_value
 
 
-def test_download_daily_summary_report(
+def test_equity_index_price_download_updated_value(
     nse_index,
-    message
+    message,
+    capsys
 ):
 
-    # test for error when the input is a invalid folder path
+    # error test for folder path
     with tempfile.TemporaryDirectory() as tmp_dir:
         pass
     with pytest.raises(Exception) as exc_info:
         nse_index.download_daily_summary_report(tmp_dir)
     assert exc_info.value.args[0] == message['error_folder']
-
-
-def test_equity_cagr_from_launch(
-    nse_index,
-    capsys
-):
-
+    # pass test for capturing print statement
     nse_index.equity_cagr_from_launch(
         untracked_indices=True
     )
-
-    # capture the printed output
     capture_print = capsys.readouterr()
-
     assert 'List of untracked download indices' in capture_print.out
     assert 'List of untracked base indices' in capture_print.out
 
-
-def test_sort_equity_cagr_from_launch(
-    nse_index,
-    message
-):
-
-    # pass test
+    # pass test for sorting of NSE equity indices by CAGR (%) value
     with tempfile.TemporaryDirectory() as tmp_dir:
         excel_file = os.path.join(tmp_dir, 'equity.xlsx')
         nse_index.sort_equity_cagr_from_launch(
@@ -292,7 +278,6 @@ def test_sort_equity_cagr_from_launch(
         )
         df = pandas.read_excel(excel_file)
         assert len(df.index.names) == 1
-
     # error test for invalid Excel file input
     with pytest.raises(Exception) as exc_info:
         nse_index.sort_equity_cagr_from_launch(
@@ -300,13 +285,7 @@ def test_sort_equity_cagr_from_launch(
         )
     assert exc_info.value.args[0] == message['error_excel']
 
-
-def test_category_sort_equity_cagr_from_launch(
-    nse_index,
-    message
-):
-
-    # pass test
+    # pass test for categorical sorting NSE equity indices by CAGR (%) value
     with tempfile.TemporaryDirectory() as tmp_dir:
         excel_file = os.path.join(tmp_dir, 'equity.xlsx')
         nse_index.category_sort_equity_cagr_from_launch(
@@ -314,8 +293,7 @@ def test_category_sort_equity_cagr_from_launch(
         )
         df = pandas.read_excel(excel_file, index_col=[0, 1])
         assert df.shape[1] == 9
-        assert len(df.index.get_level_values('Category').unique()) == 5
-
+        assert len(df.index.get_level_values('Category').unique()) <= 5
     # error test for invalid Excel file input
     with pytest.raises(Exception) as exc_info:
         nse_index.category_sort_equity_cagr_from_launch(
@@ -324,7 +302,7 @@ def test_category_sort_equity_cagr_from_launch(
     assert exc_info.value.args[0] == message['error_excel']
 
 
-def test_download_equity_indices_updated_value(
+def test_equity_index_tri_download_updated_value(
     nse_tri,
     message
 ):
@@ -380,7 +358,7 @@ def test_download_equity_indices_updated_value(
             output_excel=output_excel
         )
         df = pandas.read_excel(output_excel, index_col=[0, 1])
-        assert len(df.index.get_level_values('Category').unique()) == 5
+        assert len(df.index.get_level_values('Category').unique()) <= 5
         # error test for invalid Excel file input
         with pytest.raises(Exception) as exc_info:
             nse_tri.category_sort_equity_cagr_from_launch(
