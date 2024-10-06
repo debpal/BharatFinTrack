@@ -168,7 +168,7 @@ def test_download_historical_daily_data(
         nse_tri.download_historical_daily_data(
             index='NIFTY 50',
             start_date='16-Sep-2024',
-            end_date='20-Se-2024'
+            end_date='20-Sf-2024'
         )
     assert exc_info.value.args[0] == message['error_date2']
 
