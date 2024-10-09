@@ -3,8 +3,18 @@ Release Notes
 ===============
 
 
+Version 0.1.4
+---------------
+
+* **Release date:** 09-Oct-2024
+  
+* **Feature Additions:** Updates the pre-downloaded Excel file of daily Total Return Index data for a specified index from the last date to the present.
+    
+* **Changes:** Deprecated :meth:`BharatFinTrack.NSETRI.download_equity_indices_updated_value` and renamed :meth:`BharatFinTrack.NSETRI.download_daily_summary_equity_closing`.
+
+
 Version 0.1.3
---------------
+---------------
 
 * **Release date:** 06-Oct-2024
   
@@ -19,19 +29,17 @@ Version 0.1.3
 
 
 Version 0.1.2
---------------
+---------------
 
 * **Release date:** 04-Oct-2024
   
-* **Changes:** 
-
-    * Deprecated :meth:`BharatFinTrack.NSEIndex.all_equity_index_cagr_from_inception` and introduced :meth:`BharatFinTrack.NSEIndex.category_sort_equity_cagr_from_launch`.
+* **Changes:** Deprecated :meth:`BharatFinTrack.NSEIndex.all_equity_index_cagr_from_inception`.
     
-* **Feature Additions:** Added functionality for sorting the CAGR (%) of all NSE equity indices since launch.
+* **Feature Additions:** Added functionality for sorting the CAGR (%) of all NSE equity index prices since launch.
 
 
 Version 0.1.1
---------------
+---------------
 
 * **Release date:** 02-Oct-2024
 

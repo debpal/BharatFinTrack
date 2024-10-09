@@ -8,8 +8,8 @@ BharatFinTrack is a Python package designed to simplify the process of downloadi
 * `Nifty Indices <https://www.niftyindices.com/>`_
 
     - Provides access to the characteristics of NSE equity indices.
-    - Fetches updated values of prices (excluding dividend reinvestment) and Total Return Index (TRI) for all NSE equity indices.
-    - Facilitates downloading TRI data for all NSE equity indices between the specified start and end dates, inclusive.
+    - Facilitates downloading and updating daily TRI data for all NSE equity indices.
+    - Fetches closing values of prices (excluding dividend reinvestment) and Total Return Index (TRI) for all NSE equity indices.
     
     
 * Analysis

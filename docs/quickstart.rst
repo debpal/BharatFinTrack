@@ -117,9 +117,17 @@ Download historical daily TRI data, including both price and dividend reinvestme
 Currently, the function supports only equity indices. 
 
 .. code-block:: python
-
+    
+    # donwloading daily closing TRI data between start and end dates for NIFTY 50
     nse_tri.download_historical_daily_data(
         index='NIFTY 50',
-    	start_date='23-Sep-2024',
-    	end_date='27-Sep-2024'	
+    	start_date='01-Apr-2023',
+    	end_date='31-Mar-2024',
+        excel_file=r"C:\Users\Username\Folder\NIFTY50.xlsx"
+    )
+    
+    # Using the same excel file to update daily closing TRI data to the present date
+    nse_tri.update_historical_daily_dataa(
+        index='NIFTY 50',
+        excel_file=r"C:\Users\Username\Folder\NIFTY50.xlsx"
     )

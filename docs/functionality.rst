@@ -32,15 +32,15 @@ better understand the difference in index returns across various categories.
     
 Equity Total Return Index (TRI) Summary
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Download the updated TRI values for all NSE indices. These values are not updated on the website on a daily basis. 
+Download the closing TRI values for all NSE indices. These values are not updated on the website on a daily basis. 
 It is recommended to use this function at night when web traffic to the website is lower. The function sends several web requests to collect the required values.
 
 .. code-block:: python
     
-    excel_file = r"C:\Users\Username\Folder\tri_updated_value.xlsx"
+    excel_file = r"C:\Users\Username\Folder\tri_closing_value.xlsx"
     
     # updated TRI value
-    nse_tri.download_equity_indices_updated_value(
+    nse_tri.download_daily_summary_equity_closing(
         excel_file=excel_file
     )
     
