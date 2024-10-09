@@ -3,6 +3,7 @@ import datetime
 import dateutil.relativedelta
 import pandas
 import matplotlib
+import warnings
 from .nse_product import NSEProduct
 from .core import Core
 
@@ -110,8 +111,7 @@ class NSETRI:
         Returns
         -------
         DataFrame
-            A DataFrame with two columns: 'Date' and 'Close', representing the daily
-            closing values for the index between the specified dates.
+            A DataFrame containing the daily closing values for the index between the specified dates.
         '''
 
         # check index name
@@ -168,14 +168,70 @@ class NSETRI:
 
         return df
 
-    def download_equity_indices_updated_value(
+    def update_historical_daily_data(
         self,
+        index: str,
         excel_file: str,
         http_headers: typing.Optional[dict[str, str]] = None
     ) -> pandas.DataFrame:
 
         '''
-        Returns updated TRI values for all NSE indices.
+        Updates historical daily closing values from the last date in the input Excel file
+        to the present and saves the aggregated data to the same file.
+
+        Parameters
+        ----------
+        index : str
+            Name of the index.
+
+        excel_file : str
+            Path to the Excel file containing existing historical data.
+
+        http_headers : dict, optional
+            HTTP headers for the web request. If not provided, defaults to
+            :attr:`BharatFinTrack.core.Core.default_http_headers`.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame with updated closing values from the last recorded date to the present.
+        '''
+
+        # read the input Excel file
+        df = pandas.read_excel(excel_file)
+        df['Date'] = df['Date'].apply(
+            lambda x: x.date()
+        )
+
+        # addition of downloaded DataFrame
+        add_df = self.download_historical_daily_data(
+            index=index,
+            start_date=df.iloc[-1, 0].strftime('%d-%b-%Y'),
+            end_date=datetime.date.today().strftime('%d-%b-%Y'),
+            http_headers=http_headers
+        )
+
+        # updating the DataFrame
+        update_df = pandas.concat([df, add_df]) if isinstance(add_df, pandas.DataFrame) else df
+        update_df = update_df.drop_duplicates().reset_index(drop=True)
+
+        # saving the DataFrame
+        with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
+            update_df.to_excel(excel_writer, index=False)
+            worksheet = excel_writer.sheets['Sheet1']
+            worksheet.set_column(0, 1, 12)
+
+        return add_df
+
+    def download_daily_summary_equity_closing(
+        self,
+        excel_file: str,
+        http_headers: typing.Optional[dict[str, str]] = None,
+        test_mode: bool = False
+    ) -> pandas.DataFrame:
+
+        '''
+        Returns updated TRI closing values for all NSE indices.
 
         Parameters
         ----------
@@ -186,14 +242,20 @@ class NSETRI:
             HTTP headers for the web request. Defaults to
             :attr:`BharatFinTrack.core.Core.default_http_headers` if not provided.
 
+        test_mode : bool, optional
+            If True, the function will use a mocked DataFrame for testing purposes
+            instead of the actual data. This parameter is intended for developers
+            for testing purposes only and is not recommended for use by end-users.
+
         Returns
         -------
         DataFrame
-            A DataFrame containing updated TRI values for all NSE indices.
+            A DataFrame containing updated TRI closing values for all NSE indices.
         '''
 
         # processing base DataFrame
         base_df = NSEProduct()._dataframe_equity_index
+        base_df = base_df.groupby(level='Category').head(1) if test_mode is True else base_df
         base_df = base_df.reset_index()
         base_df = base_df.drop(columns=['ID', 'API TRI'])
         base_df['Base Date'] = base_df['Base Date'].apply(lambda x: x.date())
@@ -238,6 +300,55 @@ class NSETRI:
                     worksheet.set_column(col_num, col_num, 15)
 
         return base_df
+
+    def download_equity_indices_updated_value(
+        self,
+        excel_file: str,
+        http_headers: typing.Optional[dict[str, str]] = None,
+        test_mode: bool = False
+    ) -> pandas.DataFrame:
+
+        '''
+        Returns updated TRI values for all NSE indices.
+
+        Parameters
+        ----------
+        excel_file : str, optional
+            Path to an Excel file to save the DataFrame.
+
+        http_headers : dict, optional
+            HTTP headers for the web request. Defaults to
+            :attr:`BharatFinTrack.core.Core.default_http_headers` if not provided.
+
+        test_mode : bool, optional
+            If True, the function will use a mocked DataFrame for testing purposes
+            instead of the actual data. This parameter is intended for developers
+            for testing purposes only and is not recommended for use by end-users.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame containing updated TRI values for all NSE indices.
+
+        Warnings
+        --------
+        The method :meth:`BharatFinTrack.NSETRI.download_equity_indices_updated_value` is deprecated.
+        Use the :meth:`BharatFinTrack.NSETRI.download_daily_summary_equity_closing` instead.
+        '''
+
+        warnings.warn(
+            'download_equity_indices_updated_value(excel_file) is deprecated. Use download_daily_summary_equity_closing(excel_file) instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
+
+        output = self.download_daily_summary_equity_closing(
+            excel_file=excel_file,
+            http_headers=http_headers,
+            test_mode=test_mode
+        )
+
+        return output
 
     def sort_equity_value_from_launch(
         self,

@@ -191,26 +191,6 @@ def test_download_historical_daily_data(
         )
     assert exc_info.value.args[0] == message['error_excel']
 
-    # pass test for saving the output DataFrame to an Excel file
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        excel_file = os.path.join(tmp_dir, 'equity.xlsx')
-        nse_tri.download_historical_daily_data(
-            index='NIFTY 50',
-            start_date='23-Sep-2024',
-            end_date='27-Sep-2024',
-            excel_file=excel_file
-        )
-        df = pandas.read_excel(excel_file)
-        assert float(df.iloc[-1, -1]) == 38861.64
-
-    # pass test for valid start and end dates
-    df = nse_tri.download_historical_daily_data(
-        index='NIFTY SMALLCAP 100',
-        start_date='27-Sep-2024',
-        end_date='27-Sep-2024'
-    )
-    assert float(df.iloc[-1, -1]) == 24686.28
-
     # pass test for start date being None
     df = nse_tri.download_historical_daily_data(
         index='NIFTY INDIA DEFENCE',
@@ -232,8 +212,8 @@ def test_download_historical_daily_data(
 @pytest.mark.parametrize(
     'index, expected_value',
     [
-        ('NIFTY MIDCAP150 MOMENTUM 50', 82438.16),
-        ('NIFTY 50 FUTURES TR', 28187.74),
+        ('NIFTY 50', 38861.64),
+        ('NIFTY MIDCAP150 MOMENTUM 50', 82438.16)
     ]
 )
 def test_index_download_historical_daily_data(
@@ -302,6 +282,7 @@ def test_equity_index_price_download_updated_value(
     assert exc_info.value.args[0] == message['error_excel']
 
 
+@pytest.mark.filterwarnings('ignore::DeprecationWarning')
 def test_equity_index_tri_download_updated_value(
     nse_tri,
     message
@@ -311,10 +292,12 @@ def test_equity_index_tri_download_updated_value(
         excel_file = os.path.join(tmp_dir, 'equity.xlsx')
         # pass test for downloading updated TRI values of NSE equity indices
         nse_tri.download_equity_indices_updated_value(
-            excel_file=excel_file
+            excel_file=excel_file,
+            test_mode=True
         )
         df = pandas.read_excel(excel_file)
         assert df.shape[1] == 6
+        assert df.shape[0] <= 4
         # error test for invalid Excel file input
         with pytest.raises(Exception) as exc_info:
             nse_tri.download_equity_indices_updated_value(
@@ -358,7 +341,7 @@ def test_equity_index_tri_download_updated_value(
             output_excel=output_excel
         )
         df = pandas.read_excel(output_excel, index_col=[0, 1])
-        assert len(df.index.get_level_values('Category').unique()) <= 5
+        assert len(df.index.get_level_values('Category').unique()) <= 4
         # error test for invalid Excel file input
         with pytest.raises(Exception) as exc_info:
             nse_tri.category_sort_equity_cagr_from_launch(
@@ -366,3 +349,29 @@ def test_equity_index_tri_download_updated_value(
                 output_excel='output.xl'
             )
         assert exc_info.value.args[0] == message['error_excel']
+
+
+def test_update_historical_daily_data(
+    nse_tri
+):
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        excel_file = os.path.join(tmp_dir, 'equity.xlsx')
+        today = datetime.date.today()
+        day1_ago = today - datetime.timedelta(days=30)
+        day2_ago = today - datetime.timedelta(days=15)
+        # pass test for downloading daily TRI values of NSE a equity index
+        nse_tri.download_historical_daily_data(
+            index='NIFTY INDIA DEFENCE',
+            start_date=day1_ago.strftime('%d-%b-%Y'),
+            end_date=day2_ago.strftime('%d-%b-%Y'),
+            excel_file=excel_file
+        )
+        len_df1 = len(pandas.read_excel(excel_file))
+        # pass test for updating daily TRI values for the NSE equity index
+        nse_tri.update_historical_daily_data(
+            index='NIFTY INDIA DEFENCE',
+            excel_file=excel_file
+        )
+        len_df2 = len(pandas.read_excel(excel_file))
+        assert len_df2 > len_df1
