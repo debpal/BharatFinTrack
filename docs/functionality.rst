@@ -39,12 +39,12 @@ It is recommended to use this function at night when web traffic to the website 
     
     excel_file = r"C:\Users\Username\Folder\tri_closing_value.xlsx"
     
-    # updated TRI value
+    # equity indices closing value
     nse_tri.download_daily_summary_equity_closing(
         excel_file=excel_file
     )
     
-    # sort equity indices by updated value since launch
+    # sort equity indices by closing value
     nse_tri.sort_equity_value_from_launch(
         input_excel=excel_file,
         output_excel=r"C:\Users\Username\Folder\sorted_tri_value.xlsx"
