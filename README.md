@@ -7,8 +7,8 @@ BharatFinTrack is a Python package designed to simplify the process of downloadi
 * [Nifty Indices](https://www.niftyindices.com/)
     
     - Provides access to the characteristics of NSE equity indices.
-    - Fetches updated values of prices (excluding dividend reinvestment) and Total Return Index (TRI) for all NSE equity indices.
-    - Facilitates downloading TRI data for all NSE equity indices between the specified start and end dates, inclusive.
+    - Facilitates downloading and updating daily TRI data for all NSE equity indices.
+    - Fetches closing values of prices (excluding dividend reinvestment) and Total Return Index (TRI) for all NSE equity indices.
     
 * Analysis
     
@@ -71,7 +71,8 @@ For detailed information, see the [documentation](http://bharatfintrack.readthed
 
 If this project has been helpful and you'd like to contribute to its development, consider sponsoring with a coffee! Support will help maintain, improve, and expand this open-source project, ensuring continued valuable tools for the community.
 
-<a href="https://www.buymeacoffee.com/debasish_pal" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 50px !important;width: 180px !important;" ></a>
+
+[![Buy Me a Coffee](https://img.shields.io/badge/☕_Buy_me_a_coffee-FFDD00?style=for-the-badge)](https://www.buymeacoffee.com/debasish_pal)
 
 
 ## Toolkit
