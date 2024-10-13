@@ -14,8 +14,8 @@ from .core import Core
 class NSEIndex:
 
     '''
-    Download and analyze NSE index price data
-    (excluding dividend reinvestment).
+    Provides functionality for downloading and analyzing
+    NSE index price data (excluding dividend reinvestment).
     '''
 
     def download_daily_summary_report(

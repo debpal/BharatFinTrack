@@ -7,8 +7,8 @@ from .core import Core
 class NSEProduct:
 
     '''
-    Represents characteristics of NSE (National Stock Exchange)
-    related financial products.
+    Provides functionality for accessing the characteristics of
+    NSE related financial products.
     '''
 
     @property
@@ -49,7 +49,7 @@ class NSEProduct:
         Parameters
         ----------
         excel_file : str
-            Excel file to save the multi-index DataFrame.
+            Path of an Excel file to save the multi-index DataFrame.
 
         Returns
         -------

@@ -4,12 +4,14 @@ import typing
 import datetime
 import pandas
 import requests
+import matplotlib.pyplot
 
 
 class Core:
 
     '''
-    Core functionality of :mod:`BharatFinTrack` module.
+    Provides common functionality used throughout
+    the :mod:`BharatFinTrack` package.
     '''
 
     def _excel_file_extension(
@@ -32,6 +34,36 @@ class Core:
         '''
 
         output = os.path.splitext(file_path)[-1]
+
+        return output
+
+    def is_valid_figure_extension(
+        self,
+        file_path: str
+    ) -> bool:
+
+        '''
+        Returns whether the given path is a valid figure file.
+
+        Parameters
+        ----------
+        file_path : str
+            Path of the figure file.
+
+        Returns
+        -------
+        bool
+            True if the file path is valid, False otherwise.
+        '''
+
+        figure = matplotlib.pyplot.figure(
+            figsize=(1, 1)
+        )
+        file_ext = os.path.splitext(file_path)[-1][1:]
+        supported_ext = list(figure.canvas.get_supported_filetypes().keys())
+        output = file_ext in supported_ext
+
+        matplotlib.pyplot.close(figure)
 
         return output
 

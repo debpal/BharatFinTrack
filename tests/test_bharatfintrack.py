@@ -4,6 +4,7 @@ import os
 import tempfile
 import datetime
 import pandas
+import matplotlib.pyplot
 
 
 @pytest.fixture(scope='class')
@@ -25,6 +26,12 @@ def nse_tri():
 
 
 @pytest.fixture(scope='class')
+def visual():
+
+    yield BharatFinTrack.Visual()
+
+
+@pytest.fixture(scope='class')
 def core():
 
     yield BharatFinTrack.core.Core()
@@ -39,9 +46,11 @@ def message():
         'error_date2': "time data '20-Se-2024' does not match format '%d-%b-%Y'",
         'error_date3': 'Start date 27-Sep-2024 cannot be later than end date 26-Sep-2024.',
         'error_excel': 'Input file extension ".xl" does not match the required ".xlsx".',
+        'error_figure': 'Input figure file extension is not supported.',
         'error_folder': 'The folder path does not exist.',
         'error_index1': '"INVALID" index does not exist.',
-        'error_index2': '"NIFTY50 USD" index data is not available as open-source.'
+        'error_index2': '"NIFTY50 USD" index data is not available as open-source.',
+        'error_df': 'Threshold values return an empty DataFrame.'
 
     }
 
@@ -282,25 +291,25 @@ def test_equity_index_price_download_updated_value(
     assert exc_info.value.args[0] == message['error_excel']
 
 
-@pytest.mark.filterwarnings('ignore::DeprecationWarning')
-def test_equity_index_tri_download_updated_value(
+def test_equity_index_tri_closing(
     nse_tri,
-    message
+    message,
+    visual
 ):
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         excel_file = os.path.join(tmp_dir, 'equity.xlsx')
         # pass test for downloading updated TRI values of NSE equity indices
-        nse_tri.download_equity_indices_updated_value(
+        nse_tri.download_daily_summary_equity_closing(
             excel_file=excel_file,
             test_mode=True
         )
         df = pandas.read_excel(excel_file)
         assert df.shape[1] == 6
-        assert df.shape[0] <= 4
+        assert df.shape[0] <= 8
         # error test for invalid Excel file input
         with pytest.raises(Exception) as exc_info:
-            nse_tri.download_equity_indices_updated_value(
+            nse_tri.download_daily_summary_equity_closing(
                 excel_file='output.xl'
             )
         assert exc_info.value.args[0] == message['error_excel']
@@ -349,6 +358,30 @@ def test_equity_index_tri_download_updated_value(
                 output_excel='output.xl'
             )
         assert exc_info.value.args[0] == message['error_excel']
+        # pass test for plotting of descending CAGR sort by category since launch
+        figure_file = os.path.join(tmp_dir, 'plot_categorical_sorted_tri_cagr.png')
+        assert os.path.exists(figure_file) is False
+        figure = visual.plot_category_sort_index_cagr_from_launch(
+            excel_file=os.path.join(tmp_dir, 'categorical_sorted_tri_cagr.xlsx'),
+            figure_file=figure_file,
+        )
+        assert isinstance(figure, matplotlib.pyplot.Figure)
+        assert os.path.exists(figure_file) is True
+        # error test for empty DataFrame from threshold values
+        with pytest.raises(Exception) as exc_info:
+            visual.plot_category_sort_index_cagr_from_launch(
+                excel_file=os.path.join(tmp_dir, 'categorical_sorted_tri_cagr.xlsx'),
+                figure_file=os.path.join(tmp_dir, 'plot_categorical_sorted_tri_cagr.png'),
+                threshold_cagr=100
+            )
+        assert exc_info.value.args[0] == message['error_df']
+        # error test for invalid figure file input
+        with pytest.raises(Exception) as exc_info:
+            visual.plot_category_sort_index_cagr_from_launch(
+                excel_file=os.path.join(tmp_dir, 'categorical_sorted_tri_cagr.xlsx'),
+                figure_file=os.path.join(tmp_dir, 'plot_categorical_sorted_tri_cagr.pn'),
+            )
+        assert exc_info.value.args[0] == message['error_figure']
 
 
 def test_update_historical_daily_data(
