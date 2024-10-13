@@ -16,4 +16,5 @@ BharatFinTrack is a Python package designed to simplify the process of downloadi
     
     - Calculates the updated CAGR (%) of all NSE equity index prices and TRI since their inception.
     - Sorts equity indices by CAGR (%) values since inception.
+    - Plots the descending sort of CAGR (%) by index category since inception.
     

@@ -3,6 +3,17 @@ Release Notes
 ===============
 
 
+Version 0.1.5
+---------------
+
+* **Release date:** 13-Oct-2024
+  
+* **Feature Additions:**
+
+    * Introduced the :class:`BharatFinTrack.Visual` class for data visualization.
+    * Added the :meth:`BharatFinTrack.Visual.plot_category_sort_index_cagr_from_launch` method for plotting the descending sort of CAGR (%) by index category since inception.
+
+
 Version 0.1.4
 ---------------
 

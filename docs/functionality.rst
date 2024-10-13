@@ -6,6 +6,8 @@ Functionality
 A brief overview of several features related to making investment decisions.
 
 
+
+
 Class Instance
 ----------------
 Let's start by instantiating the classes.
@@ -17,6 +19,9 @@ Let's start by instantiating the classes.
     nse_tri = BharatFinTrack.NSETRI()
 
 
+
+.. _fucn_equity_index_price_cagr:
+
 Equity Index Price CAGR
 --------------------------
 
@@ -26,7 +31,7 @@ It helps users make informed decisions about investments in passive funds that t
 .. code-block:: python
 
     nse_index.sort_equity_cagr_from_launch(
-        excel_file=r"C:\Users\Username\Folder\sort_cagr.xlsx"
+        excel_file=r"C:\Users\Username\Folder\sort_price_cagr.xlsx"
     )
     
     
@@ -37,10 +42,12 @@ better understand the difference in index returns across various categories
 .. code-block:: python
 
     nse_index.category_sort_equity_cagr_from_launch(
-        excel_file=r"C:\Users\Username\Folder\category_sort_cagr.xlsx"
+        excel_file=r"C:\Users\Username\Folder\sort_price_cagr_by_category.xlsx"
     )
     
-    
+
+.. _fucn_equity_tri_cagr:
+
 Equity TRI CAGR
 ------------------
 Download the closing Total Return Index (TRI) values for all NSE indices. These values are not updated on the website on a daily basis. 
@@ -64,13 +71,13 @@ The above Excel file will be used to sort the equity indices based on the CAGR (
     # sort equity indices by CAGR (%) since launch
     nse_tri.sort_equity_cagr_from_launch(
         input_excel=excel_file,
-        output_excel=r"C:\Users\Username\Folder\sorted_tri_cagr.xlsx"
+        output_excel=r"C:\Users\Username\Folder\sort_tri_cagr.xlsx"
     )
     
     # sort equity indices by CAGR (%) since launch within each category 
     nse_tri.category_sort_equity_cagr_from_launch(
         input_excel=excel_file,
-        output_excel=r"C:\Users\Username\Folder\category_sort_tri_cagr.xlsx"
+        output_excel=r"C:\Users\Username\Folder\sort_tri_cagr_by_category.xlsx"
     )
 
 

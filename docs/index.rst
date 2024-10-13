@@ -11,6 +11,7 @@ Welcome to BharatFinTrack's documentation!
    quickstart
    download
    functionality
+   visualization
    modules
    changelog
 
