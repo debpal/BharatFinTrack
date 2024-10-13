@@ -10,16 +10,16 @@ BharatFinTrack is a Python package designed to simplify the process of downloadi
     - Facilitates downloading and updating daily TRI data for all NSE equity indices.
     - Fetches closing values of prices (excluding dividend reinvestment) and Total Return Index (TRI) for all NSE equity indices.
     
-* Analysis
+* Functionality
     
     - Calculates the updated CAGR (%) of all NSE equity index prices and TRI since their inception.
     - Sorts equity indices by CAGR (%) values since inception.
+    - Plots the descending sort of CAGR (%) by index category since inception.
     
     
 ## Roadmap
 
 * Add support for downloading equity index price data (excluding dividend reinvestment) for the specified start and end dates.
-* Provide a summary of daily updated values of equity index price data.
 * Include NAV (Net Asset Value) data for mutual funds.
 * Include NAV data for the National Pension System (NPS).
 
