@@ -10,12 +10,12 @@ authors = [
   { name="Debasish Pal", email="bestdebasish@gmail.com" },
 ]
 dependencies = [
-    "pandas>=2.2.2",
-    "requests>=2.32.3",
-    "openpyxl>=3.1.5",
-    "xlsxwriter>=3.2.0",
-    "beautifulsoup4>=4.12.3",
-    "matplotlib>=3.9.2"
+    "pandas",
+    "requests",
+    "openpyxl",
+    "xlsxwriter",
+    "beautifulsoup4",
+    "matplotlib"
 ]
 readme = "README.md"
 requires-python = ">=3.10"
@@ -34,8 +34,9 @@ dynamic = ["version"]
 keywords = [
 	"NSE Index",
 	"NSE TRI",
-	"Data download",
-	"Data analysis"
+	"Download",
+	"Analysis",
+    "Visualization"
 ]
 
 
