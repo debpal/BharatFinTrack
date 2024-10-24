@@ -1,4 +1,3 @@
-import typing
 import pandas
 import matplotlib
 import matplotlib.pyplot
@@ -12,49 +11,18 @@ class Visual:
     Provides functionality for plotting data.
     '''
 
-    def plot_category_sort_index_cagr_from_launch(
+    def _mi_df_bar_graph_closing_value(
         self,
-        excel_file: str,
+        df: pandas.DataFrame,
         figure_file: str,
-        threshold_cagr: typing.Optional[float] = None,
-        threshold_close: typing.Optional[float] = None
     ) -> matplotlib.figure.Figure:
 
         '''
-        Returns a bar plot of indices' clsong value since launch.
-
-        Parameters
-        ----------
-        excel_file : str
-            Path to the input Excel file.
-
-        figure_file : str
-            Path to a file to save the output figue.
-
-        threshold_close : float, optional
-            Only plot indices with a closing value higher than the specified threshold.
-
-        threshold_cagr : float, optional
-            Only plot indices with a CAGR (%) higher than the specified threshold.
-
-        Returns
-        -------
-        Figure
-            A bar plot displaying indices' closing values along with
-            CAGR (%), Multiplier (X), and Age (Y) since launch.
+        Helper function to create a bar plot of the closing values (Price/TRI)
+        of NSE indices from a multi-index DataFrame.
         '''
 
-        # input DataFrame
-        df = pandas.read_excel(excel_file, index_col=[0, 1])
-        df = df[df['Close Value'] >= threshold_close] if threshold_close is not None else df
-        df = df[df['CAGR(%)'] >= threshold_cagr] if threshold_cagr is not None else df
-
-        # check filtered dataframe
-        if len(df) == 0:
-            raise Exception('Threshold values return an empty DataFrame.')
-        else:
-            pass
-
+        # catgory of indices
         categories = df.index.get_level_values('Category').unique()
         close_date = df['Close Date'].iloc[0].strftime('%d-%b-%Y')
 
@@ -65,10 +33,10 @@ class Visual:
         }
 
         # figure
-        fig_height = int(len(df) / 3.5) + 1 if len(df) > 7 else 3
+        fig_height = int(len(df) / 3.5) + 1 if len(df) > 7 else 5
         xtick_gap = 10000
         xaxis_max = int(((df['Close Value'].max() + 20000) / xtick_gap) + 1) * xtick_gap
-        fig_width = int((xaxis_max / xtick_gap) * 1.2) + 1
+        fig_width = int((xaxis_max / xtick_gap) * 1.5)
         figure = matplotlib.pyplot.figure(
             figsize=(fig_width, fig_height)
         )
@@ -168,5 +136,95 @@ class Visual:
 
         # close the figure to prevent duplicate plots from displaying
         matplotlib.pyplot.close(figure)
+
+        return figure
+
+    def plot_cagr_filtered_indices_by_category(
+        self,
+        excel_file: str,
+        figure_file: str,
+        threshold_cagr: float = 10
+    ) -> matplotlib.figure.Figure:
+
+        '''
+        Returns a bar plot of the closing values (Price/TRI) of NSE indices,
+        filtered by a specified threshold CAGR (%) since their launch.
+
+        Parameters
+        ----------
+        excel_file : str
+            Path of the input Excel file containing the data.
+
+        figure_file : str
+            File Path to save the output figue.
+
+        threshold_cagr : float
+            Only plot indices with a CAGR (%) higher than the specified threshold.
+            Default is 10.
+
+        Returns
+        -------
+        Figure
+            A bar plot displaying closing values of NSE indices, along with
+            CAGR (%), Multiplier (X), and Age (Y) since launch.
+        '''
+
+        # input DataFrame
+        df = pandas.read_excel(excel_file, index_col=[0, 1])
+        df = df[df['CAGR(%)'] >= threshold_cagr]
+
+        # check filtered dataframe
+        if len(df) == 0:
+            raise Exception('Threshold values return an empty DataFrame.')
+        else:
+            pass
+
+        # figure
+        figure = self._mi_df_bar_graph_closing_value(
+            df=df,
+            figure_file=figure_file
+        )
+
+        return figure
+
+    def plot_top_cagr_indices_by_category(
+        self,
+        excel_file: str,
+        figure_file: str,
+        top_cagr: int = 5
+    ) -> matplotlib.figure.Figure:
+
+        '''
+        Returns a bar plot of the closing values (Price/TRI) of NSE indices
+        with the top CAGR (%) in each category since their launch.
+
+        Parameters
+        ----------
+        excel_file : str
+            Path of the input Excel file containing the data.
+
+        figure_file : str
+            File Path to save the output figue.
+
+        top_cagr : int
+            The number of top indices by CAGR (%) to plot for each category.
+            Default is 3.
+
+        Returns
+        -------
+        Figure
+            A bar plot displaying closing values of NSE indices, along with
+            CAGR (%), Multiplier (X), and Age (Y) since launch.
+        '''
+
+        # input DataFrame
+        df = pandas.read_excel(excel_file, index_col=[0, 1])
+        df = df.groupby(level='Category').head(top_cagr)
+
+        # figure
+        figure = self._mi_df_bar_graph_closing_value(
+            df=df,
+            figure_file=figure_file
+        )
 
         return figure

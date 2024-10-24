@@ -47,7 +47,6 @@ Expected output:
     ['NIFTY 100',
      'NIFTY 200',
      'NIFTY 50',
-     'NIFTY 50 ARBITRAGE',
      ...]
 
 
@@ -67,7 +66,6 @@ Expected output:
     ['NIFTY ALPHA 50',
      'NIFTY ALPHA LOW-VOLATILITY 30',
      'NIFTY ALPHA QUALITY LOW-VOLATILITY 30',
-     'NIFTY ALPHA QUALITY VALUE LOW-VOLATILITY 30',
      ...]
      
      

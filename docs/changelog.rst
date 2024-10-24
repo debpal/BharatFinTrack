@@ -3,6 +3,17 @@ Release Notes
 ===============
 
 
+Version 0.1.6
+---------------
+
+* **Release date:** 24-Oct-2024
+  
+* **Feature Additions:** 
+
+    * Added new equity indices launched by NSE.
+    * Enhanced functionality for data visualization in the :class:`BharatFinTrack.Visual` class.
+
+
 Version 0.1.5
 ---------------
 

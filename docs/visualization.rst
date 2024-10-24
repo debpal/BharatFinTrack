@@ -17,27 +17,37 @@ Let's start by instantiating the class.
 Equity Index Closing Values
 -----------------------------
 
-In this section, we plot a bar graph of equity index closing values, sorted in descending order of CAGR (%) by category. 
-To obtain the required data, use the Excel files generated from the :ref:`Equity Index Price CAGR <fucn_equity_index_price_cagr>` 
+We plot a bar graph of the closing values of `Price` for NSE equity indices, sorted in descending order of CAGR (%) since launch by category.
+To obtain the necessary data, use the Excel files generated from the :ref:`Equity Index Price CAGR <fucn_equity_index_price_cagr>` 
 and :ref:`Equity TRI CAGR <fucn_equity_tri_cagr>` sections. The following code produces a plot of the closing TRI values. 
 You can also experiment with index prices to observe differences in the results.
 
 
 .. code-block:: python
     
-    excel_file = r"C:\Users\Username\Folder\tri_closing_value.xlsx"
+    # bar plot of NSE indices, closing values sorted by TRI CAGR (≥ 15%) since inception, by category
+    visual.plot_cagr_filtered_indices_by_category(
+        excel_file=r"C:\Users\Username\Folder\tri_sort_cagr_by_category.xlsx",
+        figure_file=r"C:\Users\Username\Folder\plot_tri_sort_cagr_by_category.png",
+        threshold_cagr=15
+    )
+
+
+The following code generates a bar plot of closing values for NSE equity indices `TRI` with the top five CAGR (%) since launch in each category.
+
+.. code-block:: python
     
-    # plot descending sort of TRI CAGR by category since launch
-    visual.plot_category_sort_index_cagr_from_launch(
-        excel_file=r"C:\Users\Username\Folder\sort_tri_cagr_by_category.xlsx"
-        figure_file=r"C:\Users\Username\Folder\plot_tri.png"
+    visual.plot_top_cagr_indices_by_category(
+        excel_file=r"C:\Users\dpal22\Desktop\code_data\d_finance\nifty_indices_cagr_from_inception\tri_sort_cagr_by_category.xlsx",
+        figure_file=r"C:\Users\dpal22\Desktop\code_data\d_finance\nifty_indices_cagr_from_inception\tri_top_cagr_by_category.png",
+        top_cagr=5
     )
     
     
-The output plot looks similar to the following figure subject to the change of closing values which chanage in each trading day.
+The output plot will resemble the following figure, but keep in mind that the closing values change with each trading day.
     
 
-.. image:: _static/tri_category_sort_cagr_from_launch.png
+.. image:: _static/tri_top_cagr_by_category.png
    :align: left
 
 

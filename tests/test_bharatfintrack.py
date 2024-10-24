@@ -221,8 +221,8 @@ def test_download_historical_daily_data(
 @pytest.mark.parametrize(
     'index, expected_value',
     [
-        ('NIFTY 50', 38861.64),
-        ('NIFTY MIDCAP150 MOMENTUM 50', 82438.16)
+        ('NIFTY MIDCAP150 MOMENTUM 50', 82732.07),
+        ('NIFTY TOP 20 EQUAL WEIGHT', 12041.27),
     ]
 )
 def test_index_download_historical_daily_data(
@@ -233,8 +233,8 @@ def test_index_download_historical_daily_data(
 
     df = nse_tri.download_historical_daily_data(
         index=index,
-        start_date='27-Sep-2024',
-        end_date='27-Sep-2024'
+        start_date='15-Oct-2024',
+        end_date='15-Oct-2024'
     )
     assert float(df.iloc[-1, -1]) == expected_value
 
@@ -358,27 +358,37 @@ def test_equity_index_tri_closing(
                 output_excel='output.xl'
             )
         assert exc_info.value.args[0] == message['error_excel']
-        # pass test for plotting of descending CAGR sort by category since launch
-        figure_file = os.path.join(tmp_dir, 'plot_categorical_sorted_tri_cagr.png')
+        # pass test for plotting of index closing value, filtered by a threshold CAGR (%) since their launch
+        figure_file = os.path.join(tmp_dir, 'plot_cagr_filtered_indices_by_category.png')
         assert os.path.exists(figure_file) is False
-        figure = visual.plot_category_sort_index_cagr_from_launch(
-            excel_file=os.path.join(tmp_dir, 'categorical_sorted_tri_cagr.xlsx'),
-            figure_file=figure_file,
+        figure = visual.plot_cagr_filtered_indices_by_category(
+            excel_file=output_excel,
+            figure_file=figure_file
         )
-        assert isinstance(figure, matplotlib.pyplot.Figure)
+        assert isinstance(figure, matplotlib.pyplot.Figure) is True
         assert os.path.exists(figure_file) is True
+        # pass test for plotting of index closing value with the top CAGR (%) in each category since their launch.
+        figure_file = os.path.join(tmp_dir, 'plot_top_cagr_indices_by_category.png')
+        assert os.path.exists(figure_file) is False
+        figure = visual.plot_top_cagr_indices_by_category(
+            excel_file=output_excel,
+            figure_file=figure_file
+        )
+        assert isinstance(figure, matplotlib.pyplot.Figure) is True
+        assert os.path.exists(figure_file) is True
+        assert sum([file.endswith('.png') for file in os.listdir(tmp_dir)]) == 2
         # error test for empty DataFrame from threshold values
         with pytest.raises(Exception) as exc_info:
-            visual.plot_category_sort_index_cagr_from_launch(
-                excel_file=os.path.join(tmp_dir, 'categorical_sorted_tri_cagr.xlsx'),
-                figure_file=os.path.join(tmp_dir, 'plot_categorical_sorted_tri_cagr.png'),
+            visual.plot_cagr_filtered_indices_by_category(
+                excel_file=output_excel,
+                figure_file=figure_file,
                 threshold_cagr=100
             )
         assert exc_info.value.args[0] == message['error_df']
         # error test for invalid figure file input
         with pytest.raises(Exception) as exc_info:
-            visual.plot_category_sort_index_cagr_from_launch(
-                excel_file=os.path.join(tmp_dir, 'categorical_sorted_tri_cagr.xlsx'),
+            visual.plot_cagr_filtered_indices_by_category(
+                excel_file=output_excel,
                 figure_file=os.path.join(tmp_dir, 'plot_categorical_sorted_tri_cagr.pn'),
             )
         assert exc_info.value.args[0] == message['error_figure']
@@ -395,7 +405,7 @@ def test_update_historical_daily_data(
         day2_ago = today - datetime.timedelta(days=15)
         # pass test for downloading daily TRI values of NSE a equity index
         nse_tri.download_historical_daily_data(
-            index='NIFTY INDIA DEFENCE',
+            index='NIFTY 50',
             start_date=day1_ago.strftime('%d-%b-%Y'),
             end_date=day2_ago.strftime('%d-%b-%Y'),
             excel_file=excel_file
@@ -403,7 +413,7 @@ def test_update_historical_daily_data(
         len_df1 = len(pandas.read_excel(excel_file))
         # pass test for updating daily TRI values for the NSE equity index
         nse_tri.update_historical_daily_data(
-            index='NIFTY INDIA DEFENCE',
+            index='NIFTY 50',
             excel_file=excel_file
         )
         len_df2 = len(pandas.read_excel(excel_file))

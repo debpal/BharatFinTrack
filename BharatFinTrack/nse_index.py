@@ -66,7 +66,7 @@ class NSEIndex:
                     headers=headers
                 )
                 if os.path.isdir(folder_path):
-                    download_file = os.path.join(folder_path, 'daily_summary_report.csv')
+                    download_file = os.path.join(folder_path, 'summary_index_price_closing_value.csv')
                     with open(download_file, 'wb') as download_data:
                         download_data.write(response.content)
                     output = pandas.read_csv(download_file)

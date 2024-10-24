@@ -1,9 +1,9 @@
 sphinx_rtd_theme
-pandas>=2.2.2
-requests>=2.32.3
-openpyxl>=3.1.5
-xlsxwriter>=3.2.0
-beautifulsoup4>=4.12.3
-matplotlib>=3.9.2
+pandas
+requests
+openpyxl
+xlsxwriter
+beautifulsoup4
+matplotlib
 
 

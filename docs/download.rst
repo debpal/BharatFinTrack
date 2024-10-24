@@ -20,7 +20,7 @@ NSE Indices Summary
 ---------------------
 
 Download the daily summary report for all NSE indices, which is uploaded daily on the `Nifty Indices Reports <https://www.niftyindices.com/reports/daily-reports/>`_, and save
-as 'daily_summary_report.csv' in the specified folder path.
+as 'summary_index_price_closing_value.csv' in the specified folder path.
 
 .. code-block:: python
 
@@ -29,10 +29,10 @@ as 'daily_summary_report.csv' in the specified folder path.
     )
 
 
-Total Return Index (TRI)
---------------------------
+`Total Return Index (TRI)`
+----------------------------
 
-Download historical daily TRI data, including both price and dividend reinvestment, for the NIFTY 50 index. 
+Download historical daily `TRI` data, including both price and dividend reinvestment, for the NIFTY 50 index. 
 Currently, the function supports only equity indices. 
 
 .. code-block:: python
