@@ -579,7 +579,7 @@ class NSETRI:
 
         return output
 
-    def comapare_cagr_over_price(
+    def compare_cagr_over_price(
         self,
         tri_excel: str,
         price_excel: str,
