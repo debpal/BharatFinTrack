@@ -11,10 +11,11 @@ class Visual:
     Provides functionality for plotting data.
     '''
 
-    def _mi_df_bar_graph_closing_value(
+    def _mi_df_bar_closing_with_category(
         self,
         df: pandas.DataFrame,
         figure_file: str,
+        close_type: str
     ) -> matplotlib.figure.Figure:
 
         '''
@@ -22,8 +23,16 @@ class Visual:
         of NSE indices from a multi-index DataFrame.
         '''
 
+        # check close value type
+        if close_type in ['PRICE', 'TRI']:
+            pass
+        else:
+            raise Exception(f'Invalid indices close value type: {close_type}; must be one of [PRICE, TRI].')
+
         # catgory of indices
         categories = df.index.get_level_values('Category').unique()
+
+        # close date
         close_date = df['Close Date'].iloc[0].strftime('%d-%b-%Y')
 
         # color for NSE indices category
@@ -124,7 +133,7 @@ class Visual:
 
         # figure customization
         figure.suptitle(
-            'NSE Equity Indices Since Launch: Closing Value Bars with CAGR (%), Multiplier (X), and Age (Y)',
+            f'NSE Equity Indices {close_type} Since Launch: Closing Value Bars with CAGR (%), Multiplier (X), and Age (Y)',
             fontsize=15,
             y=1
         )
@@ -143,11 +152,12 @@ class Visual:
         self,
         excel_file: str,
         figure_file: str,
-        threshold_cagr: float = 10
+        close_type: str,
+        threshold_cagr: float = 10.0,
     ) -> matplotlib.figure.Figure:
 
         '''
-        Returns a bar plot of the closing values (Price/TRI) of NSE indices,
+        Returns a bar plot of the closing values (Price/TRI) of NSE indices grouped by categoty,
         filtered by a specified threshold CAGR (%) since their launch.
 
         Parameters
@@ -156,7 +166,10 @@ class Visual:
             Path of the input Excel file containing the data.
 
         figure_file : str
-            File Path to save the output figue.
+            File Path to save the output figure.
+
+        close_type : str
+            Type of closing value for indices, either 'Price' or 'TRI'.
 
         threshold_cagr : float
             Only plot indices with a CAGR (%) higher than the specified threshold.
@@ -180,9 +193,10 @@ class Visual:
             pass
 
         # figure
-        figure = self._mi_df_bar_graph_closing_value(
+        figure = self._mi_df_bar_closing_with_category(
             df=df,
-            figure_file=figure_file
+            figure_file=figure_file,
+            close_type=close_type
         )
 
         return figure
@@ -191,12 +205,13 @@ class Visual:
         self,
         excel_file: str,
         figure_file: str,
-        top_cagr: int = 5
+        close_type: str,
+        top_cagr: int = 5,
     ) -> matplotlib.figure.Figure:
 
         '''
         Returns a bar plot of the closing values (Price/TRI) of NSE indices
-        with the top CAGR (%) in each category since their launch.
+        with the top CAGR (%) since their launch, grouped by category.
 
         Parameters
         ----------
@@ -204,11 +219,14 @@ class Visual:
             Path of the input Excel file containing the data.
 
         figure_file : str
-            File Path to save the output figue.
+            File Path to save the output figure.
+
+        close_type : str
+            Type of closing value for indices, either 'Price' or 'TRI'.
 
         top_cagr : int
             The number of top indices by CAGR (%) to plot for each category.
-            Default is 3.
+            Default is 5.
 
         Returns
         -------
@@ -222,9 +240,220 @@ class Visual:
         df = df.groupby(level='Category').head(top_cagr)
 
         # figure
-        figure = self._mi_df_bar_graph_closing_value(
+        figure = self._mi_df_bar_closing_with_category(
             df=df,
-            figure_file=figure_file
+            figure_file=figure_file,
+            close_type=close_type
+        )
+
+        return figure
+
+    def _df_bar_closing(
+        self,
+        df: pandas.DataFrame,
+        figure_file: str,
+        close_type: str,
+    ) -> matplotlib.figure.Figure:
+
+        '''
+        Helper function to create a bar plot of the closing values (Price/TRI)
+        for NSE indices from a DataFrame where index categories are not specified.
+        '''
+
+        # check close value type
+        if close_type in ['PRICE', 'TRI']:
+            pass
+        else:
+            raise Exception(f'Invalid indices close value type: {close_type}; must be one of [PRICE, TRI].')
+
+        # close date
+        close_date = df['Close Date'].iloc[0].strftime('%d-%b-%Y')
+
+        # figure
+        fig_height = int(len(df) / 3.5) + 1 if len(df) > 7 else 5
+        xtick_gap = 10000
+        xaxis_max = int(((df['Close Value'].max() + 20000) / xtick_gap) + 1) * xtick_gap
+        fig_width = int((xaxis_max / xtick_gap) * 1.5)
+        figure = matplotlib.pyplot.figure(
+            figsize=(fig_width, fig_height)
+        )
+        subplot = figure.subplots(1, 1)
+
+        # check validity of input figure file path
+        check_file = Core().is_valid_figure_extension(figure_file)
+        if check_file is True:
+            pass
+        else:
+            # close the figure to prevent a blank plot from appearing
+            matplotlib.pyplot.close(figure)
+            raise Exception('Input figure file extension is not supported.')
+
+        # plotting indices closing values
+        bar_color = 'lawngreen' if close_type == 'TRI' else 'cyan'
+        for count, (index, row) in enumerate(df.iterrows()):
+            subplot.barh(
+                row['Index Name'], row['Close Value'],
+                color=bar_color
+            )
+            age = row['Years'] + (row['Days'] / 365)
+            bar_label = f"({row['CAGR(%)']:.1f}%,{round(row['Close/Base'])}X,{age:.1f}Y)"
+            subplot.text(
+                row['Close Value'] + 100, count, bar_label,
+                va='center',
+                fontsize=10
+            )
+
+        # x-axis customization
+        subplot.set_xlim(0, xaxis_max)
+        subplot.set_xticks(
+            list(range(0, xaxis_max + 1, xtick_gap))
+        )
+        xtick_labels = [
+            f'{int(val / 1000)}k' for val in list(range(0, xaxis_max + 1, xtick_gap))
+        ]
+        subplot.set_xticklabels(xtick_labels, fontsize=12)
+        subplot.tick_params(
+            axis='x', which='both',
+            direction='in', length=6, width=1,
+            top=True, bottom=True,
+            labeltop=True, labelbottom=True
+        )
+        subplot.grid(
+            visible=True,
+            which='major', axis='x',
+            color='gray',
+            linestyle='--', linewidth=0.3
+        )
+        subplot.set_xlabel(
+            f'Close Value (Date: {close_date})',
+            fontsize=15,
+            labelpad=15
+        )
+
+        # reverse y-axis
+        subplot.invert_yaxis()
+
+        # y-axis customization
+        subplot.set_ylabel(
+            'Index Name',
+            fontsize=20,
+            labelpad=15
+        )
+        subplot.set_ylim(len(df), -1)
+
+        # figure customization
+        figure.suptitle(
+            f'NSE Equity Indices {close_type} Since Launch: Closing Value Bars with CAGR (%), Multiplier (X), and Age (Y)',
+            fontsize=15,
+            y=1
+        )
+        figure.tight_layout()
+        figure.savefig(
+            figure_file,
+            bbox_inches='tight'
+        )
+
+        # close the figure to prevent duplicate plots from displaying
+        matplotlib.pyplot.close(figure)
+
+        return figure
+
+    def plot_cagr_filtered_indices(
+        self,
+        excel_file: str,
+        figure_file: str,
+        close_type: str,
+        threshold_cagr: float = 20.0,
+    ) -> matplotlib.figure.Figure:
+
+        '''
+        Returns a bar plot of the closing values (Price/TRI) of NSE indices,
+        filtered by a specified threshold CAGR (%) since their launch.
+
+        Parameters
+        ----------
+        excel_file : str
+            Path of the input Excel file containing the data.
+
+        figure_file : str
+            File Path to save the output figue.
+
+        close_type : str
+            Type of closing value for indices, either 'Price' or 'TRI'.
+
+        threshold_cagr : float
+            Only plot indices with a CAGR (%) higher than the specified threshold.
+            Default is 20.
+
+        Returns
+        -------
+        Figure
+            A bar plot displaying closing values of NSE indices, along with
+            CAGR (%), Multiplier (X), and Age (Y) since launch.
+        '''
+
+        # input DataFrame
+        df = pandas.read_excel(excel_file)
+        df = df[df['CAGR(%)'] >= threshold_cagr]
+
+        # check filtered dataframe
+        if len(df) == 0:
+            raise Exception('Threshold values return an empty DataFrame.')
+        else:
+            pass
+
+        # figure
+        figure = self._df_bar_closing(
+            df=df,
+            figure_file=figure_file,
+            close_type=close_type
+        )
+
+        return figure
+
+    def plot_top_cagr_indices(
+        self,
+        excel_file: str,
+        figure_file: str,
+        close_type: str,
+        top_cagr: int = 20
+    ) -> matplotlib.figure.Figure:
+
+        '''
+        Returns a bar plot of the closing values (Price/TRI) of NSE indices
+        with the top CAGR (%) since their launch.
+
+        Parameters
+        ----------
+        excel_file : str
+            Path of the input Excel file containing the data.
+
+        figure_file : str
+            File Path to save the output figue.
+
+        close_type : str
+            Type of closing value for indices, either 'Price' or 'TRI'.
+
+        top_cagr : int
+            The number of top indices by CAGR (%) to plot for each category.
+            Default is 20.
+
+        Returns
+        -------
+        Figure
+            A bar plot displaying closing values of NSE indices, along with
+            CAGR (%), Multiplier (X), and Age (Y) since launch.
+        '''
+
+        # input DataFrame
+        df = pandas.read_excel(excel_file)
+        df = df.head(top_cagr)
+
+        # figure
+        figure = self._df_bar_closing(
+            df=df,
+            figure_file=figure_file,
+            close_type=close_type
         )
 
         return figure

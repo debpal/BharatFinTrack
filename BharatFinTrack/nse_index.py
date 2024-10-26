@@ -187,6 +187,13 @@ class NSEIndex:
             A DataFrame sorted in descending order by CAGR (%) since launch for all NSE equity indices.
         '''
 
+        # check the Excel file extension first
+        excel_ext = Core()._excel_file_extension(excel_file)
+        if excel_ext == '.xlsx':
+            pass
+        else:
+            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
+
         # DataFrame of CAGR(%)
         cagr_df = self.equity_cagr_from_launch(
             http_headers=http_headers,
@@ -202,37 +209,31 @@ class NSEIndex:
         output = cagr_df.reset_index(drop=True)
 
         # saving DataFrame
-        excel_ext = Core()._excel_file_extension(excel_file)
-        if excel_ext != '.xlsx':
-            raise Exception(
-                f'Input file extension "{excel_ext}" does not match the required ".xlsx".'
-            )
-        else:
-            with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
-                output.to_excel(excel_writer, index=False)
-                workbook = excel_writer.book
-                worksheet = excel_writer.sheets['Sheet1']
-                # format columns
-                for col_num, col_df in enumerate(output.columns):
-                    if col_df == 'Index Name':
-                        worksheet.set_column(col_num, col_num, 60)
-                    elif col_df == 'Close Value':
-                        worksheet.set_column(
-                            col_num, col_num, 15,
-                            workbook.add_format({'num_format': '#,##0'})
-                        )
-                    elif col_df == 'Close/Base':
-                        worksheet.set_column(
-                            col_num, col_num, 15,
-                            workbook.add_format({'num_format': '#,##0.0'})
-                        )
-                    elif col_df == 'CAGR(%)':
-                        worksheet.set_column(
-                            col_num, col_num, 15,
-                            workbook.add_format({'num_format': '#,##0.00'})
-                        )
-                    else:
-                        worksheet.set_column(col_num, col_num, 15)
+        with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
+            output.to_excel(excel_writer, index=False)
+            workbook = excel_writer.book
+            worksheet = excel_writer.sheets['Sheet1']
+            # format columns
+            for col_num, col_df in enumerate(output.columns):
+                if col_df == 'Index Name':
+                    worksheet.set_column(col_num, col_num, 60)
+                elif col_df == 'Close Value':
+                    worksheet.set_column(
+                        col_num, col_num, 15,
+                        workbook.add_format({'num_format': '#,##0'})
+                    )
+                elif col_df == 'Close/Base':
+                    worksheet.set_column(
+                        col_num, col_num, 15,
+                        workbook.add_format({'num_format': '#,##0.0'})
+                    )
+                elif col_df == 'CAGR(%)':
+                    worksheet.set_column(
+                        col_num, col_num, 15,
+                        workbook.add_format({'num_format': '#,##0.00'})
+                    )
+                else:
+                    worksheet.set_column(col_num, col_num, 15)
 
         return output
 
@@ -261,6 +262,13 @@ class NSEIndex:
             A multi-index DataFrame sorted in descending order by CAGR (%)
             since launch within each index category.
         '''
+
+        # check the Excel file extension first
+        excel_ext = Core()._excel_file_extension(excel_file)
+        if excel_ext == '.xlsx':
+            pass
+        else:
+            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
 
         # DataFrame of CAGR(%)
         cagr_df = self.equity_cagr_from_launch(
@@ -292,59 +300,53 @@ class NSEIndex:
         )
 
         # saving the DataFrame
-        excel_ext = Core()._excel_file_extension(excel_file)
-        if excel_ext != '.xlsx':
-            raise Exception(
-                f'Input file extension "{excel_ext}" does not match the required ".xlsx".'
-            )
-        else:
-            with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
-                output.to_excel(excel_writer, index=True)
-                workbook = excel_writer.book
-                worksheet = excel_writer.sheets['Sheet1']
-                # number of columns for DataFrame indices
-                index_cols = len(output.index.names)
-                # format columns
-                worksheet.set_column(0, index_cols - 1, 15)
-                for col_num, col_df in enumerate(output.columns):
-                    if col_df == 'Index Name':
-                        worksheet.set_column(index_cols + col_num, index_cols + col_num, 60)
-                    elif col_df == 'Close Value':
-                        worksheet.set_column(
-                            index_cols + col_num, index_cols + col_num, 15,
-                            workbook.add_format({'num_format': '#,##0'})
-                        )
-                    elif col_df == 'Close/Base':
-                        worksheet.set_column(
-                            index_cols + col_num, index_cols + col_num, 15,
-                            workbook.add_format({'num_format': '#,##0.0'})
-                        )
-                    elif col_df == 'CAGR(%)':
-                        worksheet.set_column(
-                            index_cols + col_num, index_cols + col_num, 15,
-                            workbook.add_format({'num_format': '#,##0.00'})
-                        )
-                    else:
-                        worksheet.set_column(index_cols + col_num, index_cols + col_num, 15)
-                # Dataframe colors
-                get_colormap = matplotlib.colormaps.get_cmap('Pastel2')
-                colors = [
-                    get_colormap(count / len(dataframes)) for count in range(len(dataframes))
-                ]
-                hex_colors = [
-                    '{:02X}{:02X}{:02X}'.format(*[int(num * 255) for num in color]) for color in colors
-                ]
-                # coloring of DataFrames
-                start_col = index_cols - 1
-                end_col = index_cols + len(output.columns) - 1
-                start_row = 1
-                for df, color in zip(dataframes, hex_colors):
-                    color_format = workbook.add_format({'bg_color': color})
-                    end_row = start_row + len(df) - 1
-                    worksheet.conditional_format(
-                        start_row, start_col, end_row, end_col,
-                        {'type': 'no_blanks', 'format': color_format}
+        with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
+            output.to_excel(excel_writer, index=True)
+            workbook = excel_writer.book
+            worksheet = excel_writer.sheets['Sheet1']
+            # number of columns for DataFrame indices
+            index_cols = len(output.index.names)
+            # format columns
+            worksheet.set_column(0, index_cols - 1, 15)
+            for col_num, col_df in enumerate(output.columns):
+                if col_df == 'Index Name':
+                    worksheet.set_column(index_cols + col_num, index_cols + col_num, 60)
+                elif col_df == 'Close Value':
+                    worksheet.set_column(
+                        index_cols + col_num, index_cols + col_num, 15,
+                        workbook.add_format({'num_format': '#,##0'})
                     )
-                    start_row = end_row + 1
+                elif col_df == 'Close/Base':
+                    worksheet.set_column(
+                        index_cols + col_num, index_cols + col_num, 15,
+                        workbook.add_format({'num_format': '#,##0.0'})
+                    )
+                elif col_df == 'CAGR(%)':
+                    worksheet.set_column(
+                        index_cols + col_num, index_cols + col_num, 15,
+                        workbook.add_format({'num_format': '#,##0.00'})
+                    )
+                else:
+                    worksheet.set_column(index_cols + col_num, index_cols + col_num, 15)
+            # Dataframe colors
+            get_colormap = matplotlib.colormaps.get_cmap('Pastel2')
+            colors = [
+                get_colormap(count / len(dataframes)) for count in range(len(dataframes))
+            ]
+            hex_colors = [
+                '{:02X}{:02X}{:02X}'.format(*[int(num * 255) for num in color]) for color in colors
+            ]
+            # coloring of DataFrames
+            start_col = index_cols - 1
+            end_col = index_cols + len(output.columns) - 1
+            start_row = 1
+            for df, color in zip(dataframes, hex_colors):
+                color_format = workbook.add_format({'bg_color': color})
+                end_row = start_row + len(df) - 1
+                worksheet.conditional_format(
+                    start_row, start_col, end_row, end_col,
+                    {'type': 'no_blanks', 'format': color_format}
+                )
+                start_row = end_row + 1
 
         return output

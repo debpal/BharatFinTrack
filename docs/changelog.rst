@@ -3,6 +3,18 @@ Release Notes
 ===============
 
 
+Version 0.1.7
+---------------
+
+* **Release date:** 26-Oct-2024
+  
+* **Feature Additions:** 
+
+    * Added support for newly launched NSE equity indices.
+    * Enhanced functionality for calculating the CAGR difference between `Price` and `TRI` indices in the :class:`BharatFinTrack.NSETRI` class.
+    * Improved data visualization capabilities in the :class:`BharatFinTrack.Visual` class.
+
+
 Version 0.1.6
 ---------------
 

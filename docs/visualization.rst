@@ -17,37 +17,52 @@ Let's start by instantiating the class.
 Equity Index Closing Values
 -----------------------------
 
-We plot a bar graph of the closing values of `Price` for NSE equity indices, sorted in descending order of CAGR (%) since launch by category.
-To obtain the necessary data, use the Excel files generated from the :ref:`Equity Index Price CAGR <fucn_equity_index_price_cagr>` 
-and :ref:`Equity TRI CAGR <fucn_equity_tri_cagr>` sections. The following code produces a plot of the closing TRI values. 
-You can also experiment with index prices to observe differences in the results.
+This section provides bar plots of NSE equity indices’ closing values, focusing on `Price` and `TRI` performance metrics sorted by CAGR (%). The data for these visualizations can be sourced from the Excel files generated in the :ref:`Equity Index Price CAGR <fucn_equity_index_price_cagr>` 
+and :ref:`Equity TRI CAGR <fucn_equity_tri_cagr>` sections. 
+
+
+The code below plots a bar graph, sorted in descending order by CAGR (≥ 15%) since inception and grouped by index category. Users can substitute `TRI` with `Price` to explore variations.
 
 
 .. code-block:: python
     
-    # bar plot of NSE indices, closing values sorted by TRI CAGR (≥ 15%) since inception, by category
     visual.plot_cagr_filtered_indices_by_category(
         excel_file=r"C:\Users\Username\Folder\tri_sort_cagr_by_category.xlsx",
-        figure_file=r"C:\Users\Username\Folder\plot_tri_sort_cagr_by_category.png",
+        figure_file=r"C:\Users\Username\Folder\plot_tri_sort_cagr_filtered_by_category.png",
         threshold_cagr=15
     )
 
 
-The following code generates a bar plot of closing values for NSE equity indices `TRI` with the top five CAGR (%) since launch in each category.
+The following code generates a bar plot for the top five NSE equity indices by `TRI` CAGR (%) within each category since launch.
 
 .. code-block:: python
     
     visual.plot_top_cagr_indices_by_category(
-        excel_file=r"C:\Users\dpal22\Desktop\code_data\d_finance\nifty_indices_cagr_from_inception\tri_sort_cagr_by_category.xlsx",
-        figure_file=r"C:\Users\dpal22\Desktop\code_data\d_finance\nifty_indices_cagr_from_inception\tri_top_cagr_by_category.png",
+        excel_file=r"C:\Users\Username\Folder\tri_sort_cagr_by_category.xlsx",
+        figure_file=r"C:\Users\Username\Folder\plot_tri_top_cagr_by_category.png",
         top_cagr=5
     )
     
     
 The output plot will resemble the following figure, but keep in mind that the closing values change with each trading day.
-    
 
 .. image:: _static/tri_top_cagr_by_category.png
+   :align: left
+
+
+This code generates a bar plot of the top twenty NSE equity indices by overall `TRI` CAGR (%).
+
+.. code-block:: python
+    
+    visual.plot_top_cagr_indices(
+        excel_file=r"C:\Users\Username\Folder\tri_sort_cagr.xlsx",
+        figure_file=r"C:\Users\Username\Folder\tri_top_cagr.png",
+        top_cagr=20
+    )
+    
+The resulting plot will resemble the example shown below.
+
+.. image:: _static/tri_top_cagr.png
    :align: left
 
 

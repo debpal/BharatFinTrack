@@ -62,7 +62,6 @@ It is recommended to use this function at night when web traffic to the website 
     
     
 The above Excel file is used to sort equity indices based on their CAGR since inception. 
-This helps users understand the differences in CAGR between the `Price` and `TRI` of all NSE equity indices.
     
 .. code-block:: python
     
@@ -77,16 +76,18 @@ This helps users understand the differences in CAGR between the `Price` and `TRI
         input_excel=excel_file,
         output_excel=r"C:\Users\Username\Folder\tri_sort_cagr_by_category.xlsx"
     )
-
-
-
-
-
-
-
-
     
-
-
     
+CAGR Difference
+-----------------
+This method shows users the differences in CAGR between the `Price` and `TRI` of NSE equity indices.
+
+.. code-block:: python
+    
+    nse_tri.compare_cagr_over_price(
+        tri_excel=r"C:\Users\Username\Folder\tri_sort_cagr.xlsx",
+        price_excel=r"C:\Users\Username\Folder\price_sort_cagr.xlsx"
+        output_excel=r"C:\Users\Username\Folder\compare_cagr_tri_price.xlsx"
+    )
+   
     

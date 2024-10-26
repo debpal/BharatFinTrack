@@ -40,9 +40,9 @@ Currently, the function supports only equity indices.
     # donwloading daily closing TRI data between start and end dates for NIFTY 50
     nse_tri.download_historical_daily_data(
         index='NIFTY 50',
+        excel_file=r"C:\Users\Username\Folder\NIFTY50.xlsx",
     	start_date='01-Apr-2023',
-    	end_date='31-Mar-2024',
-        excel_file=r"C:\Users\Username\Folder\NIFTY50.xlsx"
+    	end_date='31-Mar-2024'   
     )
     
     # Using the same excel file to update daily closing TRI data to the present date

@@ -4,6 +4,8 @@ import dateutil.relativedelta
 import pandas
 import matplotlib
 import matplotlib.pyplot
+import tempfile
+import os
 from .nse_product import NSEProduct
 from .core import Core
 
@@ -79,10 +81,10 @@ class NSETRI:
     def download_historical_daily_data(
         self,
         index: str,
+        excel_file: str,
         start_date: typing.Optional[str] = None,
         end_date: typing.Optional[str] = None,
-        http_headers: typing.Optional[dict[str, str]] = None,
-        excel_file: typing.Optional[str] = None
+        http_headers: typing.Optional[dict[str, str]] = None
     ) -> pandas.DataFrame:
 
         '''
@@ -115,6 +117,13 @@ class NSETRI:
             A DataFrame containing the daily closing values for the index between the specified dates.
         '''
 
+        # check the Excel file extension first
+        excel_ext = Core()._excel_file_extension(excel_file)
+        if excel_ext == '.xlsx':
+            pass
+        else:
+            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
+
         # check index name
         if self.is_index_open_source(index) is True:
             index_api = self._index_api.get(index, index)
@@ -142,13 +151,6 @@ class NSETRI:
         else:
             raise Exception(f'Start date {start_date} cannot be later than end date {end_date}.')
 
-        # check the Excel file extension first
-        excel_ext = Core()._excel_file_extension(excel_file) if excel_file is not None else None
-        if excel_ext is None or excel_ext == '.xlsx':
-            pass
-        else:
-            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
-
         # downloaded DataFrame
         df = Core()._download_nse_tri(
             index_api=index_api,
@@ -159,13 +161,10 @@ class NSETRI:
         )
 
         # saving the DataFrame
-        if excel_ext is None:
-            pass
-        else:
-            with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
-                df.to_excel(excel_writer, index=False)
-                worksheet = excel_writer.sheets['Sheet1']
-                worksheet.set_column(0, 1, 12)
+        with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
+            df.to_excel(excel_writer, index=False)
+            worksheet = excel_writer.sheets['Sheet1']
+            worksheet.set_column(0, 1, 12)
 
         return df
 
@@ -205,12 +204,14 @@ class NSETRI:
         )
 
         # addition of downloaded DataFrame
-        add_df = self.download_historical_daily_data(
-            index=index,
-            start_date=df.iloc[-1, 0].strftime('%d-%b-%Y'),
-            end_date=datetime.date.today().strftime('%d-%b-%Y'),
-            http_headers=http_headers
-        )
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            add_df = self.download_historical_daily_data(
+                index=index,
+                excel_file=os.path.join(tmp_dir, 'temporary.xlsx'),
+                start_date=df.iloc[-1, 0].strftime('%d-%b-%Y'),
+                end_date=datetime.date.today().strftime('%d-%b-%Y'),
+                http_headers=http_headers
+            )
 
         # updating the DataFrame
         update_df = pandas.concat([df, add_df]) if isinstance(add_df, pandas.DataFrame) else df
@@ -273,18 +274,20 @@ class NSETRI:
         week_ago = today - datetime.timedelta(days=7)
         end_date = today.strftime('%d-%b-%Y')
         start_date = week_ago.strftime('%d-%b-%Y')
-        for base_index in base_df.index:
-            try:
-                index_df = self.download_historical_daily_data(
-                    index=base_df.loc[base_index, 'Index Name'],
-                    start_date=start_date,
-                    end_date=end_date
-                )
-                base_df.loc[base_index, 'Close Date'] = index_df.iloc[-1, 0]
-                base_df.loc[base_index, 'Close Value'] = index_df.iloc[-1, -1]
-            except Exception:
-                base_df.loc[base_index, 'Close Date'] = end_date
-                base_df.loc[base_index, 'Close Value'] = -1000
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            for base_index in base_df.index:
+                try:
+                    index_df = self.download_historical_daily_data(
+                        index=base_df.loc[base_index, 'Index Name'],
+                        excel_file=os.path.join(tmp_dir, 'temporary.xlsx'),
+                        start_date=start_date,
+                        end_date=end_date
+                    )
+                    base_df.loc[base_index, 'Close Date'] = index_df.iloc[-1, 0]
+                    base_df.loc[base_index, 'Close Value'] = index_df.iloc[-1, -1]
+                except Exception:
+                    base_df.loc[base_index, 'Close Date'] = end_date
+                    base_df.loc[base_index, 'Close Value'] = -1000
 
         # removing error rows from the DataFrame
         base_df = base_df[base_df['Close Value'] != -1000].reset_index(drop=True)
@@ -325,6 +328,13 @@ class NSETRI:
             A DataFrame sorted in descending order by TRI values since launch.
         '''
 
+        # check the Excel file extension first
+        excel_ext = Core()._excel_file_extension(output_excel)
+        if excel_ext == '.xlsx':
+            pass
+        else:
+            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
+
         # sorting DataFrame by TRI values
         df = pandas.read_excel(input_excel)
         df = df.drop(columns=['Category'])
@@ -340,21 +350,15 @@ class NSETRI:
                 pass
 
         # saving the DataFrame
-        excel_ext = Core()._excel_file_extension(output_excel)
-        if excel_ext != '.xlsx':
-            raise Exception(
-                f'Input file extension "{excel_ext}" does not match the required ".xlsx".'
-            )
-        else:
-            with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
-                df.to_excel(excel_writer, index=False)
-                worksheet = excel_writer.sheets['Sheet1']
-                # format columns
-                for col_num, col_df in enumerate(df.columns):
-                    if col_df == 'Index Name':
-                        worksheet.set_column(col_num, col_num, 60)
-                    else:
-                        worksheet.set_column(col_num, col_num, 15)
+        with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
+            df.to_excel(excel_writer, index=False)
+            worksheet = excel_writer.sheets['Sheet1']
+            # format columns
+            for col_num, col_df in enumerate(df.columns):
+                if col_df == 'Index Name':
+                    worksheet.set_column(col_num, col_num, 60)
+                else:
+                    worksheet.set_column(col_num, col_num, 15)
 
         return df
 
@@ -380,6 +384,13 @@ class NSETRI:
         DataFrame
             A DataFrame sorted in descending order by CAGR (%) values since launch.
         '''
+
+        # check the Excel file extension first
+        excel_ext = Core()._excel_file_extension(output_excel)
+        if excel_ext == '.xlsx':
+            pass
+        else:
+            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
 
         # DataFrame processing
         df = pandas.read_excel(input_excel)
@@ -411,37 +422,31 @@ class NSETRI:
         df = df.reset_index(drop=True)
 
         # saving the DataFrame
-        excel_ext = Core()._excel_file_extension(output_excel)
-        if excel_ext != '.xlsx':
-            raise Exception(
-                f'Input file extension "{excel_ext}" does not match the required ".xlsx".'
-            )
-        else:
-            with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
-                df.to_excel(excel_writer, index=False)
-                workbook = excel_writer.book
-                worksheet = excel_writer.sheets['Sheet1']
-                # format columns
-                for col_num, col_df in enumerate(df.columns):
-                    if col_df == 'Index Name':
-                        worksheet.set_column(col_num, col_num, 60)
-                    elif col_df == 'Close Value':
-                        worksheet.set_column(
-                            col_num, col_num, 15,
-                            workbook.add_format({'num_format': '#,##0'})
-                        )
-                    elif col_df == 'Close/Base':
-                        worksheet.set_column(
-                            col_num, col_num, 15,
-                            workbook.add_format({'num_format': '#,##0.0'})
-                        )
-                    elif col_df == 'CAGR(%)':
-                        worksheet.set_column(
-                            col_num, col_num, 15,
-                            workbook.add_format({'num_format': '#,##0.00'})
-                        )
-                    else:
-                        worksheet.set_column(col_num, col_num, 15)
+        with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
+            df.to_excel(excel_writer, index=False)
+            workbook = excel_writer.book
+            worksheet = excel_writer.sheets['Sheet1']
+            # format columns
+            for col_num, col_df in enumerate(df.columns):
+                if col_df == 'Index Name':
+                    worksheet.set_column(col_num, col_num, 60)
+                elif col_df == 'Close Value':
+                    worksheet.set_column(
+                        col_num, col_num, 15,
+                        workbook.add_format({'num_format': '#,##0'})
+                    )
+                elif col_df == 'Close/Base':
+                    worksheet.set_column(
+                        col_num, col_num, 15,
+                        workbook.add_format({'num_format': '#,##0.0'})
+                    )
+                elif col_df == 'CAGR(%)':
+                    worksheet.set_column(
+                        col_num, col_num, 15,
+                        workbook.add_format({'num_format': '#,##0.00'})
+                    )
+                else:
+                    worksheet.set_column(col_num, col_num, 15)
 
         return df
 
@@ -469,6 +474,13 @@ class NSETRI:
             A multi-index DataFrame sorted in descending order by CAGR (%) values since launch
             within each index category.
         '''
+
+        # check the Excel file extension first
+        excel_ext = Core()._excel_file_extension(output_excel)
+        if excel_ext == '.xlsx':
+            pass
+        else:
+            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
 
         # DataFrame processing
         df = pandas.read_excel(input_excel)
@@ -516,59 +528,111 @@ class NSETRI:
         )
 
         # saving the DataFrame
-        excel_ext = Core()._excel_file_extension(output_excel)
-        if excel_ext != '.xlsx':
-            raise Exception(
-                f'Input file extension "{excel_ext}" does not match the required ".xlsx".'
-            )
-        else:
-            with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
-                output.to_excel(excel_writer, index=True)
-                workbook = excel_writer.book
-                worksheet = excel_writer.sheets['Sheet1']
-                # number of columns for DataFrame indices
-                index_cols = len(output.index.names)
-                # format columns
-                worksheet.set_column(0, index_cols - 1, 15)
-                for col_num, col_df in enumerate(output.columns):
-                    if col_df == 'Index Name':
-                        worksheet.set_column(index_cols + col_num, index_cols + col_num, 60)
-                    elif col_df == 'Close Value':
-                        worksheet.set_column(
-                            index_cols + col_num, index_cols + col_num, 15,
-                            workbook.add_format({'num_format': '#,##0'})
-                        )
-                    elif col_df == 'Close/Base':
-                        worksheet.set_column(
-                            index_cols + col_num, index_cols + col_num, 15,
-                            workbook.add_format({'num_format': '#,##0.0'})
-                        )
-                    elif col_df == 'CAGR(%)':
-                        worksheet.set_column(
-                            index_cols + col_num, index_cols + col_num, 15,
-                            workbook.add_format({'num_format': '#,##0.00'})
-                        )
-                    else:
-                        worksheet.set_column(index_cols + col_num, index_cols + col_num, 15)
-                # Dataframe colors
-                get_colormap = matplotlib.colormaps.get_cmap('Pastel2')
-                colors = [
-                    get_colormap(count / len(dataframes)) for count in range(len(dataframes))
-                ]
-                hex_colors = [
-                    '{:02X}{:02X}{:02X}'.format(*[int(num * 255) for num in color]) for color in colors
-                ]
-                # coloring of DataFrames
-                start_col = index_cols - 1
-                end_col = index_cols + len(output.columns) - 1
-                start_row = 1
-                for df, color in zip(dataframes, hex_colors):
-                    color_format = workbook.add_format({'bg_color': color})
-                    end_row = start_row + len(df) - 1
-                    worksheet.conditional_format(
-                        start_row, start_col, end_row, end_col,
-                        {'type': 'no_blanks', 'format': color_format}
+        with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
+            output.to_excel(excel_writer, index=True)
+            workbook = excel_writer.book
+            worksheet = excel_writer.sheets['Sheet1']
+            # number of columns for DataFrame indices
+            index_cols = len(output.index.names)
+            # format columns
+            worksheet.set_column(0, index_cols - 1, 15)
+            for col_num, col_df in enumerate(output.columns):
+                if col_df == 'Index Name':
+                    worksheet.set_column(index_cols + col_num, index_cols + col_num, 60)
+                elif col_df == 'Close Value':
+                    worksheet.set_column(
+                        index_cols + col_num, index_cols + col_num, 15,
+                        workbook.add_format({'num_format': '#,##0'})
                     )
-                    start_row = end_row + 1
+                elif col_df == 'Close/Base':
+                    worksheet.set_column(
+                        index_cols + col_num, index_cols + col_num, 15,
+                        workbook.add_format({'num_format': '#,##0.0'})
+                    )
+                elif col_df == 'CAGR(%)':
+                    worksheet.set_column(
+                        index_cols + col_num, index_cols + col_num, 15,
+                        workbook.add_format({'num_format': '#,##0.00'})
+                    )
+                else:
+                    worksheet.set_column(index_cols + col_num, index_cols + col_num, 15)
+            # Dataframe colors
+            get_colormap = matplotlib.colormaps.get_cmap('Pastel2')
+            colors = [
+                get_colormap(count / len(dataframes)) for count in range(len(dataframes))
+            ]
+            hex_colors = [
+                '{:02X}{:02X}{:02X}'.format(*[int(num * 255) for num in color]) for color in colors
+            ]
+            # coloring of DataFrames
+            start_col = index_cols - 1
+            end_col = index_cols + len(output.columns) - 1
+            start_row = 1
+            for df, color in zip(dataframes, hex_colors):
+                color_format = workbook.add_format({'bg_color': color})
+                end_row = start_row + len(df) - 1
+                worksheet.conditional_format(
+                    start_row, start_col, end_row, end_col,
+                    {'type': 'no_blanks', 'format': color_format}
+                )
+                start_row = end_row + 1
 
         return output
+
+    def comapare_cagr_over_price(
+        self,
+        tri_excel: str,
+        price_excel: str,
+        output_excel: str
+    ) -> pandas.DataFrame:
+
+        # check the Excel file extension first
+        excel_ext = Core()._excel_file_extension(output_excel)
+        if excel_ext == '.xlsx':
+            pass
+        else:
+            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
+
+        # TRI Dataframe
+        tri_df = pandas.read_excel(tri_excel)
+        tri_df = tri_df.rename(
+            columns={'CAGR(%)': 'TRI-CAGR(%)'}
+        )
+        for date_col in ['Base Date', 'Close Date']:
+            tri_df[date_col] = tri_df[date_col].apply(lambda x: x.date())
+
+        # Price DataFrame
+        price_df = pandas.read_excel(price_excel)
+        price_df = price_df.rename(
+            columns={'CAGR(%)': 'PRICE-CAGR(%)'}
+        )
+
+        # merge TRI and PRICE DataFrames
+        df = tri_df.merge(
+            right=price_df[['Index Name', 'PRICE-CAGR(%)']],
+            on='Index Name',
+            how='left'
+        )
+        df['Difference(%)'] = tri_df['TRI-CAGR(%)'] - price_df['PRICE-CAGR(%)']
+        df = df.drop(
+            columns=['Close Value', 'Close/Base']
+        )
+
+        # saving the DataFrame
+        with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
+            df.to_excel(excel_writer, index=False)
+            workbook = excel_writer.book
+            worksheet = excel_writer.sheets['Sheet1']
+            # format columns
+            for col_num, col_df in enumerate(df.columns):
+                if col_df == 'Index Name':
+                    worksheet.set_column(col_num, col_num, 60)
+                elif col_df.endswith('(%)'):
+                    worksheet.set_column(
+                        col_num, col_num, 15,
+                        workbook.add_format({'num_format': '#,##0.00'})
+                    )
+                else:
+                    worksheet.set_column(col_num, col_num, 15)
+
+        return df

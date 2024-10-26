@@ -15,14 +15,15 @@
 ## Functionality
     
 * Calculates the updated Compound Annual Growth Rate (CAGR) for both `Price` and `TRI` since the inception of all NSE equity indices.
+* Compare CAGR (%) between `Price` and `TRI`.
 * Sorts NSE equity indices by CAGR (%) values.
 * Sorts NSE equity indices by CAGR (%) within each category.
 
 
 ## Visualization
 
-* Plots the descending CAGR (%) for NSE equity indices, organized by category since inception.
-* Plots the top-performing NSE indices by CAGR (%) for a specified number of indices in each category since their launch.
+* Displays bar graphs of NSE equity indices’ closing values with descending CAGR (%) since inception, both overall and by index category.
+* Shows bar graphs of top-performing NSE equity indices by CAGR (%) since launch, with options to view a specified number of top indices, either overall or within each category.
 
 
 ## Easy Installation
@@ -50,12 +51,6 @@ A brief example of how to start:
  ...]
 ```
 
-## Top Performing NSE Equity Indices
-
-The bar plot displays the closing values for NSE equity indices `TRI` with the top five CAGR (%) since launch in each category.
-
-![Top performing NSE equity indices by CAGR(%)](BharatFinTrack/data/tri_top_cagr_by_category.png)
-
 ## Documentation
 For detailed information, see the [documentation](http://bharatfintrack.readthedocs.io/).
 
@@ -75,5 +70,5 @@ If this project has been helpful and you'd like to contribute to its development
 | **GitHub** | ![GitHub last commit](https://img.shields.io/github/last-commit/debpal/BharatFinTrack) [![flake8](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml)	[![mypy](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml) [![pytest](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml) |
 | **Codecov** | [![codecov](https://codecov.io/github/debpal/BharatFinTrack/graph/badge.svg?token=6DIYX8MUTM)](https://codecov.io/github/debpal/BharatFinTrack) |
 | **Read** _the_ **Docs** | [![Documentation Status](https://readthedocs.org/projects/bharatfintrack/badge/?version=latest)](https://bharatfintrack.readthedocs.io/en/latest/?badge=latest) |
-| **PePy** | ![Pepy Total Downloads](https://img.shields.io/pepy/dt/BharatFinTrack) [![Downloads](https://static.pepy.tech/badge/BharatFinTrack/month)](https://pepy.tech/project/BharatFinTrack) |
+| **PePy** | ![Pepy Total Downloads](https://img.shields.io/pepy/dt/BharatFinTrack)|
 | **License** | ![PyPI - License](https://img.shields.io/pypi/l/BharatFinTrack) |

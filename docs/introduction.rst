@@ -27,6 +27,6 @@ Functionality
 Visualization
 ---------------
 
-* Plots the descending CAGR (%) for NSE equity indices, organized by category since inception.
-* Plots the top-performing NSE indices by CAGR (%) for a specified number of indices in each category since their launch.
+* Displays bar graphs of NSE equity indices’ closing values with descending CAGR (%) since inception, both overall and by index category.
+* Shows bar graphs of top-performing NSE equity indices by CAGR (%) since launch, with options to view a specified number of top indices, either overall or within each category.
     
