@@ -46,7 +46,7 @@ The following code generates a bar plot for the top five NSE equity indices by `
     
 The output plot will resemble the following figure, but keep in mind that the closing values change with each trading day.
 
-.. image:: _static/tri_top_cagr_by_category.png
+.. image:: _static/tri_top_cagr_by_category.svg
    :align: left
 
 
@@ -62,7 +62,7 @@ This code generates a bar plot of the top twenty NSE equity indices by overall `
     
 The resulting plot will resemble the example shown below.
 
-.. image:: _static/tri_top_cagr.png
+.. image:: _static/tri_top_cagr.svg
    :align: left
 
 
