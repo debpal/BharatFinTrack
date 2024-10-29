@@ -51,6 +51,8 @@ A brief example of how to start:
  ...]
 ```
 
+![Top NSE Equity Indices Figure](https://github.com/debpal/BharatFinTrack/blob/master/docs/_static/tri_top_cagr_by_category.svg)
+
 ## Documentation
 For detailed information, see the [documentation](http://bharatfintrack.readthedocs.io/).
 
