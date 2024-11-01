@@ -29,7 +29,10 @@ as 'summary_index_price_closing_value.csv' in the specified folder path.
     )
 
 
-`Total Return Index (TRI)`
+
+.. _f_download_tri:
+
+Total Return Index (`TRI`)
 ----------------------------
 
 Download historical daily `TRI` data, including both price and dividend reinvestment, for the NIFTY 50 index. 
@@ -37,16 +40,16 @@ Currently, the function supports only equity indices.
 
 .. code-block:: python
     
-    # donwloading daily closing TRI data between start and end dates for NIFTY 50
+    # donwloading daily closing TRI data for NIFTY 50 and a specified end date
     nse_tri.download_historical_daily_data(
         index='NIFTY 50',
-        excel_file=r"C:\Users\Username\Folder\NIFTY50.xlsx",
-    	start_date='01-Apr-2023',
+        excel_file=r"C:\Users\Username\Folder\NIFTY 50.xlsx",
+    	start_date=None,
     	end_date='31-Mar-2024'   
     )
     
     # Using the same excel file to update daily closing TRI data to the present date
     nse_tri.update_historical_daily_dataa(
         index='NIFTY 50',
-        excel_file=r"C:\Users\Username\Folder\NIFTY50.xlsx"
+        excel_file=r"C:\Users\Username\Folder\NIFTY 50.xlsx"
     )

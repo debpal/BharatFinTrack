@@ -2,6 +2,16 @@
 Release Notes
 ===============
 
+Version 0.1.8
+---------------
+
+* **Release date:** 01-Nov-2024
+  
+* **Feature Additions:** 
+
+    * Enhanced functionality for SIP in the :class:`BharatFinTrack.NSETRI` class.
+    * Added data visualization capabilities for SIP in the :class:`BharatFinTrack.Visual` class.
+
 
 Version 0.1.7
 ---------------

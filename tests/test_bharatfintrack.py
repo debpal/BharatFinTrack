@@ -308,7 +308,7 @@ def test_equity_index_tri_closing(
         df = pandas.read_excel(output_excel, index_col=[0, 1])
         assert len(df.index.get_level_values('Category').unique()) <= 4
         # pass test for excess TRI CAGR(%) over PRICE CAGR(%)
-        df = nse_tri.compare_cagr_over_price(
+        df = nse_tri.compare_cagr_over_price_from_launch(
             tri_excel=os.path.join(tmp_dir, 'tri_sort_cagr.xlsx'),
             price_excel=os.path.join(tmp_dir, 'tri_sort_cagr.xlsx'),
             output_excel=os.path.join(tmp_dir, 'compare_tri_cagr_over_price.xlsx')
@@ -379,15 +379,7 @@ def test_equity_index_tri_closing(
         with pytest.raises(Exception) as exc_info:
             visual.plot_cagr_filtered_indices_by_category(
                 excel_file=output_excel,
-                figure_file=os.path.join(tmp_dir, 'error_figure_file.pn'),
-                close_type='TRI'
-            )
-        assert exc_info.value.args[0] == message['error_figure']
-        # error test for invalid figure file input
-        with pytest.raises(Exception) as exc_info:
-            visual.plot_cagr_filtered_indices_by_category(
-                excel_file=output_excel,
-                figure_file=os.path.join(tmp_dir, 'error_figure_file.pn'),
+                figure_file=os.path.join(tmp_dir, 'error_figure_file.png'),
                 close_type='TRII'
             )
         assert exc_info.value.args[0] == message['error_close']
@@ -403,19 +395,11 @@ def test_equity_index_tri_closing(
                 threshold_cagr=100
             )
         assert exc_info.value.args[0] == message['error_df']
-        # error test for invalid figure file input
+        # error test for invalid input of index close type
         with pytest.raises(Exception) as exc_info:
             visual.plot_cagr_filtered_indices(
                 excel_file=output_excel,
-                figure_file=os.path.join(tmp_dir, 'error_figure_file.pn'),
-                close_type='TRI'
-            )
-        assert exc_info.value.args[0] == message['error_figure']
-        # error test for invalid figure file input
-        with pytest.raises(Exception) as exc_info:
-            visual.plot_cagr_filtered_indices(
-                excel_file=output_excel,
-                figure_file=os.path.join(tmp_dir, 'error_figure_file.pn'),
+                figure_file=os.path.join(tmp_dir, 'error_figure_file.png'),
                 close_type='TRII'
             )
         assert exc_info.value.args[0] == message['error_close']
@@ -445,6 +429,99 @@ def test_update_historical_daily_data(
         )
         len_df2 = len(pandas.read_excel(excel_file))
         assert len_df2 > len_df1
+
+
+def test_sip(
+    nse_tri,
+    visual
+):
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        # pass test for downloading indices historical daily data
+        index = 'NIFTY 50'
+        input_excel = os.path.join(tmp_dir, f'{index}.xlsx')
+        nse_tri.download_historical_daily_data(
+            index=index,
+            excel_file=input_excel,
+            start_date='15-Oct-2022',
+            end_date='15-Oct-2024'
+        )
+        # pass test for yearwise SIP analysis
+        sip_df = nse_tri.yearwise_sip_analysis(
+            input_excel=input_excel,
+            monthly_invest=1000,
+            output_excel=os.path.join(tmp_dir, 'output.xlsx')
+        )
+        assert float(round(sip_df.iloc[-1, -1], 1)) == 24.0
+        assert float(round(sip_df.iloc[-1, -2], 1)) == 1.3
+        # pass test for SIP analysis from a fixed date
+        sip_summary = nse_tri.sip_summary_from_given_date(
+            excel_file=input_excel,
+            start_year=2024,
+            start_month=4,
+            monthly_invest=1000
+        )
+        assert sip_summary['XIRR (%)'] == '18.4'
+        # pass test for SIP analysis where given date is earlier that actual downloaded start date
+        sip_summary = nse_tri.sip_summary_from_given_date(
+            excel_file=input_excel,
+            start_year=2021,
+            start_month=4,
+            monthly_invest=1000
+        )
+        assert sip_summary['Actual start date'] == '17-Oct-2022'
+        # pass test for plotting yearwise SIP analysis
+        figure_file = os.path.join(tmp_dir, f'sip_yearwise_{index}.png')
+        visual.plot_yearwise_sip_returns(
+            index=index,
+            excel_file=input_excel,
+            figure_file=figure_file,
+            ytick_gap=25
+        )
+        assert os.path.exists(figure_file) is True
+        # pass test for comparison plot of SIP for index and bank fixed depost
+        figure_file = os.path.join(tmp_dir, f'sip_index_vs_bank_{index}.png')
+        visual.plot_sip_index_vs_bank_returns(
+            index=index,
+            excel_file=input_excel,
+            figure_file=figure_file,
+            bank_return=7.5,
+            ytick_gap=25
+        )
+        assert os.path.exists(figure_file) is True
+        assert sum([file.endswith('.png') for file in os.listdir(tmp_dir)]) == 2
+        # pass test for comparison plot of SIP for multiple indices
+        figure_file = os.path.join(tmp_dir, 'sip_invest_growth_across_indices.png')
+        visual.plot_sip_growth_comparison_across_indices(
+            indices=[index],
+            folder_path=tmp_dir,
+            figure_file=figure_file
+        )
+        assert os.path.exists(figure_file) is True
+        assert sum([file.endswith('.png') for file in os.listdir(tmp_dir)]) == 3
+        # error test for unequal end date of two indices
+        nse_tri.download_historical_daily_data(
+            index='NIFTY ALPHA 50',
+            excel_file=os.path.join(tmp_dir, 'NIFTY ALPHA 50.xlsx'),
+            start_date='15-Oct-2022',
+            end_date='15-Sep-2024'
+        )
+        with pytest.raises(Exception) as exc_info:
+            visual.plot_sip_growth_comparison_across_indices(
+                indices=['NIFTY 50', 'NIFTY ALPHA 50'],
+                folder_path=tmp_dir,
+                figure_file=figure_file
+            )
+        assert exc_info.value.args[0] == 'Last date must be equal across all indices in the Excel files.'
+        # error test for invalid input of year and month
+        with pytest.raises(Exception) as exc_info:
+            nse_tri.sip_summary_from_given_date(
+                excel_file=input_excel,
+                start_year=2025,
+                start_month=4,
+                monthly_invest=1000
+            )
+        assert exc_info.value.args[0] == 'Given year and month return an empty DataFrame.'
 
 
 def test_error_excel(
@@ -516,9 +593,85 @@ def test_error_excel(
     assert exc_info.value.args[0] == message['error_excel']
 
     with pytest.raises(Exception) as exc_info:
-        nse_tri.compare_cagr_over_price(
+        nse_tri.compare_cagr_over_price_from_launch(
             tri_excel='input.xlsx',
             price_excel='input.xlsx',
             output_excel='output.xl'
         )
     assert exc_info.value.args[0] == message['error_excel']
+
+    with pytest.raises(Exception) as exc_info:
+        nse_tri.yearwise_sip_analysis(
+            input_excel='input.xlsx',
+            monthly_invest=1000,
+            output_excel='output.xl'
+        )
+    assert exc_info.value.args[0] == message['error_excel']
+
+
+def test_error_figure(
+    visual,
+    message
+):
+
+    with pytest.raises(Exception) as exc_info:
+        visual._mi_df_bar_closing_with_category(
+            df=pandas.DataFrame(),
+            close_type='TRI',
+            index_type='NSE Equity',
+            figure_title='title',
+            figure_file='figure_file.pn'
+        )
+    assert exc_info.value.args[0] == message['error_figure']
+
+    with pytest.raises(Exception) as exc_info:
+        visual._df_bar_closing(
+            df=pandas.DataFrame(),
+            close_type='TRI',
+            index_type='NSE Equity',
+            figure_title='title',
+            figure_file='figure_file.pn'
+        )
+    assert exc_info.value.args[0] == message['error_figure']
+
+    with pytest.raises(Exception) as exc_info:
+        visual.plot_yearwise_sip_returns(
+            index='NIFTY 50',
+            excel_file='NIFTY 50.xlsx',
+            figure_file='figure_file.pn',
+            ytick_gap=250
+        )
+    assert exc_info.value.args[0] == message['error_figure']
+
+    with pytest.raises(Exception) as exc_info:
+        visual.plot_sip_index_vs_bank_returns(
+            index='NIFTY 50',
+            excel_file='NIFTY 50.xlsx',
+            figure_file='figure_file.pn',
+            bank_return=7.5,
+            ytick_gap=500
+        )
+    assert exc_info.value.args[0] == message['error_figure']
+
+    with pytest.raises(Exception) as exc_info:
+        visual.plot_sip_growth_comparison_across_indices(
+            indices=['NIFTY 50', 'NIFTY 500'],
+            folder_path=r"C:\Users\Username\Folder",
+            figure_file='figure_file.pn',
+            ytick_gap=2
+        )
+    assert exc_info.value.args[0] == message['error_figure']
+
+
+def test_error_sip_growth(
+    core
+):
+
+    with pytest.raises(Exception) as exc_info:
+        core.sip_growth(
+            invest=1000,
+            frequency='monthlyy',
+            annual_return=7.5,
+            years=20
+        )
+    assert exc_info.value.args[0] == "Select a valid frequency from ['yearly', 'quarterly', 'monthly', 'weekly']"

@@ -9,22 +9,40 @@
 ## [Nifty Indices](https://www.niftyindices.com/)
     
 * Provides access to detailed information about NSE equity indices.
-* Enables downloading and updating daily `Total Return Index (TRI)` data for all NSE equity indices.
+* Enables downloading and updating daily (`TRI`) data for all NSE equity indices.
 * Fetches closing values for both `Price` (excluding dividend reinvestment) and `TRI` for all NSE equity indices.
+
+## Compound Annual Growth Rate (CAGR)
     
-## Functionality
-    
-* Calculates the updated Compound Annual Growth Rate (CAGR) for both `Price` and `TRI` since the inception of all NSE equity indices.
+* Calculates CAGR for both `Price` and `TRI` since the inception of all NSE equity indices.
 * Compare CAGR (%) between `Price` and `TRI`.
 * Sorts NSE equity indices by CAGR (%) values.
 * Sorts NSE equity indices by CAGR (%) within each category.
+    
+## Systematic Investment Plan (SIP)
+    
+* Computes the year-wise SIP return for a fixed monthly contribution to a specified NSE equity `TRI` index. 
+* Calculates the closing summary of an SIP with a fixed monthly contribution to a specified NSE equity `TRI` index, starting from a given date.
+* Estimates annual SIP performance, including investment amount, closing balance, and cumulative growth over a specified number of years and expected annual return, with options for yearly, quarterly, monthly, or weekly contributions.
 
 
 ## Visualization
 
 * Displays bar graphs of NSE equity indices’ closing values with descending CAGR (%) since inception, both overall and by index category.
 * Shows bar graphs of top-performing NSE equity indices by CAGR (%) since launch, with options to view a specified number of top indices, either overall or within each category.
+* Compares the growth of a monthly SIP investment across multiple NSE equity `TRI` indices over the years.
+* Depicts a bar graph of year-wise investments and returns for a monthly SIP of 1,000 Rupees in a specified NSE equity `TRI` index since its inception.
 
+
+# Example Insights
+Using `BharatFinTrack`, you can quickly gain insights into the performance of NSE equity indices. For instance, the following bar plot highlights the top five NSE equity indices by `TRI` CAGR (%) within each category since launch. This snapshot provides a powerful visual for understanding long-term performance trends across different index categories. Since performance data updates with each trading day, you can replicate and customize this analysis to generate up-to-date insights tailored to your research needs or investment strategies.
+
+![Category-wise Top Five TRI CAGR(%) of NSE Equity Indices](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/tri_top_cagr_by_category.png)
+
+In this graph, the `NIFTY MIDCAP150 MOMENTUM 50` stands out as one of the best-performing NSE equity `TRI` indices in terms of long-term CAGR. The following graph displays the year-wise investments and returns for a monthly SIP of 1,000 Rupees into a passive fund tracking the `TRI` data of `NIFTY MIDCAP150 MOMENTUM 50`.
+
+
+![Year-wise SIP analysis of NIFTY_MIDCAP150_MOMENTUM_50](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/sip_yearwise_NIFTY_MIDCAP150_MOMENTUM_50.png)
 
 ## Easy Installation
 
@@ -50,8 +68,6 @@ A brief example of how to start:
  'NIFTY 50',
  ...]
 ```
-
-![Top NSE Equity Indices Figure](https://github.com/debpal/BharatFinTrack/blob/master/docs/_static/tri_top_cagr_by_category.svg)
 
 ## Documentation
 For detailed information, see the [documentation](http://bharatfintrack.readthedocs.io/).

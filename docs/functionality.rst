@@ -15,10 +15,11 @@ Let's start by instantiating the classes.
     import BharatFinTrack
     nse_index = BharatFinTrack.NSEIndex()
     nse_tri = BharatFinTrack.NSETRI()
+    core = BharatFinTrack.core.Core()
 
 
 
-.. _fucn_equity_index_price_cagr:
+.. _f_equity_index_price_cagr:
 
 Equity Index `Price` CAGR
 --------------------------
@@ -44,7 +45,7 @@ better understand the difference in index returns across various categories
     )
     
 
-.. _fucn_equity_tri_cagr:
+.. _f_equity_tri_cagr:
 
 Equity `TRI` CAGR
 ------------------
@@ -89,5 +90,33 @@ This method shows users the differences in CAGR between the `Price` and `TRI` of
         price_excel=r"C:\Users\Username\Folder\price_sort_cagr.xlsx"
         output_excel=r"C:\Users\Username\Folder\compare_cagr_tri_price.xlsx"
     )
+    
+    
+SIP Growth
+------------
+Computes the year-wise SIP return for a fixed monthly contribution to a specified NSE equity `TRI` index. The data required to compute the SIP must be sourced from the Excel file generated in the :ref:`Total Return Index (TRI) <f_download_tri>` section. 
+
+
+.. code-block:: python
+    
+    nse_tri.nse_tri.yearwise_sip_analysis(
+        input_excel=r"C:\Users\Username\Folder\NIFTY 50.xlsx",
+        monthly_invest=1000,
+        output_excel=r"C:\Users\Username\Folder\SIP_Yearwise_NIFTY_50.xlsx"
+    )
    
+   
+SIP Calculator
+----------------
+Estimates the SIP growth over a specified number of years for a fixed investment amount.
+
+
+.. code-block:: python
+    
+    core.sip_growth(
+        invest=1000,
+        frequency='monthly',
+        annual_return=15,
+        years=20
+    )
     

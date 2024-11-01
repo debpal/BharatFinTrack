@@ -11,17 +11,24 @@ Introduction
 ---------------------------------------------------
 
 * Provides access to detailed information about NSE equity indices.
-* Enables downloading and updating daily `Total Return Index (TRI)` data for all NSE equity indices.
+* Enables downloading and updating daily Total Return Index (`TRI`) data for all NSE equity indices.
 * Fetches closing values for both `Price` (excluding dividend reinvestment) and TRI for all NSE equity indices.
     
     
-Functionality
----------------
-
-
-* Calculates the updated Compound Annual Growth Rate (CAGR) for both `Price` and `TRI` since the inception of all NSE equity indices.
+Compound Annual Growth Rate (CAGR)
+-----------------------------------
+    
+* Calculates CAGR for both `Price` and `TRI` since the inception of all NSE equity indices.
+* Compare CAGR (%) between `Price` and `TRI`.
 * Sorts NSE equity indices by CAGR (%) values.
 * Sorts NSE equity indices by CAGR (%) within each category.
+
+Systematic Investment Plan (SIP)
+----------------------------------
+
+* Computes the year-wise SIP return for a fixed monthly contribution to a specified NSE equity `TRI` index. 
+* Calculates the closing summary of an SIP with a fixed monthly contribution to a specified NSE equity `TRI` index, starting from a given date.
+* Estimates annual SIP performance, including investment amount, closing balance, and cumulative growth over a specified number of years and expected annual return, with options for yearly, quarterly, monthly, or weekly contributions.
 
 
 Visualization
@@ -29,4 +36,6 @@ Visualization
 
 * Displays bar graphs of NSE equity indices’ closing values with descending CAGR (%) since inception, both overall and by index category.
 * Shows bar graphs of top-performing NSE equity indices by CAGR (%) since launch, with options to view a specified number of top indices, either overall or within each category.
+* Compares the growth of a monthly SIP investment across multiple NSE equity `TRI` indices over the years.
+* Depicts a bar graph of year-wise investments and returns for a monthly SIP of 1,000 Rupees in a specified NSE equity `TRI` index since its inception.
     

@@ -6,6 +6,7 @@ import matplotlib
 import matplotlib.pyplot
 import tempfile
 import os
+import pyxirr
 from .nse_product import NSEProduct
 from .core import Core
 
@@ -286,6 +287,7 @@ class NSETRI:
                     base_df.loc[base_index, 'Close Date'] = index_df.iloc[-1, 0]
                     base_df.loc[base_index, 'Close Value'] = index_df.iloc[-1, -1]
                 except Exception:
+                    print(base_df.loc[base_index, 'Index Name'])
                     base_df.loc[base_index, 'Close Date'] = end_date
                     base_df.loc[base_index, 'Close Value'] = -1000
 
@@ -316,7 +318,7 @@ class NSETRI:
 
         Parameters
         ----------
-        inout_excel : str
+        input_excel : str
             Path to the input Excel file.
 
         output_excel : str
@@ -373,7 +375,7 @@ class NSETRI:
 
         Parameters
         ----------
-        inout_excel : str
+        input_excel : str
             Path to the input Excel file.
 
         output_excel : str
@@ -462,7 +464,7 @@ class NSETRI:
 
         Parameters
         ----------
-        inout_excel : str
+        input_excel : str
             Path to the input Excel file.
 
         output_excel : str
@@ -579,12 +581,32 @@ class NSETRI:
 
         return output
 
-    def compare_cagr_over_price(
+    def compare_cagr_over_price_from_launch(
         self,
         tri_excel: str,
         price_excel: str,
         output_excel: str
     ) -> pandas.DataFrame:
+
+        '''
+        Compares the CAGR (%) between TRI and Price for NSE indices since launch.
+
+        Parameters
+        ----------
+        tri_excel : str
+            Path to the Excel file obtained from :meth:`BharatFinTrack.NSETRI.sort_equity_cagr_from_launch` method.
+
+        price_excel : str
+            Path to the Excel file obtained from :meth:`BharatFinTrack.NSEIndex.sort_equity_cagr_from_launch` method.
+
+        output_excel : str
+            Path to an Excel file to save the output DataFrame.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame containing the difference in CAGR (%) between TRI to Price since launch.
+        '''
 
         # check the Excel file extension first
         excel_ext = Core()._excel_file_extension(output_excel)
@@ -636,3 +658,229 @@ class NSETRI:
                     worksheet.set_column(col_num, col_num, 15)
 
         return df
+
+    def yearwise_sip_analysis(
+        self,
+        input_excel: str,
+        monthly_invest: int,
+        output_excel: str
+    ) -> pandas.DataFrame:
+
+        '''
+        Calculates the year-wise closing value, growth multiples, and annualized XIRR (%)
+        of a fixed monthly SIP, based on contributions made on the first date of each month.
+
+        Parameters
+        ----------
+        input_excel : str
+            Path to the Excel file obtained from :meth:`BharatFinTrack.NSETRI.download_historical_daily_data`
+            and :meth:`BharatFinTrack.NSETRI.update_historical_daily_data` methods.
+
+        monthly_invest : int
+            Fixed investment amount contributed on the first date of each month.
+
+        output_excel : str
+            Path to an Excel file to save the output DataFrame.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame containing the year-wise closing value, growth multiples,
+            and annualized XIRR (%) for the fixed SIP investment.
+        '''
+
+        # check the Excel file extension first
+        excel_ext = Core()._excel_file_extension(output_excel)
+        if excel_ext == '.xlsx':
+            pass
+        else:
+            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
+
+        # input DataFrame
+        df = pandas.read_excel(input_excel)
+        df['Date'] = df['Date'].apply(lambda x: x.date())
+
+        # start and end dates
+        start_date = df['Date'].min()
+        end_date = df['Date'].max()
+
+        # monthly first date
+        month_1d = pandas.date_range(
+            start=start_date,
+            end=end_date,
+            freq='MS'
+        )
+        month_1d = list(map(lambda x: x.date(), month_1d))
+        month_1d = pandas.Series([start_date] + month_1d + [end_date]).unique()
+
+        # DataFrame of monthly open and close value
+        month_df = pandas.DataFrame(
+            columns=['Date', 'Open', 'Close']
+        )
+        for idx, dates in enumerate(zip(month_1d[:-1], month_1d[1:])):
+            idx_df = df[(df['Date'] >= dates[0]) & (df['Date'] < dates[1])]
+            month_df.loc[idx, 'Date'] = idx_df.iloc[0, 0]
+            month_df.loc[idx, 'Open'] = idx_df.iloc[0, 1]
+            month_df.loc[idx, 'Close'] = idx_df.iloc[-1, -1]
+
+        # date difference
+        date_diff = dateutil.relativedelta.relativedelta(end_date, start_date)
+        year_diff = date_diff.years
+
+        # SIP DataFrame
+        index_divisor = 1000
+        sip_df = pandas.DataFrame()
+        for idx in range(year_diff + 1):
+            # year-wise SIP investment
+            if idx < year_diff:
+                sip_year = idx + 1
+                sip_start = end_date.replace(year=end_date.year - sip_year)
+                yi_df = month_df[(month_df['Date'] >= sip_start) & (month_df['Date'] < end_date)].reset_index(drop=True)
+            else:
+                sip_year = round(year_diff + (end_date.replace(year=end_date.year - year_diff) - start_date).days / 365, 1)
+                yi_df = month_df.copy()
+            yi_df['Invest'] = monthly_invest
+            yi_df['Cumm-Invest'] = yi_df['Invest'].cumsum()
+            open_nav = yi_df['Open'] / index_divisor
+            yi_df['Unit'] = (yi_df['Invest'] / open_nav)
+            yi_df['Cum-Unit'] = yi_df['Unit'].cumsum()
+            close_nav = yi_df['Close'] / index_divisor
+            yi_df['Value'] = (yi_df['Cum-Unit'] * close_nav)
+            # year-wise SIP summary
+            sip_df.loc[idx, 'Year'] = sip_year
+            sip_df.loc[idx, 'Start Date'] = yi_df.iloc[0, 0]
+            sip_df.loc[idx, 'Invest'] = yi_df.iloc[-1, -4]
+            sip_df.loc[idx, 'Close Date'] = end_date
+            sip_df.loc[idx, 'Value'] = yi_df.iloc[-1, -1]
+            sip_df.loc[idx, 'Multiple (X)'] = sip_df.loc[idx, 'Value'] / sip_df.loc[idx, 'Invest']
+            sip_dates = list(yi_df['Date']) + [end_date]
+            sip_transactions = list(-1 * yi_df['Invest']) + [yi_df['Value'].iloc[-1]]
+            xirr = pyxirr.xirr(zip(sip_dates, sip_transactions))
+            sip_df.loc[idx, 'XIRR (%)'] = 100 * (xirr if xirr is not None else 0.0)
+
+        # drop duplicates row if any
+        sip_df = sip_df.drop_duplicates(ignore_index=True)
+
+        # saving DataFrame
+        with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
+            sip_df.to_excel(excel_writer, index=False)
+            workbook = excel_writer.book
+            worksheet = excel_writer.sheets['Sheet1']
+            # format columns
+            for col_num, col_df in enumerate(sip_df.columns):
+                if any(col_df.endswith(i) for i in ['(%)', 'Year', '(X)']):
+                    worksheet.set_column(
+                        col_num, col_num, 15,
+                        workbook.add_format({'num_format': '#,##0.0'})
+                    )
+                else:
+                    worksheet.set_column(
+                        col_num, col_num, 15,
+                        workbook.add_format({'num_format': '#,##0'})
+                    )
+
+        return sip_df
+
+    def sip_summary_from_given_date(
+        self,
+        excel_file: str,
+        start_year: int,
+        start_month: int,
+        monthly_invest: int
+    ) -> dict[str, str]:
+
+        '''
+        Calculates the closing value, growth multiples, and annualized XIRR (%) of a fixed monthly
+        SIP starting from a specified date, based on contributions made on the first date of each month.
+
+        Parameters
+        ----------
+        excel_file : str
+            Path to the Excel file obtained from :meth:`BharatFinTrack.NSETRI.download_historical_daily_data`
+            and :meth:`BharatFinTrack.NSETRI.update_historical_daily_data` methods.
+
+        start_year : int
+            Year when the SIP begins.
+
+        start_month : int
+            Month (1 to 12) when the SIP begins.
+
+        monthly_invest : int
+            Fixed investment amount contributed on the first date of each month
+
+        Returns
+        -------
+        dict
+            A dictionary containing the closing value, growth multiples, and annualized XIRR (%)
+            for the fixed SIP investment starting from a specified date.
+        '''
+
+        # SIP summary
+        summary = {}
+
+        # input DataFrame
+        df = pandas.read_excel(excel_file)
+        df['Date'] = df['Date'].apply(lambda x: x.date())
+
+        # start and end dates
+        start_date = datetime.date(
+            year=start_year,
+            month=start_month,
+            day=1
+        )
+        end_date = df.iloc[-1, 0]
+
+        # filtered DataFrame
+        if start_date > df.iloc[-1, 0]:
+            raise Exception(
+                'Given year and month return an empty DataFrame.'
+            )
+        elif df.iloc[0, 0] <= start_date <= df.iloc[-1, 0]:
+            summary['Start date'] = start_date.strftime('%d-%b-%Y')
+        else:
+            summary['Given date'] = start_date.strftime('%d-%b-%Y')
+            df = df[(df['Date'] >= start_date)].reset_index(drop=True)
+            start_date = df.iloc[0, 0]
+            summary['Actual start date'] = start_date.strftime('%d-%b-%Y')
+
+        # month first date
+        month_1d = pandas.date_range(
+            start=start_date,
+            end=end_date,
+            freq='MS'
+        )
+        month_1d = list(map(lambda x: x.date(), month_1d))
+        month_1d = pandas.Series([start_date] + month_1d + [end_date]).unique()
+
+        # DataFrame of monthly open and close value
+        month_df = pandas.DataFrame(
+            columns=['Date', 'Open', 'Close']
+        )
+        for idx, dates in enumerate(zip(month_1d[:-1], month_1d[1:])):
+            idx_df = df[(df['Date'] >= dates[0]) & (df['Date'] < dates[1])]
+            month_df.loc[idx, 'Date'] = idx_df.iloc[0, 0]
+            month_df.loc[idx, 'Open'] = idx_df.iloc[0, 1]
+            month_df.loc[idx, 'Close'] = idx_df.iloc[-1, -1]
+
+        # SIP parameters
+        index_divisor = 1000
+        date_diff = dateutil.relativedelta.relativedelta(end_date, start_date)
+        month_df['Invest'] = monthly_invest
+        month_df['Cumm-Invest'] = month_df['Invest'].cumsum()
+        open_nav = month_df['Open'] / index_divisor
+        month_df['Unit'] = (month_df['Invest'] / open_nav)
+        month_df['Cum-Unit'] = month_df['Unit'].cumsum()
+        close_nav = month_df['Close'] / index_divisor
+        month_df['Value'] = (month_df['Cum-Unit'] * close_nav)
+        # year-wise SIP summary
+        summary['Duration'] = f'{date_diff.years} years, {date_diff.months} months, {date_diff.days} days'
+        summary['Invest'] = f'{month_df.iloc[-1, -4]:.0f}'
+        summary['Value'] = f'{month_df.iloc[-1, -1]:.0f}'
+        summary['Multiple (X)'] = f'{month_df.iloc[-1, -1] / month_df.iloc[-1, -4]:.1f}'
+        sip_dates = list(month_df['Date']) + [end_date]
+        sip_transactions = list(-1 * month_df['Invest']) + [month_df['Value'].iloc[-1]]
+        xirr = pyxirr.xirr(zip(sip_dates, sip_transactions))
+        xirr_p = 100 * (xirr if xirr is not None else 0.0)
+        summary['XIRR (%)'] = f'{xirr_p:.1f}'
+
+        return summary

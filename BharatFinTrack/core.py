@@ -171,3 +171,65 @@ class Core:
         df['Close'] = df['Close'].astype(float)
 
         return df
+
+    def sip_growth(
+        self,
+        invest: int,
+        frequency: str,
+        annual_return: float,
+        years: int
+    ) -> pandas.DataFrame:
+
+        '''
+        Calculates the SIP growth over a specified number of years for a fixed investment amount.
+
+        Parameters
+        ----------
+        invest : int
+            Fixed amount invested at each SIP interval.
+
+        frequency : str
+            Frequency of SIP contributions; must be one of ['yearly', 'quarterly', 'monthly', 'weekly'].
+
+        annual_return : float
+            Expected annual return rate in percentage.
+
+        years : int
+            Total number of years for the SIP investment duration.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame containing columns for the annual investment,
+            closing balance, and cumulative growth over the investment period.
+        '''
+
+        # frequency dictionary
+        freq_value = {
+            'yearly': 1,
+            'quarterly': 4,
+            'monthly': 12,
+            'weekly': 52
+        }
+
+        if frequency in freq_value.keys():
+            pass
+        else:
+            raise Exception(f'Select a valid frequency from {list(freq_value.keys())}')
+
+        # cagr rate for the given frequency
+        cagr = pow(1 + (annual_return / 100), 1 / freq_value[frequency]) - 1
+
+        # SIP DataFrame
+        df = pandas.DataFrame()
+        for yr in range(years):
+            df.loc[yr, 'Year'] = yr + 1
+            if yr == 0:
+                df.loc[yr, 'Invest'] = freq_value[frequency] * invest
+            else:
+                df.loc[yr, 'Invest'] = df.loc[yr - 1, 'Invest'] + freq_value[frequency] * invest
+            total_freq = (yr + 1) * freq_value[frequency]
+            df.loc[yr, 'Value'] = invest * (1 + cagr) * (((1 + cagr) ** total_freq - 1) / cagr)
+        df['Multiple (X)'] = df['Value'] / df['Invest']
+
+        return df
