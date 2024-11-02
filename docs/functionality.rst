@@ -99,7 +99,7 @@ Computes the year-wise SIP return for a fixed monthly contribution to a specifie
 
 .. code-block:: python
     
-    nse_tri.nse_tri.yearwise_sip_analysis(
+    nse_tri.yearwise_sip_analysis(
         input_excel=r"C:\Users\Username\Folder\NIFTY 50.xlsx",
         monthly_invest=1000,
         output_excel=r"C:\Users\Username\Folder\SIP_Yearwise_NIFTY_50.xlsx"

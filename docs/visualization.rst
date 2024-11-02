@@ -27,6 +27,7 @@ A bar graph is generated, sorted in descending order by CAGR (≥ 15%) since inc
     
     visual.plot_cagr_filtered_indices_by_category(
         excel_file=r"C:\Users\Username\Folder\tri_sort_cagr_by_category.xlsx",
+        close_type='TRI',
         figure_file=r"C:\Users\Username\Folder\plot_tri_sort_cagr_filtered_by_category.png",
         threshold_cagr=15
     )
@@ -38,6 +39,7 @@ The next plot highlights the top five NSE equity indices by `TRI` CAGR (%) withi
     
     visual.plot_top_cagr_indices_by_category(
         excel_file=r"C:\Users\Username\Folder\tri_sort_cagr_by_category.xlsx",
+        close_type='TRI',
         figure_file=r"C:\Users\Username\Folder\plot_tri_top_cagr_by_category.png",
         top_cagr=5
     )
@@ -54,6 +56,7 @@ A bar plot of the top 15 NSE equity indices by overall `TRI` CAGR (%) is generat
     
     visual.plot_top_cagr_indices(
         excel_file=r"C:\Users\Username\Folder\tri_sort_cagr.xlsx",
+        close_type='TRI',
         figure_file=r"C:\Users\Username\Folder\tri_top_cagr.png",
         top_cagr=20
     )
