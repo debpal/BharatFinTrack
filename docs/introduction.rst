@@ -38,4 +38,5 @@ Visualization
 * Shows bar graphs of top-performing NSE equity indices by CAGR (%) since launch, with options to view a specified number of top indices, either overall or within each category.
 * Compares the growth of a monthly SIP investment across multiple NSE equity `TRI` indices over the years.
 * Depicts a bar graph of year-wise investments and returns for a monthly SIP of 1,000 Rupees in a specified NSE equity `TRI` index since its inception.
+* Provides a return comparison between a specified index and government bonds for a monthly SIP of 1,000 Rupees over the years.
     

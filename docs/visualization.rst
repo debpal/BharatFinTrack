@@ -85,21 +85,20 @@ The resulting plot will look similar to the example below.
    :align: left
    
    
-SIP Comparison
------------------
+SIP Comparison Across Indices
+-------------------------------
 
-A line plot comparing monthly SIP investment growth across multiple NSE equity `TRI` indices over the years. Data required to compute the SIP must be sourced from the Excel file generated in the :ref:`Total Return Index (TRI) <f_download_tri>` section. All Excel files must be stored in a folder and each Excel file must be named as ‘{index}.xlsx’ corresponding to the index names provided in the indices list.  
+A plot comparing the growth of a monthly SIP investment across `TRI` indices, including NIFTY 50 and several other top-performing NSE equity indices over the years. The data required for SIP calculations must be sourced from the Excel files generated in the :ref:`Total Return Index (TRI) <f_download_tri>` section. Ensure that all Excel files are stored in the designated input folder, with each file named as `{index}.xlsx` to correspond to the index names provided in the list of indices.
 
 
 .. code-block:: python
 
     index_list = [
         'NIFTY 50',
-        'NIFTY ALPHA 50',
         'NIFTY MIDCAP150 MOMENTUM 50',
+        'NIFTY500 MOMENTUM 50',
         'NIFTY MIDSMALLCAP400 MOMENTUM QUALITY 100',
         'NIFTY SMALLCAP250 MOMENTUM QUALITY 100',
-        'NIFTY500 MOMENTUM 50'
     ]
     
     visual.plot_sip_growth_comparison_across_indices(

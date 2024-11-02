@@ -132,7 +132,7 @@ class Visual:
 
         # legend
         subplot.legend(
-            title="Index Category",
+            title='Index Category',
             loc='lower right',
             fontsize=12,
             title_fontsize=12
@@ -514,11 +514,12 @@ class Visual:
         index: str,
         excel_file: str,
         figure_file: str,
-        ytick_gap: int = 250
+        ytick_gap: int = 500
     ) -> matplotlib.figure.Figure:
 
         '''
-        Returns a bar plot of investment and returns over years for a specified index.
+        Generates and returns a bar plot of investments and returns for a
+        monthly SIP of 1,000 Rupees over the years for a specified index.
 
         Parameters
         ----------
@@ -538,7 +539,8 @@ class Visual:
         Returns
         -------
         Figure
-            A bar plot displaying invest and returns over years for a specified index.
+            A bar plot displaying the investment and returns of a
+            monthly SIP of 1,000 Rupees over years for the specified index.
         '''
 
         # check validity of input figure file path
@@ -632,7 +634,7 @@ class Visual:
             axis='y', which='both',
             direction='in', length=6, width=1,
             left=True, right=True,
-            labelleft=True
+            labelleft=True, labelright=True
         )
         subplot.grid(
             visible=True,
@@ -640,8 +642,9 @@ class Visual:
             color='gray',
             linestyle='--', linewidth=0.3
         )
+        close_date = df['Close Date'].iloc[0].strftime('%d-%b-%Y')
         subplot.set_ylabel(
-            ylabel=f'Amount (Date: {df['Close Date'].iloc[0].strftime("%d-%b-%Y")})',
+            ylabel=f'Amount (Date: {close_date})',
             fontsize=15
         )
 
@@ -653,7 +656,7 @@ class Visual:
 
         # figure customization
         figure_title = (
-            f'{index.upper()}: Invest and Return of monthly SIP {monthly_invest} Rupees Over Years'
+            f'{index.upper()}: Invest and Return with Multiples (X) and XIRR (%) of Monthly SIP {monthly_invest} Rupees Over Years'
         )
         figure.suptitle(
             t=figure_title,
@@ -670,7 +673,7 @@ class Visual:
 
         return figure
 
-    def plot_sip_index_vs_bank_returns(
+    def plot_sip_index_vs_gsec(
         self,
         index: str,
         excel_file: str,
@@ -680,7 +683,8 @@ class Visual:
     ) -> matplotlib.figure.Figure:
 
         '''
-        Returns a bar plot of investment and returns over years for a specified index.
+        Generates a bar plot comparing the returns of a specified index
+        and government bonds for a monthly SIP of 1,000 Rupees over the years.'
 
         Parameters
         ----------
@@ -703,7 +707,8 @@ class Visual:
         Returns
         -------
         Figure
-            A bar plot displaying invest and returns over years for a specified index.
+            A bar plot showing the return comparison between the specified index
+            and government bonds for a monthly SIP of 1,000 Rupees over the years.
         '''
 
         # check validity of input figure file path
@@ -814,8 +819,9 @@ class Visual:
             color='gray',
             linestyle='--', linewidth=0.3
         )
+        close_date = df['Close Date'].iloc[0].strftime('%d-%b-%Y')
         subplot.set_ylabel(
-            ylabel=f'Amount (Date: {df['Close Date'].iloc[0].strftime("%d-%b-%Y")})',
+            ylabel=f'Amount (Date: {close_date})',
             fontsize=15
         )
 
@@ -827,7 +833,7 @@ class Visual:
 
         # figure customization
         figure_title = (
-            f'{index.upper()}: Invest and Return of monthly SIP {monthly_invest} Rupees Over Years'
+            f'{index.upper()}: Comparison Return Between Index and Government Bond of Monthly SIP {monthly_invest} Rupees Over Years'
         )
         figure.suptitle(
             t=figure_title,
@@ -901,8 +907,8 @@ class Visual:
                 dataframes.append(df)
 
         # check equal close date for all DataFrames
-        end_date = dataframes[0]['Close Date'].iloc[0]
-        equal_closedate = all(map(lambda df: df['Close Date'].iloc[0] == end_date, dataframes))
+        close_date = dataframes[0]['Close Date'].iloc[0]
+        equal_closedate = all(map(lambda df: df['Close Date'].iloc[0] == close_date, dataframes))
         if equal_closedate is True:
             pass
         else:
@@ -982,7 +988,7 @@ class Visual:
             linestyle='--', linewidth=0.3
         )
         subplot.set_ylabel(
-            ylabel=f'Investment Multiple (X) (Date: {df['Close Date'].iloc[0].strftime("%d-%b-%Y")})',
+            ylabel=f'Multiples (X) of Investment (Date: {close_date.strftime("%d-%b-%Y")})',
             fontsize=15
         )
 
@@ -994,7 +1000,7 @@ class Visual:
 
         # figure customization
         figure_title = (
-            'Growth of monthly SIP investment Over Years'
+            'Growth of Monthly SIP Investment Over Years'
         )
         figure.suptitle(
             t=figure_title,

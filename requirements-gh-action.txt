@@ -6,3 +6,4 @@ openpyxl
 xlsxwriter
 beautifulsoup4
 matplotlib
+pyxirr

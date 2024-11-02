@@ -5,7 +5,7 @@ Release Notes
 Version 0.1.8
 ---------------
 
-* **Release date:** 01-Nov-2024
+* **Release date:** 02-Nov-2024
   
 * **Feature Additions:** 
 

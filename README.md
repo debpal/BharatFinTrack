@@ -32,17 +32,22 @@
 * Shows bar graphs of top-performing NSE equity indices by CAGR (%) since launch, with options to view a specified number of top indices, either overall or within each category.
 * Compares the growth of a monthly SIP investment across multiple NSE equity `TRI` indices over the years.
 * Depicts a bar graph of year-wise investments and returns for a monthly SIP of 1,000 Rupees in a specified NSE equity `TRI` index since its inception.
+* Provides a return comparison between a specified index and government bonds for a monthly SIP of 1,000 Rupees over the years.
 
 
 # Example Insights
-Using `BharatFinTrack`, you can quickly gain insights into the performance of NSE equity indices. For instance, the following bar plot highlights the top five NSE equity indices by `TRI` CAGR (%) within each category since launch. This snapshot provides a powerful visual for understanding long-term performance trends across different index categories. Since performance data updates with each trading day, you can replicate and customize this analysis to generate up-to-date insights tailored to your research needs or investment strategies.
+Using `BharatFinTrack`, you can quickly gain insights into the performance of NSE equity indices. For instance, the following bar plot highlights the top five NSE equity indices by `TRI` CAGR (%) within each category since their respective launches. This snapshot provides a powerful visual overview of long-term performance trends of investment multiples (X) across different index categories over the years. Because performance data updates daily with each trading session, you can replicate and customize this analysis to generate up-to-date insights tailored to your research needs or investment strategies.
 
 ![Category-wise Top Five TRI CAGR(%) of NSE Equity Indices](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/tri_top_cagr_by_category.png)
 
-In this graph, the `NIFTY MIDCAP150 MOMENTUM 50` stands out as one of the best-performing NSE equity `TRI` indices in terms of long-term CAGR. The following graph displays the year-wise investments and returns for a monthly SIP of 1,000 Rupees into a passive fund tracking the `TRI` data of `NIFTY MIDCAP150 MOMENTUM 50`.
+In this graph, the `NIFTY MIDCAP150 MOMENTUM 50` stands out as one of the best-performing NSE equity `TRI` indices in terms of long-term CAGR. The next graph illustrates the year-wise investments and returns, shown as investment multiples (X) and XIRR (%), for a monthly SIP of 1,000 Rupees in a passive fund tracking the `TRI` data of `NIFTY MIDCAP150 MOMENTUM 50`.
 
 
 ![Year-wise SIP analysis of NIFTY_MIDCAP150_MOMENTUM_50](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/sip_yearwise_NIFTY_MIDCAP150_MOMENTUM_50.png)
+
+Additionally, the following plot compares the growth of a monthly SIP investment across `TRI` indices, including `NIFTY 50` and several other top-performing NSE equity indices over the years.
+
+![Year-wise SIP growth comparison across multiple indices](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/sip_invest_growth_across_indices.png)
 
 ## Easy Installation
 

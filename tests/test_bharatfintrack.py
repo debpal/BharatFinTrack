@@ -480,8 +480,8 @@ def test_sip(
         )
         assert os.path.exists(figure_file) is True
         # pass test for comparison plot of SIP for index and bank fixed depost
-        figure_file = os.path.join(tmp_dir, f'sip_index_vs_bank_{index}.png')
-        visual.plot_sip_index_vs_bank_returns(
+        figure_file = os.path.join(tmp_dir, f'sip_gsec_vs_{index}.png')
+        visual.plot_sip_index_vs_gsec(
             index=index,
             excel_file=input_excel,
             figure_file=figure_file,
@@ -644,7 +644,7 @@ def test_error_figure(
     assert exc_info.value.args[0] == message['error_figure']
 
     with pytest.raises(Exception) as exc_info:
-        visual.plot_sip_index_vs_bank_returns(
+        visual.plot_sip_index_vs_gsec(
             index='NIFTY 50',
             excel_file='NIFTY 50.xlsx',
             figure_file='figure_file.pn',
