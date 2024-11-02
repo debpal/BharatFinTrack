@@ -675,3 +675,12 @@ def test_error_sip_growth(
             years=20
         )
     assert exc_info.value.args[0] == "Select a valid frequency from ['yearly', 'quarterly', 'monthly', 'weekly']"
+
+
+def test_github_action(
+    core
+):
+
+    assert core._github_action(
+        integer=1
+    ) == '1'
