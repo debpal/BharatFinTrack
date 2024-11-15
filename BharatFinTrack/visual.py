@@ -471,7 +471,7 @@ class Visual:
             Path of the input Excel file containing the data.
 
         close_type : str
-            Type of closing value for indices, either PRICE or TRI.
+            Type of closing value for indices, either 'PRICE' or 'TRI'.
 
         figure_file : str
             File Path to save the output figue.
@@ -614,12 +614,12 @@ class Visual:
             fontsize=12
         )
         subplot.set_xlabel(
-            xlabel='Start Date',
+            xlabel='SIP Start Date',
             fontsize=15
         )
 
         # y-axis customization
-        yaxis_max = (int((df['Value'].max() / monthly_invest + 50) / ytick_gap) + 1) * ytick_gap
+        yaxis_max = (round((df['Value'].max() / monthly_invest + 50) / ytick_gap) + 1) * ytick_gap
         subplot.set_ylim(0, yaxis_max)
         yticks = range(0, yaxis_max + 1, ytick_gap)
         subplot.set_yticks(
@@ -656,7 +656,7 @@ class Visual:
 
         # figure customization
         figure_title = (
-            f'{index.upper()}: Invest and Return with Multiples (X) and XIRR (%) of Monthly SIP {monthly_invest} Rupees Over Years'
+            f'{index.upper()}\n\nReturn with Multiples (X) and XIRR (%) for SIP 1000 Rupees on First Date of Each Month Over Years'
         )
         figure.suptitle(
             t=figure_title,
@@ -678,7 +678,7 @@ class Visual:
         index: str,
         excel_file: str,
         figure_file: str,
-        bank_return: float = 7.5,
+        gsec_return: float = 8,
         ytick_gap: int = 500
     ) -> matplotlib.figure.Figure:
 
@@ -698,8 +698,8 @@ class Visual:
         figure_file : str
             File Path to save the output figue.
 
-        bank_return : float, optional
-            Expected annual return rate of bank fixed deposit in percentage. Default is 7.5.
+        gsec_return : float, optional
+            Expected annual return rate of government bond in percentage. Default is 8.
 
         ytick_gap : int, optional
             Gap between two y-axis ticks. Default is 500.
@@ -738,12 +738,12 @@ class Visual:
         bank_df = Core().sip_growth(
             invest=monthly_invest,
             frequency='monthly',
-            annual_return=bank_return,
+            annual_return=gsec_return,
             years=sip_years
         )
 
         # figure
-        fig_width = len(df) if len(df) > 10 else 10
+        fig_width = len(df) * 1.2 if len(df) >= 9 else 10
         figure = matplotlib.pyplot.figure(
             figsize=(fig_width, 10)
         )
@@ -765,7 +765,7 @@ class Visual:
             x=xticks,
             height=bank_df['Value'] / monthly_invest,
             width=bar_width,
-            label='Bank',
+            label=f'Government ({gsec_return:.1f}%)',
             color='cyan'
         )
         subplot.bar(
@@ -775,6 +775,15 @@ class Visual:
             label='Index',
             color='lightgreen'
         )
+        for xt in xticks:
+            multiple = df['Multiple (X)'][xt]
+            xirr = df['XIRR (%)'][xt]
+            subplot.annotate(
+                f'{multiple:.1f}X,{xirr:.0f}%',
+                xy=(xticks[xt] + bar_width, df['Value'][xt] / monthly_invest),
+                ha='center', va='bottom',
+                fontsize=12
+            )
 
         # x-axis customization
         subplot.set_xticks(
@@ -796,7 +805,7 @@ class Visual:
         )
 
         # y-axis customization
-        yaxis_max = (int((df['Value'].max() / monthly_invest + 50) / ytick_gap) + 1) * ytick_gap
+        yaxis_max = (round((df['Value'].max() / monthly_invest + 50) / ytick_gap) + 1) * ytick_gap
         subplot.set_ylim(0, yaxis_max)
         yticks = range(0, yaxis_max + 1, ytick_gap)
         subplot.set_yticks(
@@ -833,7 +842,7 @@ class Visual:
 
         # figure customization
         figure_title = (
-            f'{index.upper()}: Comparison Return Between Index and Government Bond of Monthly SIP {monthly_invest} Rupees Over Years'
+            f'{index.upper()} Return with Multiples (X) and XIRR (%)\n\nComparison Return Between Index and Government Bond for SIP 1000 Rupees on First Date of Each Month Over Years'
         )
         figure.suptitle(
             t=figure_title,
@@ -863,7 +872,7 @@ class Visual:
 
         Parameters
         ----------
-        indices : str
+        indices : list
             A list of index names to compare in the SIP growth plot.
 
         folder_path : str
@@ -957,7 +966,7 @@ class Visual:
             fontsize=12
         )
         subplot.set_xlabel(
-            xlabel='Start Date',
+            xlabel='SIP Start Date',
             fontsize=15
         )
 
@@ -1000,7 +1009,7 @@ class Visual:
 
         # figure customization
         figure_title = (
-            'Growth of Monthly SIP Investment Over Years'
+            'Growth of Monthly SIP Investment on First Date of each Month Over Years'
         )
         figure.suptitle(
             t=figure_title,

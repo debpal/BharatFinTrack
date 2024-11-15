@@ -2,6 +2,21 @@
 Release Notes
 ===============
 
+Version 0.1.9
+---------------
+
+* **Release date:** 15-Nov-2024
+  
+* **Feature Additions:** 
+
+    * Added support for newly launched NSE equity indices.
+    * Enhanced functionality for SIP comparison across indices in the :class:`BharatFinTrack.NSETRI` class.
+    
+    
+* **Development Status:** Upgraded from Beta to Production/Stable.
+
+
+
 Version 0.1.8
 ---------------
 

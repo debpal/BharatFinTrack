@@ -104,6 +104,32 @@ Computes the year-wise SIP return for a fixed monthly contribution to a specifie
         monthly_invest=1000,
         output_excel=r"C:\Users\Username\Folder\SIP_Yearwise_NIFTY_50.xlsx"
     )
+    
+    
+SIP Comparison Across Indices
+-------------------------------
+
+Comparing the growth multiples (X) of a monthly SIP investment across `TRI` indices, including popular indices such as NIFTY 50 and NIFTY 500, as well as several other top-performing NSE equity indices over the years. The data required for SIP calculations must be sourced from the Excel files generated in the :ref:`Total Return Index (TRI) <f_download_tri>` section. Ensure that all Excel files are stored in the designated input folder, with each file named as `{index}.xlsx` to correspond to the index names provided in the list of indices. The output DataFrame is saved to an Excel file, where the cells with the highest growth among indices for each year are highlighted in green-yellow, and those with the lowest growth are highlighted in sandy brown.
+
+
+.. code-block:: python
+
+    index_list = [
+        'NIFTY 50',
+        'NIFTY 500',
+        'NIFTY ALPHA 50',
+        'NIFTY MIDCAP150 MOMENTUM 50',
+        'NIFTY500 MOMENTUM 50',
+        'NIFTY MIDSMALLCAP400 MOMENTUM QUALITY 100',
+        'NIFTY SMALLCAP250 MOMENTUM QUALITY 100'
+    ]
+    
+    nse_tri.sip_growth_comparison_across_indices(
+        indices=index_list
+        folder_path=r"C:\Users\Username\Folder",
+        excel_file=r"C:\Users\Username\Folder\sip_invest_growth_across_indices.xlsx"
+    )
+  
    
    
 SIP Calculator

@@ -77,8 +77,8 @@ A bar plot displays investments and returns over the years for `TRI` data of the
     
     visual.plot_yearwise_sip_returns(
         index='NIFTY MIDCAP150 MOMENTUM 50'
-        excel_file=r"C:\Users\Username\Folder\NIFTY MIDCAP150 MOMENTUM 50.xlsx",
-        figure_file=r"C:\Users\Username\Folder\SIP_Yearwise_NIFTY_50.png"
+        excel_file=r"C:\Users\Username\Folder\index_data.xlsx",
+        figure_file=r"C:\Users\Username\Folder\SIP_Yearwise.png"
     )
     
     
@@ -88,20 +88,44 @@ The resulting plot will look similar to the example below.
    :align: left
    
    
+SIP Comparison with Government Securities
+-------------------------------------------
+A bar plot displays the comparison of investments and returns over the years for the `TRI` data of the `NIFTY MIDCAP150 MOMENTUM 50` index and government secutity bond with an assumed coupon rate. 
+
+
+.. code-block:: python
+    
+    visual.plot_sip_index_vs_gsec(
+        index='NIFTY MIDCAP150 MOMENTUM 50'
+        excel_file=r"C:\Users\Username\Folder\index_data.xlsx",
+        figure_file=r"C:\Users\Username\Folder\SIP_gsec_vs_index.png",
+        gsec_return=8
+    )
+
+    
+The resulting plot will look similar to the example below.
+
+.. image:: _static/sip_gsec_vs_NIFTY_MIDCAP150_MOMENTUM_50.png
+   :align: left
+   
+   
 SIP Comparison Across Indices
 -------------------------------
 
-A plot comparing the growth of a monthly SIP investment across `TRI` indices, including NIFTY 50 and several other top-performing NSE equity indices over the years. The data required for SIP calculations must be sourced from the Excel files generated in the :ref:`Total Return Index (TRI) <f_download_tri>` section. Ensure that all Excel files are stored in the designated input folder, with each file named as `{index}.xlsx` to correspond to the index names provided in the list of indices.
+A plot comparing the growth multiples (X) of a monthly SIP investment across `TRI` indices, including popular indices such as NIFTY 50 and NIFTY 500, as well as several other top-performing NSE equity indices over the years. The data required for SIP calculations must be sourced from the Excel files generated in the :ref:`Total Return Index (TRI) <f_download_tri>` section. Ensure that all Excel files are stored in the designated input folder, with each file named as `{index}.xlsx` to correspond to the index names provided in the list of indices.
+
 
 
 .. code-block:: python
 
     index_list = [
         'NIFTY 50',
+        'NIFTY 500',
+        'NIFTY ALPHA 50',
         'NIFTY MIDCAP150 MOMENTUM 50',
         'NIFTY500 MOMENTUM 50',
         'NIFTY MIDSMALLCAP400 MOMENTUM QUALITY 100',
-        'NIFTY SMALLCAP250 MOMENTUM QUALITY 100',
+        'NIFTY SMALLCAP250 MOMENTUM QUALITY 100'
     ]
     
     visual.plot_sip_growth_comparison_across_indices(

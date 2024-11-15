@@ -97,6 +97,9 @@ class NSETRI:
         index : str
             Name of the index.
 
+        excel_file : str, optional
+            Path to an Excel file to save the DataFrame.
+
         start_date : str, optional
             Start date in the format 'DD-MMM-YYYY'.
             Defaults to the index's base date if None is provided.
@@ -108,9 +111,6 @@ class NSETRI:
         http_headers : dict, optional
             HTTP headers for the web request. If not provided, defaults to
             :attr:`BharatFinTrack.core.Core.default_http_headers`.
-
-        excel_file : str, optional
-            Path to an Excel file to save the DataFrame.
 
         Returns
         -------
@@ -238,7 +238,7 @@ class NSETRI:
 
         Parameters
         ----------
-        excel_file : str, optional
+        excel_file : str
             Path to an Excel file to save the DataFrame.
 
         http_headers : dict, optional
@@ -884,3 +884,142 @@ class NSETRI:
         summary['XIRR (%)'] = f'{xirr_p:.1f}'
 
         return summary
+
+    def sip_growth_comparison_across_indices(
+        self,
+        indices: list[str],
+        folder_path: str,
+        excel_file: str,
+    ) -> pandas.DataFrame:
+
+        '''
+        Generates a DataFrame that compares SIP investment growth on the
+        first date of each month across multiple indices over the years.
+        The output DataFrame is saved to an Excel file, where the cells with
+        the highest growth among indices for each year are highlighted in green-yellow,
+        and those with the lowest growth are highlighted in sandy brown.
+
+        Parameters
+        ----------
+        indices : list
+            A list of index names to compare in the SIP growth.
+
+        folder_path : str
+            Path to the directory containing Excel files with historical data for each index. Each Excel file must be
+            named as '{index}.xlsx' corresponding to the index names provided in the `indices` list. These files should
+            be obtained from :meth:`BharatFinTrack.NSETRI.download_historical_daily_data` or
+            :meth:`BharatFinTrack.NSETRI.update_historical_daily_data`.
+
+        excel_file : str
+            Path to an Excel file to save the output DataFrame.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame comparing SIP investment growth on the
+            first date of each month across multiple indices over the years.
+        '''
+
+        # check the Excel file extension first
+        excel_ext = Core()._excel_file_extension(excel_file)
+        if excel_ext == '.xlsx':
+            pass
+        else:
+            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
+
+        # monthly investment amount
+        monthly_invest = 1000
+
+        # SIP dataframe of index
+        dataframes = []
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            for index in indices:
+                index_excel = os.path.join(folder_path, f'{index}.xlsx')
+                df = NSETRI().yearwise_sip_analysis(
+                    input_excel=index_excel,
+                    monthly_invest=monthly_invest,
+                    output_excel=os.path.join(tmp_dir, 'output.xlsx')
+                )
+                dataframes.append(df)
+
+        # check equal close date for all DataFrames
+        close_date = dataframes[0]['Close Date'].iloc[0]
+        equal_closedate = all(map(lambda df: df['Close Date'].iloc[0] == close_date, dataframes))
+        if equal_closedate is True:
+            pass
+        else:
+            raise Exception('Last date must be equal across all indices in the Excel files.')
+
+        # filtered dataframes
+        common_year = min(
+            map(lambda df: int(df['Year'].max()), dataframes)
+        )
+        dataframes = [
+            df[df['Year'] <= common_year] for df in dataframes
+        ]
+        dataframes = [
+            df.drop(columns=['Invest', 'Value', 'XIRR (%)']) for df in dataframes
+        ]
+        dataframes = [
+            df.rename(columns={'Multiple (X)': f'{index} (X)'}) for df, index in zip(dataframes, indices)
+        ]
+
+        # mergeing the DataFrames
+        merged_df = dataframes[0]
+        common_cols = list(merged_df.columns)[:-1]
+        for df in dataframes[1:]:
+            merged_df = pandas.merge(merged_df, df, on=common_cols, how='inner')
+        for col in merged_df.columns:
+            if col.endswith('(X)'):
+                merged_df[col] = merged_df[col].round(5)
+            else:
+                pass
+
+        # saving DataFrame
+        with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
+            merged_df.to_excel(excel_writer, index=False)
+            workbook = excel_writer.book
+            worksheet = excel_writer.sheets['Sheet1']
+            worksheet.set_column(
+                0, len(common_cols) - 1, 15
+            )
+            worksheet.set_column(
+                len(common_cols), merged_df.shape[1] - 1, 20,
+                workbook.add_format({'num_format': '#,##0.0'})
+            )
+            # header formatting
+            header_format = workbook.add_format(
+                {
+                    'bold': True,
+                    'text_wrap': True,
+                    'align': 'center',
+                    'valign': 'vcenter'
+                }
+            )
+            for col_num, col_df in enumerate(merged_df.columns):
+                worksheet.write(0, col_num, col_df, header_format)
+            # formatting for maximum and minimum value in each row
+            skip_cols = len(common_cols)
+            for row in range(merged_df.shape[0]):
+                # minimum value
+                worksheet.conditional_format(
+                    row + 1, skip_cols, row + 1, merged_df.shape[1] - 1,
+                    {
+                        'type': 'cell',
+                        'criteria': 'equal to',
+                        'value': merged_df.iloc[row, skip_cols:].min(),
+                        'format': workbook.add_format({'bg_color': '#F4A460'})
+                    }
+                )
+                # maximim value
+                worksheet.conditional_format(
+                    row + 1, skip_cols, row + 1, merged_df.shape[1] - 1,
+                    {
+                        'type': 'cell',
+                        'criteria': 'equal to',
+                        'value': merged_df.iloc[row, skip_cols:].max(),
+                        'format': workbook.add_format({'bg_color': '#ADFF2F'})
+                    }
+                )
+
+        return merged_df
