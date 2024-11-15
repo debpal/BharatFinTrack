@@ -19,11 +19,9 @@ dependencies = [
     "pyxirr"
 ]
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 classifiers = [
 	"Development Status :: 5 - Production/Stable",
-	"Programming Language :: Python :: 3.10",
-	"Programming Language :: Python :: 3.11",
 	"Programming Language :: Python :: 3.12",
 	"License :: OSI Approved :: MIT License",
 	"Operating System :: OS Independent",
