@@ -711,5 +711,5 @@ def test_github_action(
 ):
 
     assert core._github_action(
-        integer=1
-    ) == '1'
+        integer=2
+    ) == '2'
