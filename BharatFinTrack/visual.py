@@ -30,7 +30,7 @@ class Visual:
 
         # check validity of input figure file path
         check_file = Core().is_valid_figure_extension(figure_file)
-        if check_file is True:
+        if check_file:
             pass
         else:
             raise Exception('Input figure file extension is not supported.')
@@ -291,7 +291,7 @@ class Visual:
 
         # check validity of input figure file path
         check_file = Core().is_valid_figure_extension(figure_file)
-        if check_file is True:
+        if check_file:
             pass
         else:
             raise Exception('Input figure file extension is not supported.')
@@ -545,7 +545,7 @@ class Visual:
 
         # check validity of input figure file path
         check_file = Core().is_valid_figure_extension(figure_file)
-        if check_file is True:
+        if check_file:
             pass
         else:
             raise Exception('Input figure file extension is not supported.')
@@ -713,7 +713,7 @@ class Visual:
 
         # check validity of input figure file path
         check_file = Core().is_valid_figure_extension(figure_file)
-        if check_file is True:
+        if check_file:
             pass
         else:
             raise Exception('Input figure file extension is not supported.')
@@ -895,7 +895,7 @@ class Visual:
 
         # check validity of input figure file path
         check_file = Core().is_valid_figure_extension(figure_file)
-        if check_file is True:
+        if check_file:
             pass
         else:
             raise Exception('Input figure file extension is not supported.')
@@ -918,7 +918,7 @@ class Visual:
         # check equal close date for all DataFrames
         close_date = dataframes[0]['Close Date'].iloc[0]
         equal_closedate = all(map(lambda df: df['Close Date'].iloc[0] == close_date, dataframes))
-        if equal_closedate is True:
+        if equal_closedate:
             pass
         else:
             raise Exception('Last date must be equal across all indices in the Excel files.')

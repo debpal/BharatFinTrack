@@ -70,7 +70,7 @@ class NSETRI:
             True if the index data is open-source, False otherwise.
         '''
 
-        if NSEProduct().is_index_exist(index) is True:
+        if NSEProduct().is_index_exist(index):
             pass
         else:
             raise Exception(f'"{index}" index does not exist.')
@@ -126,7 +126,7 @@ class NSETRI:
             raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
 
         # check index name
-        if self.is_index_open_source(index) is True:
+        if self.is_index_open_source(index):
             index_api = self._index_api.get(index, index)
         else:
             raise Exception(f'"{index}" index data is not available as open-source.')
@@ -258,7 +258,7 @@ class NSETRI:
 
         # processing base DataFrame
         base_df = NSEProduct()._dataframe_equity_index
-        base_df = base_df.groupby(level='Category').head(2) if test_mode is True else base_df
+        base_df = base_df.groupby(level='Category').head(2) if test_mode else base_df
         base_df = base_df.reset_index()
         base_df = base_df.drop(columns=['ID', 'API TRI'])
         base_df['Base Date'] = base_df['Base Date'].apply(lambda x: x.date())
@@ -899,6 +899,13 @@ class NSETRI:
         the highest growth among indices for each year are highlighted in green-yellow,
         and those with the lowest growth are highlighted in sandy brown.
 
+        Additionally, a scoring mechanism is implemented for the indices based on their growth values.
+        For each year, indices are ranked in ascending order of growth, with the lowest value
+        receiving the lowest score (1), and the highest value receiving the highest score.
+        The total scores for each index are calculated by summing their yearly scores.
+        Indices are then sorted in descending order based on their total scores,
+        and the results are converted into a DataFrame with columns 'Index Name' and 'Score'.
+
         Parameters
         ----------
         indices : list
@@ -911,13 +918,12 @@ class NSETRI:
             :meth:`BharatFinTrack.NSETRI.update_historical_daily_data`.
 
         excel_file : str
-            Path to an Excel file to save the output DataFrame.
+            Path to an Excel file to save the output DataFrames.
 
         Returns
         -------
         DataFrame
-            A DataFrame comparing SIP investment growth on the
-            first date of each month across multiple indices over the years.
+            A DataFrame containing the index names and their total scores.
         '''
 
         # check the Excel file extension first
@@ -945,7 +951,7 @@ class NSETRI:
         # check equal close date for all DataFrames
         close_date = dataframes[0]['Close Date'].iloc[0]
         equal_closedate = all(map(lambda df: df['Close Date'].iloc[0] == close_date, dataframes))
-        if equal_closedate is True:
+        if equal_closedate:
             pass
         else:
             raise Exception('Last date must be equal across all indices in the Excel files.')
@@ -968,23 +974,49 @@ class NSETRI:
         merged_df = dataframes[0]
         common_cols = list(merged_df.columns)[:-1]
         for df in dataframes[1:]:
-            merged_df = pandas.merge(merged_df, df, on=common_cols, how='inner')
+            merged_df = pandas.merge(
+                left=merged_df,
+                right=df,
+                on=common_cols,
+                how='inner'
+            )
+
+        # assing score to indices growth returns
+        score_df = merged_df.copy()
+        score_df = score_df.iloc[:, len(common_cols):]
+        for idx, row in score_df.iterrows():
+            sort_growth = row.sort_values(ascending=True).index
+            score_indices = range(1, len(sort_growth) + 1)
+            score_df.loc[idx, sort_growth] = score_indices
+
+        # aggregate DataFrame of sorted total score
+        aggregate_df = score_df.sum().sort_values(ascending=False).reset_index()
+        aggregate_df.columns = ['Index Name', 'Score']
+        aggregate_df['Index Name'] = aggregate_df['Index Name'].apply(lambda x: x.replace(' (X)', ''))
+
+        # rounding of column values to catch exact maximum and minimum with floating point precision
         for col in merged_df.columns:
             if col.endswith('(X)'):
                 merged_df[col] = merged_df[col].round(5)
             else:
                 pass
 
-        # saving DataFrame
+        # saving DataFrames
         with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
-            merged_df.to_excel(excel_writer, index=False)
+            ##################
+            # merged DataFrame
+            merged_df.to_excel(
+                excel_writer=excel_writer,
+                index=False,
+                sheet_name='Multiple(X)'
+            )
             workbook = excel_writer.book
-            worksheet = excel_writer.sheets['Sheet1']
+            worksheet = excel_writer.sheets['Multiple(X)']
             worksheet.set_column(
                 0, len(common_cols) - 1, 15
             )
             worksheet.set_column(
-                len(common_cols), merged_df.shape[1] - 1, 20,
+                len(common_cols), merged_df.shape[1] - 1, 15,
                 workbook.add_format({'num_format': '#,##0.0'})
             )
             # header formatting
@@ -999,27 +1031,219 @@ class NSETRI:
             for col_num, col_df in enumerate(merged_df.columns):
                 worksheet.write(0, col_num, col_df, header_format)
             # formatting for maximum and minimum value in each row
-            skip_cols = len(common_cols)
             for row in range(merged_df.shape[0]):
                 # minimum value
                 worksheet.conditional_format(
-                    row + 1, skip_cols, row + 1, merged_df.shape[1] - 1,
+                    row + 1, len(common_cols), row + 1, merged_df.shape[1] - 1,
                     {
                         'type': 'cell',
                         'criteria': 'equal to',
-                        'value': merged_df.iloc[row, skip_cols:].min(),
+                        'value': merged_df.iloc[row, len(common_cols):].min(),
                         'format': workbook.add_format({'bg_color': '#F4A460'})
                     }
                 )
                 # maximim value
                 worksheet.conditional_format(
-                    row + 1, skip_cols, row + 1, merged_df.shape[1] - 1,
+                    row + 1, len(common_cols), row + 1, merged_df.shape[1] - 1,
                     {
                         'type': 'cell',
                         'criteria': 'equal to',
-                        'value': merged_df.iloc[row, skip_cols:].max(),
+                        'value': merged_df.iloc[row, len(common_cols):].max(),
                         'format': workbook.add_format({'bg_color': '#ADFF2F'})
                     }
                 )
+            ##################
+            # score DataFrame
+            aggregate_df.to_excel(
+                excel_writer=excel_writer,
+                index=False,
+                sheet_name='Score'
+            )
+            workbook = excel_writer.book
+            worksheet = excel_writer.sheets['Score']
+            worksheet.set_column(0, 0, 75)
+            worksheet.set_column(1, 1, 15)
 
-        return merged_df
+        return aggregate_df
+
+    # not testes yet
+    def sip_xirr_comparison_across_indices(
+        self,
+        indices: list[str],
+        folder_path: str,
+        excel_file: str,
+    ) -> pandas.DataFrame:
+
+        '''
+        Generates a DataFrame that compares XIRR (%) of SIP growth on the
+        first date of each month across multiple indices over the years.
+        The output DataFrame is saved to an Excel file, where the cells with
+        the highest XIRR (%) among indices for each year are highlighted in green-yellow,
+        and those with the lowest XIRR (%) are highlighted in sandy brown.
+
+        Additionally, a scoring mechanism is implemented for the indices based on their XIRR (%) values.
+        For each year, indices are ranked in ascending order of XIRR (%), with the lowest value
+        receiving the lowest score (1), and the highest value receiving the highest score.
+        The total scores for each index are calculated by summing their yearly scores.
+        Indices are then sorted in descending order based on their total scores,
+        and the results are converted into a DataFrame with columns 'Index Name' and 'Score'.
+
+        Parameters
+        ----------
+        indices : list
+            A list of index names to compare in the SIP XIRR (%).
+
+        folder_path : str
+            Path to the directory containing Excel files with historical data for each index. Each Excel file must be
+            named as '{index}.xlsx' corresponding to the index names provided in the `indices` list. These files should
+            be obtained from :meth:`BharatFinTrack.NSETRI.download_historical_daily_data` or
+            :meth:`BharatFinTrack.NSETRI.update_historical_daily_data`.
+
+        excel_file : str
+            Path to an Excel file to save the output DataFrames.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame containing the index names and their total scores.
+        '''
+
+        # check the Excel file extension first
+        excel_ext = Core()._excel_file_extension(excel_file)
+        if excel_ext == '.xlsx':
+            pass
+        else:
+            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
+
+        # monthly investment amount
+        monthly_invest = 1000
+
+        # SIP dataframe of index
+        dataframes = []
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            for index in indices:
+                index_excel = os.path.join(folder_path, f'{index}.xlsx')
+                df = NSETRI().yearwise_sip_analysis(
+                    input_excel=index_excel,
+                    monthly_invest=monthly_invest,
+                    output_excel=os.path.join(tmp_dir, 'output.xlsx')
+                )
+                dataframes.append(df)
+
+        # check equal close date for all DataFrames
+        close_date = dataframes[0]['Close Date'].iloc[0]
+        equal_closedate = all(map(lambda df: df['Close Date'].iloc[0] == close_date, dataframes))
+        if equal_closedate:
+            pass
+        else:
+            raise Exception('Last date must be equal across all indices in the Excel files.')
+
+        # filtered dataframes
+        common_year = min(
+            map(lambda df: int(df['Year'].max()), dataframes)
+        )
+        dataframes = [
+            df[df['Year'] <= common_year] for df in dataframes
+        ]
+        dataframes = [
+            df.drop(columns=['Invest', 'Value', 'Multiple (X)']) for df in dataframes
+        ]
+        dataframes = [
+            df.rename(columns={'XIRR (%)': f'{index} (XIRR)'}) for df, index in zip(dataframes, indices)
+        ]
+
+        # mergeing the DataFrames
+        merged_df = dataframes[0]
+        common_cols = list(merged_df.columns)[:-1]
+        for df in dataframes[1:]:
+            merged_df = pandas.merge(
+                left=merged_df,
+                right=df,
+                on=common_cols,
+                how='inner'
+            )
+
+        # assing score to indices growth returns
+        score_df = merged_df.copy()
+        score_df = score_df.iloc[:, len(common_cols):]
+        for idx, row in score_df.iterrows():
+            sort_growth = row.sort_values(ascending=True).index
+            score_indices = range(1, len(sort_growth) + 1)
+            score_df.loc[idx, sort_growth] = score_indices
+
+        # aggregate DataFrame of sorted total score
+        aggregate_df = score_df.sum().sort_values(ascending=False).reset_index()
+        aggregate_df.columns = ['Index Name', 'Score']
+        aggregate_df['Index Name'] = aggregate_df['Index Name'].apply(lambda x: x.replace(' (XIRR)', ''))
+
+        # rounding of column values to catch exact maximum and minimum with floating point precision
+        for col in merged_df.columns:
+            if col.endswith('(XIRR)'):
+                merged_df[col] = merged_df[col].round(5)
+            else:
+                pass
+
+        # saving DataFrames
+        with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
+            ##################
+            # merged DataFrame
+            merged_df.to_excel(
+                excel_writer=excel_writer,
+                index=False,
+                sheet_name='XIRR(%)'
+            )
+            workbook = excel_writer.book
+            worksheet = excel_writer.sheets['XIRR(%)']
+            worksheet.set_column(
+                0, len(common_cols) - 1, 15
+            )
+            worksheet.set_column(
+                len(common_cols), merged_df.shape[1] - 1, 15,
+                workbook.add_format({'num_format': '#,##0.0'})
+            )
+            # header formatting
+            header_format = workbook.add_format(
+                {
+                    'bold': True,
+                    'text_wrap': True,
+                    'align': 'center',
+                    'valign': 'vcenter'
+                }
+            )
+            for col_num, col_df in enumerate(merged_df.columns):
+                worksheet.write(0, col_num, col_df, header_format)
+            # formatting for maximum and minimum value in each row
+            for row in range(merged_df.shape[0]):
+                # minimum value
+                worksheet.conditional_format(
+                    row + 1, len(common_cols), row + 1, merged_df.shape[1] - 1,
+                    {
+                        'type': 'cell',
+                        'criteria': 'equal to',
+                        'value': merged_df.iloc[row, len(common_cols):].min(),
+                        'format': workbook.add_format({'bg_color': '#F4A460'})
+                    }
+                )
+                # maximim value
+                worksheet.conditional_format(
+                    row + 1, len(common_cols), row + 1, merged_df.shape[1] - 1,
+                    {
+                        'type': 'cell',
+                        'criteria': 'equal to',
+                        'value': merged_df.iloc[row, len(common_cols):].max(),
+                        'format': workbook.add_format({'bg_color': '#ADFF2F'})
+                    }
+                )
+            ##################
+            # score DataFrame
+            aggregate_df.to_excel(
+                excel_writer=excel_writer,
+                index=False,
+                sheet_name='Score'
+            )
+            workbook = excel_writer.book
+            worksheet = excel_writer.sheets['Score']
+            worksheet.set_column(0, 0, 75)
+            worksheet.set_column(1, 1, 15)
+
+        return aggregate_df
