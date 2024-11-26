@@ -507,12 +507,20 @@ def test_sip(
             start_date='15-Oct-2022',
             end_date='15-Oct-2024'
         )
-        merged_df = nse_tri.sip_growth_comparison_across_indices(
+        # SIP growth comparison
+        aggregate_df = nse_tri.sip_growth_comparison_across_indices(
             indices=[index, index_1],
             folder_path=tmp_dir,
-            excel_file=os.path.join(tmp_dir, 'sip_invest_growth_across_indices.xlsx')
+            excel_file=os.path.join(tmp_dir, 'compare_sip_growth_across_indices.xlsx')
         )
-        assert len(merged_df.columns) == 5
+        assert len(aggregate_df.columns) == 2
+        # SIP XIRR comparison
+        aggregate_df = nse_tri.sip_xirr_comparison_across_indices(
+            indices=[index, index_1],
+            folder_path=tmp_dir,
+            excel_file=os.path.join(tmp_dir, 'compare_sip_xirr_across_indices.xlsx')
+        )
+        assert len(aggregate_df.columns) == 2
         # error test for unequal end date of two indices
         nse_tri.download_historical_daily_data(
             index='NIFTY ALPHA 50',
@@ -527,11 +535,20 @@ def test_sip(
                 figure_file=figure_file
             )
         assert exc_info.value.args[0] == 'Last date must be equal across all indices in the Excel files.'
+        # SIP growth comparison
         with pytest.raises(Exception) as exc_info:
             nse_tri.sip_growth_comparison_across_indices(
                 indices=['NIFTY 50', 'NIFTY ALPHA 50'],
                 folder_path=tmp_dir,
-                excel_file=os.path.join(tmp_dir, 'sip_invest_growth_across_indices.xlsx')
+                excel_file=os.path.join(tmp_dir, 'comare_sip_growth_across_indices.xlsx')
+            )
+        assert exc_info.value.args[0] == 'Last date must be equal across all indices in the Excel files.'
+        # SIP XIRR comparison
+        with pytest.raises(Exception) as exc_info:
+            nse_tri.sip_xirr_comparison_across_indices(
+                indices=['NIFTY 50', 'NIFTY ALPHA 50'],
+                folder_path=tmp_dir,
+                excel_file=os.path.join(tmp_dir, 'compare_sip_xirr_across_indices.xlsx')
             )
         assert exc_info.value.args[0] == 'Last date must be equal across all indices in the Excel files.'
         # error test for invalid input of year and month
@@ -631,6 +648,14 @@ def test_error_excel(
 
     with pytest.raises(Exception) as exc_info:
         nse_tri.sip_growth_comparison_across_indices(
+            indices=['NIFTY 50'],
+            folder_path=r"C:\Users\Username\Folder",
+            excel_file='output.xl'
+        )
+    assert exc_info.value.args[0] == message['error_excel']
+
+    with pytest.raises(Exception) as exc_info:
+        nse_tri.sip_xirr_comparison_across_indices(
             indices=['NIFTY 50'],
             folder_path=r"C:\Users\Username\Folder",
             excel_file='output.xl'

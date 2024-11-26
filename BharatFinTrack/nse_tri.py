@@ -1066,7 +1066,6 @@ class NSETRI:
 
         return aggregate_df
 
-    # not testes yet
     def sip_xirr_comparison_across_indices(
         self,
         indices: list[str],
