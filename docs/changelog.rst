@@ -8,7 +8,10 @@ Version 0.1.10
 
 * **Release date:** 07-Dec-2024
   
-* **Feature Additions:** Added support for newly launched NSE equity indices.
+* **Feature Additions:**
+
+    * Added support for newly launched NSE equity indices.
+    * Ensured compatibility with Python 3.13.
     
 * **Bug Fixes:** Issues with the API used to fetch data.
 
