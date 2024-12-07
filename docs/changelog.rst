@@ -2,6 +2,17 @@
 Release Notes
 ===============
 
+
+Version 0.1.10
+---------------
+
+* **Release date:** 07-Dec-2024
+  
+* **Feature Additions:** Added support for newly launched NSE equity indices.
+    
+* **Bug Fixes:** Issues with the API used to fetch data.
+
+
 Version 0.1.9
 ---------------
 

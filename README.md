@@ -50,15 +50,14 @@ Using `BharatFinTrack`, you can quickly gain insights into the performance of NS
 
 ![Category-wise Top Five TRI CAGR(%) of NSE Equity Indices](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/tri_top_cagr_by_category.png)
 
-In this graph, the `NIFTY MIDCAP150 MOMENTUM 50` stands out as one of the best-performing NSE equity `TRI` indices in terms of long-term CAGR. The next graph illustrates the year-wise investments and returns, shown as investment multiples (X) and XIRR (%), for a monthly SIP of 1,000 Rupees in a passive fund tracking the `TRI` data of `NIFTY MIDCAP150 MOMENTUM 50`.
+In the above graph, the `NIFTY MIDCAP150 MOMENTUM 50` emerges as one of the best-performing NSE equity `TRI` indices in terms of long-term CAGR. The next graph illustrates a comparison of year-wise investments and returns for a monthly SIP of 1,000 Rupees between a government bond and a passive fund tracking the `TRI` data of `NIFTY MIDCAP150 MOMENTUM 50`.
+
+![Year-wise SIP comparison between Government Bond and NIFTY_MIDCAP150_MOMENTUM_50](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/sip_yearwise_NIFTY_MIDCAP150_MOMENTUM_50.png)
+
+Additionally, the following plot compares the growth multiples (X) of a monthly SIP investment across `TRI` indices, including the popular index `NIFTY 50` and other top-performing NSE equity indices over the years.
 
 
-![Year-wise SIP analysis of NIFTY_MIDCAP150_MOMENTUM_50](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/sip_yearwise_NIFTY_MIDCAP150_MOMENTUM_50.png)
-
-Additionally, the following plot compares the growth multiples (X) of a monthly SIP investment across `TRI` indices, including popular indices such as `NIFTY 50` and `NIFTY 500`, as well as several other top-performing NSE equity indices over the years.
-
-
-![Year-wise SIP growth comparison across multiple indices](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/sip_invest_growth_across_indices.png)
+![Year-wise SIP growth comparison across multiple indices](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/sip_growth_multiple.png)
 
 ## Easy Installation
 

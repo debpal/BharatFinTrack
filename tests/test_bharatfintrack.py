@@ -207,8 +207,8 @@ def test_download_historical_daily_data(
 @pytest.mark.parametrize(
     'index, expected_value',
     [
-        ('NIFTY INDIA NEW AGE CONSUMPTION', 14709.71),
-        ('NIFTY INDIA SELECT 5 CORPORATE GROUPS (MAATR)', 47085.20),
+        ('NIFTY INDIA SELECT 5 CORPORATE GROUPS (MAATR)', 45021.65),
+        ('NIFTY INDIA RAILWAYS PSU', 4493.09),
     ]
 )
 def test_index_download_historical_daily_data(
@@ -221,8 +221,8 @@ def test_index_download_historical_daily_data(
         df = nse_tri.download_historical_daily_data(
             index=index,
             excel_file=excel_file,
-            start_date='15-Oct-2024',
-            end_date='15-Oct-2024'
+            start_date='06-Dec-2024',
+            end_date='06-Dec-2024'
         )
         assert float(df.iloc[-1, -1]) == expected_value
 

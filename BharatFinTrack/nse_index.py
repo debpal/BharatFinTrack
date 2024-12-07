@@ -43,6 +43,12 @@ class NSEIndex:
             A DataFrame containing the daily summary for all NSE indices.
         '''
 
+        # check folder path
+        if not os.path.isdir(folder_path):
+            raise Exception('The folder path does not exist.')
+        else:
+            pass
+
         # web request headers
         headers = Core().default_http_headers if http_headers is None else http_headers
 
@@ -59,20 +65,20 @@ class NSEIndex:
             features='html.parser'
         )
         for anchor in soup.find_all('a'):
-            if anchor['href'].endswith('.csv') and anchor['id'] == 'dailysnapOneDaybefore':
-                csv_link = main_url + anchor['href']
-                response = requests.get(
-                    url=csv_link,
-                    headers=headers
-                )
-                if os.path.isdir(folder_path):
+            try:
+                if anchor['href'].endswith('.csv') and anchor['id'] == 'dailysnapOneDaybefore':
+                    csv_link = main_url + anchor['href']
+                    response = requests.get(
+                        url=csv_link,
+                        headers=headers
+                    )
                     download_file = os.path.join(folder_path, 'summary_index_price_closing_value.csv')
                     with open(download_file, 'wb') as download_data:
                         download_data.write(response.content)
                     output = pandas.read_csv(download_file)
                 else:
-                    raise Exception('The folder path does not exist.')
-            else:
+                    pass
+            except Exception:
                 pass
 
         return output
@@ -124,7 +130,7 @@ class NSEIndex:
         base_df = base_df.drop(columns=['ID', 'API TRI'])
         base_df['Base Date'] = base_df['Base Date'].apply(lambda x: x.date())
 
-        # fixing unmatched indices with base indinces in the download Dataframe
+        # fixing unmatched indices with base indices in the download Dataframe
         download_unmatch = {
             'NIFTY 50 FUTURES INDEX': 'NIFTY 50 FUTURES PR',
             'NIFTY 50 FUTURES TR INDEX': 'NIFTY 50 FUTURES TR',

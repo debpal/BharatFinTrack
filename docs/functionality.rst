@@ -116,12 +116,9 @@ Comparing the growth multiples (X) of a monthly SIP investment across `TRI` indi
 
     index_list = [
         'NIFTY 50',
-        'NIFTY 500',
         'NIFTY ALPHA 50',
         'NIFTY MIDCAP150 MOMENTUM 50',
-        'NIFTY500 MOMENTUM 50',
-        'NIFTY MIDSMALLCAP400 MOMENTUM QUALITY 100',
-        'NIFTY SMALLCAP250 MOMENTUM QUALITY 100'
+        'NIFTY500 MOMENTUM 50'
     ]
     
     nse_tri.sip_growth_comparison_across_indices(

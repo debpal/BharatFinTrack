@@ -772,7 +772,7 @@ class Visual:
             x=xticks + bar_width,
             height=df['Value'] / monthly_invest,
             width=bar_width,
-            label='Index',
+            label=index.upper(),
             color='lightgreen'
         )
         for xt in xticks:
