@@ -58,7 +58,7 @@ class NSEIndex:
         response = requests.get(
             url=csv_url,
             headers=headers,
-            timeout=30
+            timeout=10
         )
         soup = bs4.BeautifulSoup(
             markup=response.content,
