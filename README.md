@@ -27,12 +27,13 @@
 * Compare CAGR (%) between `Price` and `TRI`.
 * Sorts NSE equity indices by CAGR (%) values.
 * Sorts NSE equity indices by CAGR (%) within each category.
+* Compares the year-wise CAGR (%) and growth of a fixed yearly investment across multiple NSE equity `TRI` indices.
     
 ## Systematic Investment Plan (SIP)
     
 * Computes the year-wise SIP return for a fixed monthly contribution to a specified NSE equity `TRI` index. 
 * Calculates the closing summary of an SIP with a fixed monthly contribution to a specified NSE equity `TRI` index, starting from a given date.
-* Compares the growth of a monthly SIP investment across multiple NSE equity `TRI` indices over the years.
+* Compares the year-wise XIRR (%) and growth of a fixed monthly SIP investment across multiple NSE equity `TRI` indices.
 * Estimates annual SIP performance, including investment amount, closing balance, and cumulative growth over a specified number of years and expected annual return, with options for yearly, quarterly, monthly, or weekly contributions.
 
 

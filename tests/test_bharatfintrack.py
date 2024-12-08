@@ -431,7 +431,7 @@ def test_update_historical_daily_data(
         assert len_df2 > len_df1
 
 
-def test_sip(
+def test_sip_cagr(
     nse_tri,
     visual
 ):
@@ -450,10 +450,17 @@ def test_sip(
         sip_df = nse_tri.yearwise_sip_analysis(
             input_excel=input_excel,
             monthly_invest=1000,
-            output_excel=os.path.join(tmp_dir, 'output.xlsx')
+            output_excel=os.path.join(tmp_dir, 'yearwise_sip.xlsx')
         )
         assert float(round(sip_df.iloc[-1, -1], 1)) == 24.0
         assert float(round(sip_df.iloc[-1, -2], 1)) == 1.3
+        # pass test for yearwise CAGR analysis
+        cagr_df = nse_tri.yearwise_cagr_analysis(
+            input_excel=input_excel,
+            output_excel=os.path.join(tmp_dir, 'yearwise_cagr.xlsx')
+        )
+        assert float(round(cagr_df.iloc[0, -3], 1)) == 28.4
+        assert float(round(cagr_df.iloc[-1, -3], 1)) == 21.6
         # pass test for SIP analysis from a fixed date
         sip_summary = nse_tri.sip_summary_from_given_date(
             excel_file=input_excel,
@@ -507,20 +514,20 @@ def test_sip(
             start_date='15-Oct-2022',
             end_date='15-Oct-2024'
         )
-        # SIP growth comparison
-        aggregate_df = nse_tri.sip_growth_comparison_across_indices(
+        # pass test for yearwise monthly SIP XIRR(%) and growth comparison across indices
+        sipaggregate_df = nse_tri.yearwise_sip_xirr_growth_comparison_across_indices(
             indices=[index, index_1],
             folder_path=tmp_dir,
-            excel_file=os.path.join(tmp_dir, 'compare_sip_growth_across_indices.xlsx')
+            excel_file=os.path.join(tmp_dir, 'compare_yearwise_sip_xirr_across_indices.xlsx')
         )
-        assert len(aggregate_df.columns) == 2
-        # SIP XIRR comparison
-        aggregate_df = nse_tri.sip_xirr_comparison_across_indices(
+        assert len(sipaggregate_df.columns) == 2
+        # pass test for yearwise CAGR(%) and growth comparison across indices
+        cagraggregate_df = nse_tri.yearwise_cagr_growth_comparison_across_indices(
             indices=[index, index_1],
             folder_path=tmp_dir,
-            excel_file=os.path.join(tmp_dir, 'compare_sip_xirr_across_indices.xlsx')
+            excel_file=os.path.join(tmp_dir, 'compare_yearwise_cagr_across_indices.xlsx')
         )
-        assert len(aggregate_df.columns) == 2
+        assert len(cagraggregate_df.columns) == 2
         # error test for unequal end date of two indices
         nse_tri.download_historical_daily_data(
             index='NIFTY ALPHA 50',
@@ -535,20 +542,20 @@ def test_sip(
                 figure_file=figure_file
             )
         assert exc_info.value.args[0] == 'Last date must be equal across all indices in the Excel files.'
-        # SIP growth comparison
+        # error test of unequal last date for yearwise SIP XIRR(%) and growth comparison across indicess
         with pytest.raises(Exception) as exc_info:
-            nse_tri.sip_growth_comparison_across_indices(
+            nse_tri.yearwise_sip_xirr_growth_comparison_across_indices(
                 indices=['NIFTY 50', 'NIFTY ALPHA 50'],
                 folder_path=tmp_dir,
-                excel_file=os.path.join(tmp_dir, 'comare_sip_growth_across_indices.xlsx')
+                excel_file=os.path.join(tmp_dir, 'compare_yearwise_sip_xirr_across_indices.xlsx')
             )
         assert exc_info.value.args[0] == 'Last date must be equal across all indices in the Excel files.'
-        # SIP XIRR comparison
+        # error test of unequal last date for yearwise CAGR(%) and growth comparison across indicess
         with pytest.raises(Exception) as exc_info:
-            nse_tri.sip_xirr_comparison_across_indices(
+            nse_tri.yearwise_cagr_growth_comparison_across_indices(
                 indices=['NIFTY 50', 'NIFTY ALPHA 50'],
                 folder_path=tmp_dir,
-                excel_file=os.path.join(tmp_dir, 'compare_sip_xirr_across_indices.xlsx')
+                excel_file=os.path.join(tmp_dir, 'compare_yearwise_cagr_across_indices.xlsx')
             )
         assert exc_info.value.args[0] == 'Last date must be equal across all indices in the Excel files.'
         # error test for invalid input of year and month
@@ -647,7 +654,14 @@ def test_error_excel(
     assert exc_info.value.args[0] == message['error_excel']
 
     with pytest.raises(Exception) as exc_info:
-        nse_tri.sip_growth_comparison_across_indices(
+        nse_tri.yearwise_cagr_analysis(
+            input_excel='input.xlsx',
+            output_excel='output.xl'
+        )
+    assert exc_info.value.args[0] == message['error_excel']
+
+    with pytest.raises(Exception) as exc_info:
+        nse_tri.yearwise_sip_xirr_growth_comparison_across_indices(
             indices=['NIFTY 50'],
             folder_path=r"C:\Users\Username\Folder",
             excel_file='output.xl'
@@ -655,7 +669,7 @@ def test_error_excel(
     assert exc_info.value.args[0] == message['error_excel']
 
     with pytest.raises(Exception) as exc_info:
-        nse_tri.sip_xirr_comparison_across_indices(
+        nse_tri.yearwise_cagr_growth_comparison_across_indices(
             indices=['NIFTY 50'],
             folder_path=r"C:\Users\Username\Folder",
             excel_file='output.xl'

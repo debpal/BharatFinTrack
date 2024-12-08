@@ -57,7 +57,7 @@ The resulting plot will resemble the example shown below.
    
 SIP Comparison with Government Securities
 -------------------------------------------
-A bar plot displays the comparison of investments and returns over the years for the `TRI` data of the `NIFTY MIDCAP150 MOMENTUM 50` index and government secutity bond with an assumed coupon rate. Data required to compute the SIP must be sourced from the Excel file generated in the :ref:`Total Return Index (TRI) <f_download_tri>` section. 
+A bar plot displays the comparison of investments and returns over the years for the `TRI` data of the `NIFTY MIDCAP150 MOMENTUM 50` index and government bond with an assumed coupon rate. Data required to compute the SIP must be sourced from the Excel file generated in the :ref:`Total Return Index (TRI) <f_download_tri>` section. 
 
 
 .. code-block:: python
@@ -79,7 +79,7 @@ The resulting plot will look similar to the example below.
 SIP Comparison Across Indices
 -------------------------------
 
-A plot comparing the growth multiples (X) of a monthly SIP investment across `TRI` indices, including popular indices such as NIFTY 50 and NIFTY 500, as well as several other top-performing NSE equity indices over the years. The data required for SIP calculations must be sourced from the Excel files generated in the :ref:`Total Return Index (TRI) <f_download_tri>` section. Ensure that all Excel files are stored in the designated input folder, with each file named as `{index}.xlsx` to correspond to the index names provided in the list of indices.
+A plot comparing the year-wise growth multiples (X) of a monthly SIP investment across `TRI` indices, including the popular `NIFTY 50` and other top-performing NSE equity indices over the years. The data required for SIP calculations must be sourced from the Excel files generated in the :ref:`Total Return Index (TRI) <f_download_tri>` section. Ensure that all Excel files are stored in the designated input folder, with each file named as `{index}.xlsx` to correspond to the index names provided in the list of indices.
 
 
 

@@ -885,7 +885,7 @@ class NSETRI:
 
         return summary
 
-    def sip_growth_comparison_across_indices(
+    def yearwise_sip_xirr_growth_comparison_across_indices(
         self,
         indices: list[str],
         folder_path: str,
@@ -893,11 +893,11 @@ class NSETRI:
     ) -> pandas.DataFrame:
 
         '''
-        Generates a DataFrame that compares SIP investment growth on the
-        first date of each month across multiple indices over the years.
-        The output DataFrame is saved to an Excel file, where the cells with
-        the highest growth among indices for each year are highlighted in green-yellow,
-        and those with the lowest growth are highlighted in sandy brown.
+        Generates two DataFrames that compares year-wise XIRR (%) and
+        growth multiple (X) on the first date SIP investment of each month across multiple indices.
+        The output DataFrame are saved to an Excel file, where the cells with
+        the best performance among indices for each year are highlighted in green-yellow,
+        and those with the worst performance are highlighted in sandy brown.
 
         Additionally, a scoring mechanism is implemented for the indices based on their growth values.
         For each year, indices are ranked in ascending order of growth, with the lowest value
@@ -909,7 +909,7 @@ class NSETRI:
         Parameters
         ----------
         indices : list
-            A list of index names to compare in the SIP growth.
+            A list of index names to compare in the monthly SIP XIRR (%) and growth multiple (X).
 
         folder_path : str
             Path to the directory containing Excel files with historical data for each index. Each Excel file must be
@@ -963,26 +963,28 @@ class NSETRI:
         dataframes = [
             df[df['Year'] <= common_year] for df in dataframes
         ]
-        dataframes = [
+
+        # growth DataFrames
+        growth_dataframes = [
             df.drop(columns=['Invest', 'Value', 'XIRR (%)']) for df in dataframes
         ]
-        dataframes = [
-            df.rename(columns={'Multiple (X)': f'{index} (X)'}) for df, index in zip(dataframes, indices)
+        growth_dataframes = [
+            df.rename(columns={'Multiple (X)': f'{index} (X)'}) for df, index in zip(growth_dataframes, indices)
         ]
 
-        # mergeing the DataFrames
-        merged_df = dataframes[0]
-        common_cols = list(merged_df.columns)[:-1]
-        for df in dataframes[1:]:
-            merged_df = pandas.merge(
-                left=merged_df,
+        # merging the growth DataFrames
+        mgrowth_df = growth_dataframes[0]
+        common_cols = list(mgrowth_df.columns)[:-1]
+        for df in growth_dataframes[1:]:
+            mgrowth_df = pandas.merge(
+                left=mgrowth_df,
                 right=df,
                 on=common_cols,
                 how='inner'
             )
 
         # assing score to indices growth returns
-        score_df = merged_df.copy()
+        score_df = mgrowth_df.copy()
         score_df = score_df.iloc[:, len(common_cols):]
         for idx, row in score_df.iterrows():
             sort_growth = row.sort_values(ascending=True).index
@@ -995,17 +997,42 @@ class NSETRI:
         aggregate_df['Index Name'] = aggregate_df['Index Name'].apply(lambda x: x.replace(' (X)', ''))
 
         # rounding of column values to catch exact maximum and minimum with floating point precision
-        for col in merged_df.columns:
+        for col in mgrowth_df.columns:
             if col.endswith('(X)'):
-                merged_df[col] = merged_df[col].round(5)
+                mgrowth_df[col] = mgrowth_df[col].round(5)
+            else:
+                pass
+
+        # XIRR DataFrames
+        xirr_dataframes = [
+            df.drop(columns=['Invest', 'Value', 'Multiple (X)']) for df in dataframes
+        ]
+        xirr_dataframes = [
+            df.rename(columns={'XIRR (%)': f'{index} (XIRR)'}) for df, index in zip(xirr_dataframes, indices)
+        ]
+
+        # mergeing the XIRR DataFrames
+        mxirr_df = xirr_dataframes[0]
+        for df in xirr_dataframes[1:]:
+            mxirr_df = pandas.merge(
+                left=mxirr_df,
+                right=df,
+                on=common_cols,
+                how='inner'
+            )
+
+        # rounding of column values to catch exact maximum and minimum with floating point precision
+        for col in mxirr_df.columns:
+            if col.endswith('(XIRR)'):
+                mxirr_df[col] = mxirr_df[col].round(5)
             else:
                 pass
 
         # saving DataFrames
         with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
-            ##################
-            # merged DataFrame
-            merged_df.to_excel(
+            ##########################
+            # merged growth DataFrames
+            mgrowth_df.to_excel(
                 excel_writer=excel_writer,
                 index=False,
                 sheet_name='Multiple(X)'
@@ -1016,7 +1043,7 @@ class NSETRI:
                 0, len(common_cols) - 1, 15
             )
             worksheet.set_column(
-                len(common_cols), merged_df.shape[1] - 1, 15,
+                len(common_cols), mgrowth_df.shape[1] - 1, 15,
                 workbook.add_format({'num_format': '#,##0.0'})
             )
             # header formatting
@@ -1028,27 +1055,76 @@ class NSETRI:
                     'valign': 'vcenter'
                 }
             )
-            for col_num, col_df in enumerate(merged_df.columns):
+            for col_num, col_df in enumerate(mgrowth_df.columns):
                 worksheet.write(0, col_num, col_df, header_format)
             # formatting for maximum and minimum value in each row
-            for row in range(merged_df.shape[0]):
+            for row in range(mgrowth_df.shape[0]):
                 # minimum value
                 worksheet.conditional_format(
-                    row + 1, len(common_cols), row + 1, merged_df.shape[1] - 1,
+                    row + 1, len(common_cols), row + 1, mgrowth_df.shape[1] - 1,
                     {
                         'type': 'cell',
                         'criteria': 'equal to',
-                        'value': merged_df.iloc[row, len(common_cols):].min(),
+                        'value': mgrowth_df.iloc[row, len(common_cols):].min(),
                         'format': workbook.add_format({'bg_color': '#F4A460'})
                     }
                 )
                 # maximim value
                 worksheet.conditional_format(
-                    row + 1, len(common_cols), row + 1, merged_df.shape[1] - 1,
+                    row + 1, len(common_cols), row + 1, mgrowth_df.shape[1] - 1,
                     {
                         'type': 'cell',
                         'criteria': 'equal to',
-                        'value': merged_df.iloc[row, len(common_cols):].max(),
+                        'value': mgrowth_df.iloc[row, len(common_cols):].max(),
+                        'format': workbook.add_format({'bg_color': '#ADFF2F'})
+                    }
+                )
+            ########################
+            # merged XIRR DataFrames
+            mxirr_df.to_excel(
+                excel_writer=excel_writer,
+                index=False,
+                sheet_name='XIRR(%)'
+            )
+            workbook = excel_writer.book
+            worksheet = excel_writer.sheets['XIRR(%)']
+            worksheet.set_column(
+                0, len(common_cols) - 1, 15
+            )
+            worksheet.set_column(
+                len(common_cols), mxirr_df.shape[1] - 1, 15,
+                workbook.add_format({'num_format': '#,##0.0'})
+            )
+            # header formatting
+            header_format = workbook.add_format(
+                {
+                    'bold': True,
+                    'text_wrap': True,
+                    'align': 'center',
+                    'valign': 'vcenter'
+                }
+            )
+            for col_num, col_df in enumerate(mxirr_df.columns):
+                worksheet.write(0, col_num, col_df, header_format)
+            # formatting for maximum and minimum value in each row
+            for row in range(mxirr_df.shape[0]):
+                # minimum value
+                worksheet.conditional_format(
+                    row + 1, len(common_cols), row + 1, mxirr_df.shape[1] - 1,
+                    {
+                        'type': 'cell',
+                        'criteria': 'equal to',
+                        'value': mxirr_df.iloc[row, len(common_cols):].min(),
+                        'format': workbook.add_format({'bg_color': '#F4A460'})
+                    }
+                )
+                # maximim value
+                worksheet.conditional_format(
+                    row + 1, len(common_cols), row + 1, mxirr_df.shape[1] - 1,
+                    {
+                        'type': 'cell',
+                        'criteria': 'equal to',
+                        'value': mxirr_df.iloc[row, len(common_cols):].max(),
                         'format': workbook.add_format({'bg_color': '#ADFF2F'})
                     }
                 )
@@ -1066,7 +1142,101 @@ class NSETRI:
 
         return aggregate_df
 
-    def sip_xirr_comparison_across_indices(
+    def yearwise_cagr_analysis(
+        self,
+        input_excel: str,
+        output_excel: str
+    ) -> pandas.DataFrame:
+
+        '''
+        Calculates the year-wise CAGR (%) for a given index. Here, year-wise refers to the
+        CAGR calculated for periods ending on the present date, going back one year, two years,
+        three years, and so on, up to the available data range.
+
+        Parameters
+        ----------
+        input_excel : str
+            Path to the Excel file obtained from :meth:`BharatFinTrack.NSETRI.download_historical_daily_data`
+            and :meth:`BharatFinTrack.NSETRI.update_historical_daily_data` methods.
+
+        output_excel : str
+            Path to an Excel file to save the output DataFrame.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame containing the year-wise CAGR (%) and Growth (X) for any amount.
+        '''
+
+        # check the Excel file extension first
+        excel_ext = Core()._excel_file_extension(output_excel)
+        if excel_ext == '.xlsx':
+            pass
+        else:
+            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
+
+        # input DataFrame
+        df = pandas.read_excel(input_excel)
+        df['Date'] = df['Date'].apply(lambda x: x.date())
+
+        # start and end dates
+        start_date = df['Date'].min()
+        end_date = df['Date'].max()
+
+        # date difference
+        date_diff = dateutil.relativedelta.relativedelta(end_date, start_date)
+        year_diff = date_diff.years
+
+        # CAGR DataFrame
+        cagr_df = pandas.DataFrame()
+        for idx in range(year_diff + 1):
+            if idx < year_diff:
+                cagr_year = idx + 1
+                cagr_start = end_date.replace(year=end_date.year - cagr_year)
+                while True:
+                    if df['Date'].isin([cagr_start]).any():
+                        break
+                    else:
+                        cagr_start = cagr_start - datetime.timedelta(days=1)
+                yi_df = df[df['Date'].isin([cagr_start])]
+            else:
+                cagr_year = round(year_diff + (end_date.replace(year=end_date.year - year_diff) - start_date).days / 365, 1)
+                yi_df = df.iloc[:1, :]
+            # year-wise CAGR summary
+            cagr_df.loc[idx, 'Year'] = cagr_year
+            cagr_df.loc[idx, 'Start Date'] = yi_df.iloc[0, 0]
+            cagr_df.loc[idx, 'Start Value'] = yi_df.iloc[0, 1]
+            cagr_df.loc[idx, 'Close Date'] = end_date
+            cagr_df.loc[idx, 'Close Value'] = df.iloc[-1, -1]
+            cagr_df.loc[idx, 'CAGR (%)'] = 100 * (pow(df.iloc[-1, -1] / yi_df.iloc[0, 1], 1 / cagr_year) - 1)
+            cagr_df.loc[idx, 'Multiple (X)'] = cagr_df.loc[idx, 'Close Value'] / cagr_df.loc[idx, 'Start Value']
+
+        cagr_df['Cumulative (X)'] = cagr_df['Multiple (X)'].cumsum()
+
+        # drop duplicates row if any
+        cagr_df = cagr_df.drop_duplicates(ignore_index=True)
+
+        # saving DataFrame
+        with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
+            cagr_df.to_excel(excel_writer, index=False)
+            workbook = excel_writer.book
+            worksheet = excel_writer.sheets['Sheet1']
+            # format columns
+            for col_num, col_df in enumerate(cagr_df.columns):
+                if any(col_df.endswith(i) for i in ['(%)', 'Year', '(X)', 'Value']):
+                    worksheet.set_column(
+                        col_num, col_num, 15,
+                        workbook.add_format({'num_format': '#,##0.0'})
+                    )
+                else:
+                    worksheet.set_column(
+                        col_num, col_num, 15,
+                        workbook.add_format({'num_format': '#,##0'})
+                    )
+
+        return cagr_df
+
+    def yearwise_cagr_growth_comparison_across_indices(
         self,
         indices: list[str],
         folder_path: str,
@@ -1074,14 +1244,15 @@ class NSETRI:
     ) -> pandas.DataFrame:
 
         '''
-        Generates a DataFrame that compares XIRR (%) of SIP growth on the
-        first date of each month across multiple indices over the years.
-        The output DataFrame is saved to an Excel file, where the cells with
-        the highest XIRR (%) among indices for each year are highlighted in green-yellow,
-        and those with the lowest XIRR (%) are highlighted in sandy brown.
+        Generates two DataFrames that compare year-wise CAGR (%) and growth multiple (X)
+        of a yearly fixed investment across multiple indices. Here, year-wise refers to the
+        CAGR calculated for periods ending on the present date, going back one year, two years, and so on,
+        up to the available data range. The output DataFrames are saved to an Excel file,
+        where the cells with the best performance among indices for each year are highlighted
+        in green-yellow, and those with the worst performance are highlighted in sandy brown.
 
-        Additionally, a scoring mechanism is implemented for the indices based on their XIRR (%) values.
-        For each year, indices are ranked in ascending order of XIRR (%), with the lowest value
+        Additionally, a scoring mechanism is implemented for the indices based on their growth values.
+        For each year, indices are ranked in ascending order of growth, with the lowest value
         receiving the lowest score (1), and the highest value receiving the highest score.
         The total scores for each index are calculated by summing their yearly scores.
         Indices are then sorted in descending order based on their total scores,
@@ -1090,7 +1261,7 @@ class NSETRI:
         Parameters
         ----------
         indices : list
-            A list of index names to compare in the SIP XIRR (%).
+            A list of index names to compare in the CAGR (%) and growth multiple (X).
 
         folder_path : str
             Path to the directory containing Excel files with historical data for each index. Each Excel file must be
@@ -1114,17 +1285,13 @@ class NSETRI:
         else:
             raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
 
-        # monthly investment amount
-        monthly_invest = 1000
-
         # SIP dataframe of index
         dataframes = []
         with tempfile.TemporaryDirectory() as tmp_dir:
             for index in indices:
                 index_excel = os.path.join(folder_path, f'{index}.xlsx')
-                df = NSETRI().yearwise_sip_analysis(
+                df = NSETRI().yearwise_cagr_analysis(
                     input_excel=index_excel,
-                    monthly_invest=monthly_invest,
                     output_excel=os.path.join(tmp_dir, 'output.xlsx')
                 )
                 dataframes.append(df)
@@ -1144,26 +1311,28 @@ class NSETRI:
         dataframes = [
             df[df['Year'] <= common_year] for df in dataframes
         ]
-        dataframes = [
-            df.drop(columns=['Invest', 'Value', 'Multiple (X)']) for df in dataframes
+
+        # Growth DataFrames
+        growth_dataframes = [
+            df.drop(columns=['Start Value', 'Close Value', 'CAGR (%)', 'Cumulative (X)']) for df in dataframes
         ]
-        dataframes = [
-            df.rename(columns={'XIRR (%)': f'{index} (XIRR)'}) for df, index in zip(dataframes, indices)
+        growth_dataframes = [
+            df.rename(columns={'Multiple (X)': f'{index} (X)'}) for df, index in zip(growth_dataframes, indices)
         ]
 
-        # mergeing the DataFrames
-        merged_df = dataframes[0]
-        common_cols = list(merged_df.columns)[:-1]
-        for df in dataframes[1:]:
-            merged_df = pandas.merge(
-                left=merged_df,
+        # merging the growth DataFrames
+        mgrowth_df = growth_dataframes[0]
+        common_cols = list(mgrowth_df.columns)[:-1]
+        for df in growth_dataframes[1:]:
+            mgrowth_df = pandas.merge(
+                left=mgrowth_df,
                 right=df,
                 on=common_cols,
                 how='inner'
             )
 
         # assing score to indices growth returns
-        score_df = merged_df.copy()
+        score_df = mgrowth_df.copy()
         score_df = score_df.iloc[:, len(common_cols):]
         for idx, row in score_df.iterrows():
             sort_growth = row.sort_values(ascending=True).index
@@ -1173,31 +1342,56 @@ class NSETRI:
         # aggregate DataFrame of sorted total score
         aggregate_df = score_df.sum().sort_values(ascending=False).reset_index()
         aggregate_df.columns = ['Index Name', 'Score']
-        aggregate_df['Index Name'] = aggregate_df['Index Name'].apply(lambda x: x.replace(' (XIRR)', ''))
+        aggregate_df['Index Name'] = aggregate_df['Index Name'].apply(lambda x: x.replace(' (X)', ''))
 
         # rounding of column values to catch exact maximum and minimum with floating point precision
-        for col in merged_df.columns:
-            if col.endswith('(XIRR)'):
-                merged_df[col] = merged_df[col].round(5)
+        for col in mgrowth_df.columns:
+            if col.endswith('(X)'):
+                mgrowth_df[col] = mgrowth_df[col].round(5)
+            else:
+                pass
+
+        # CAGR DataFrames
+        cagr_dataframes = [
+            df.drop(columns=['Start Value', 'Close Value', 'Multiple (X)', 'Cumulative (X)']) for df in dataframes
+        ]
+        cagr_dataframes = [
+            df.rename(columns={'CAGR (%)': f'{index} (CAGR)'}) for df, index in zip(cagr_dataframes, indices)
+        ]
+
+        # mergeing the CAGR DataFrames
+        mcagr_df = cagr_dataframes[0]
+        for df in cagr_dataframes[1:]:
+            mcagr_df = pandas.merge(
+                left=mcagr_df,
+                right=df,
+                on=common_cols,
+                how='inner'
+            )
+
+        # rounding of column values to catch exact maximum and minimum with floating point precision
+        for col in mcagr_df.columns:
+            if col.endswith('(CAGR)'):
+                mcagr_df[col] = mcagr_df[col].round(5)
             else:
                 pass
 
         # saving DataFrames
         with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
-            ##################
-            # merged DataFrame
-            merged_df.to_excel(
+            ##########################
+            # merged growth DataFrames
+            mgrowth_df.to_excel(
                 excel_writer=excel_writer,
                 index=False,
-                sheet_name='XIRR(%)'
+                sheet_name='Multiple(X)'
             )
             workbook = excel_writer.book
-            worksheet = excel_writer.sheets['XIRR(%)']
+            worksheet = excel_writer.sheets['Multiple(X)']
             worksheet.set_column(
                 0, len(common_cols) - 1, 15
             )
             worksheet.set_column(
-                len(common_cols), merged_df.shape[1] - 1, 15,
+                len(common_cols), mgrowth_df.shape[1] - 1, 15,
                 workbook.add_format({'num_format': '#,##0.0'})
             )
             # header formatting
@@ -1209,27 +1403,76 @@ class NSETRI:
                     'valign': 'vcenter'
                 }
             )
-            for col_num, col_df in enumerate(merged_df.columns):
+            for col_num, col_df in enumerate(mgrowth_df.columns):
                 worksheet.write(0, col_num, col_df, header_format)
             # formatting for maximum and minimum value in each row
-            for row in range(merged_df.shape[0]):
+            for row in range(mgrowth_df.shape[0]):
                 # minimum value
                 worksheet.conditional_format(
-                    row + 1, len(common_cols), row + 1, merged_df.shape[1] - 1,
+                    row + 1, len(common_cols), row + 1, mgrowth_df.shape[1] - 1,
                     {
                         'type': 'cell',
                         'criteria': 'equal to',
-                        'value': merged_df.iloc[row, len(common_cols):].min(),
+                        'value': mgrowth_df.iloc[row, len(common_cols):].min(),
                         'format': workbook.add_format({'bg_color': '#F4A460'})
                     }
                 )
                 # maximim value
                 worksheet.conditional_format(
-                    row + 1, len(common_cols), row + 1, merged_df.shape[1] - 1,
+                    row + 1, len(common_cols), row + 1, mgrowth_df.shape[1] - 1,
                     {
                         'type': 'cell',
                         'criteria': 'equal to',
-                        'value': merged_df.iloc[row, len(common_cols):].max(),
+                        'value': mgrowth_df.iloc[row, len(common_cols):].max(),
+                        'format': workbook.add_format({'bg_color': '#ADFF2F'})
+                    }
+                )
+            ########################
+            # merged CAGR DataFrames
+            mcagr_df.to_excel(
+                excel_writer=excel_writer,
+                index=False,
+                sheet_name='CAGR(%)'
+            )
+            workbook = excel_writer.book
+            worksheet = excel_writer.sheets['CAGR(%)']
+            worksheet.set_column(
+                0, len(common_cols) - 1, 15
+            )
+            worksheet.set_column(
+                len(common_cols), mcagr_df.shape[1] - 1, 15,
+                workbook.add_format({'num_format': '#,##0.0'})
+            )
+            # header formatting
+            header_format = workbook.add_format(
+                {
+                    'bold': True,
+                    'text_wrap': True,
+                    'align': 'center',
+                    'valign': 'vcenter'
+                }
+            )
+            for col_num, col_df in enumerate(mcagr_df.columns):
+                worksheet.write(0, col_num, col_df, header_format)
+            # formatting for maximum and minimum value in each row
+            for row in range(mcagr_df.shape[0]):
+                # minimum value
+                worksheet.conditional_format(
+                    row + 1, len(common_cols), row + 1, mcagr_df.shape[1] - 1,
+                    {
+                        'type': 'cell',
+                        'criteria': 'equal to',
+                        'value': mcagr_df.iloc[row, len(common_cols):].min(),
+                        'format': workbook.add_format({'bg_color': '#F4A460'})
+                    }
+                )
+                # maximim value
+                worksheet.conditional_format(
+                    row + 1, len(common_cols), row + 1, mcagr_df.shape[1] - 1,
+                    {
+                        'type': 'cell',
+                        'criteria': 'equal to',
+                        'value': mcagr_df.iloc[row, len(common_cols):].max(),
                         'format': workbook.add_format({'bg_color': '#ADFF2F'})
                     }
                 )
