@@ -750,5 +750,5 @@ def test_github_action(
 ):
 
     assert core._github_action(
-        integer=3
-    ) == '3'
+        integer=4
+    ) == '4'
