@@ -161,6 +161,8 @@ This functionality identifies key turning points in an index's history based on 
 It applies minimum gain and multiplier filters to analyze the frequency and behavior of these movements over time. 
 The required data is sourced from the :ref:`Total Return Index (TRI) <f_download_tri>` section.
 
+Test
+
 
 .. code-block:: python
 
