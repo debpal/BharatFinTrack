@@ -5,6 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "BharatFinTrack"
+dynamic = ["version"]
 description = "Downloading and analyzing financial data, including indices, stocks, bonds, and mutual funds, from India, that is Bharat."
 authors = [
   { name="Debasish Pal", email="bestdebasish@gmail.com" },
@@ -26,13 +27,13 @@ classifiers = [
 	"Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.10",
-	"License :: OSI Approved :: MIT License",
 	"Operating System :: OS Independent",
 	"Intended Audience :: Education",
 	"Topic :: Office/Business :: Financial",
 	"Topic :: Scientific/Engineering :: Information Analysis"
 ]
-dynamic = ["version"]
+license = "MIT"
+license-files = ["LICEN[CS]E.*"]
 keywords = [
 	"NSE Index",
 	"Download",
@@ -46,9 +47,9 @@ keywords = [
 "Homepage" = "https://github.com/debpal/BharatFinTrack"
 "Documentation" = "http://bharatfintrack.readthedocs.io/"
 
-
 [tool.setuptools.dynamic]
 version = {attr = "BharatFinTrack.__version__"}
+
 
 [tool.setuptools.package-data]
 BharatFinTrack = [
