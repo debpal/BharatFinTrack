@@ -20,6 +20,7 @@
 * Provides access to detailed information about NSE equity indices.
 * Enables downloading and updating daily (`TRI`) data for all NSE equity indices.
 * Fetches closing values for both `Price` (excluding dividend reinvestment) and `TRI` for all NSE equity indices.
+* Identifies key turning points in consecutive corrections and recoveries over the historical values of an index.
 
 ## Compound Annual Growth Rate (CAGR)
     
@@ -58,7 +59,7 @@ In the above graph, the `NIFTY MIDCAP150 MOMENTUM 50` emerges as one of the best
 Additionally, the following plot compares the growth multiples (X) of a monthly SIP investment across `TRI` indices, including the popular index `NIFTY 50` and other top-performing NSE equity indices over the years.
 
 
-![Year-wise SIP growth comparison across multiple indices](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/sip_growth_multiple.png)
+![Year-wise SIP growth comparison across multiple indices](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/compare_yearwise_sip_growth.png)
 
 ## Easy Installation
 
