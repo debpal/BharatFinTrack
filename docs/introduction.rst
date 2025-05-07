@@ -13,6 +13,7 @@ Introduction
 * Provides access to detailed information about NSE equity indices.
 * Enables downloading and updating daily Total Return Index (`TRI`) data for all NSE equity indices.
 * Fetches closing values for both `Price` (excluding dividend reinvestment) and TRI for all NSE equity indices.
+* Identifies key turning points in consecutive corrections and recoveries over the historical values of an index.
     
     
 Compound Annual Growth Rate (CAGR)

@@ -2,6 +2,18 @@
 Release Notes
 ===============
 
+Version 0.2.0
+---------------
+
+* **Release date:** 07-May-2025
+  
+* **Feature Additions:**
+
+    * Added API support for newly launched NSE equity indices.
+    * Enhanced the correction and recovery analysis in index history via the :meth:`BharatFinTrack.NSETRI.analyze_correction_recovery` method.
+    
+* **Documentation:** Updated to reflect the newly introduced features.
+
 
 Version 0.1.10
 ---------------

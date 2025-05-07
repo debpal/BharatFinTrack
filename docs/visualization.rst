@@ -101,7 +101,7 @@ A plot comparing the year-wise growth multiples (X) of a monthly SIP investment 
     
 The produced plot will be comparable to the example depicted below.
 
-.. image:: _static/sip_growth_multiple.png
+.. image:: _static/compare_yearwise_sip_growth.png
    :align: left
 
 

@@ -30,6 +30,7 @@ It enables users to make informed decisions about investments in passive funds t
 .. code-block:: python
 
     nse_index.sort_equity_cagr_from_launch(
+        csv_file=r"C:\Users\Username\Folder\summary_index_price_closing_value.csv",
         excel_file=r"C:\Users\Username\Folder\price_sort_cagr.xlsx"
     )
     
@@ -41,11 +42,13 @@ better understand the difference in index returns across various categories
 .. code-block:: python
 
     nse_index.category_sort_equity_cagr_from_launch(
+        csv_file=r"C:\Users\Username\Folder\summary_index_price_closing_value.csv",
         excel_file=r"C:\Users\Username\Folder\price_sort_cagr_by_category.xlsx"
     )
     
 
 .. _f_equity_tri_cagr:
+
 
 Equity `TRI` CAGR
 ------------------
@@ -147,4 +150,24 @@ The required data are sourced from Excel files generated in the :ref:`Total Retu
         indices=index_list
         folder_path=r"C:\Users\Username\Folder",
         excel_file=r"C:\Users\Username\Folder\yearwise_cagr_growth_across_indices.xlsx"
+    )
+    
+    
+
+Index Correction and Recovery
+---------------------------------
+
+This functionality identifies key turning points in an index's history based on consecutive corrections and recoveries.
+It applies minimum gain and multiplier filters to analyze the frequency and behavior of these movements over time. 
+The required data is sourced from the :ref:`Total Return Index (TRI) <f_download_tri>` section.
+
+
+.. code-block:: python
+
+    nse_index.analyze_correction_recovery(
+        input_excel=r"C:\Users\Username\Folder\NIFTY 50.xlsx",
+        output_excel=r"C:\Users\Username\Folder\price_sort_cagr.xlsx",
+        minimum_gain=10,
+        multiplier_correction=2.5,
+        multiplier_recovery=10
     )
