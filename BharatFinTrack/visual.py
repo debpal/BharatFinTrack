@@ -30,15 +30,11 @@ class Visual:
 
         # check validity of input figure file path
         check_file = Core().is_valid_figure_extension(figure_file)
-        if check_file:
-            pass
-        else:
+        if not check_file:
             raise Exception('Input figure file extension is not supported.')
 
         # check close value type
-        if close_type in ['PRICE', 'TRI']:
-            pass
-        else:
+        if close_type not in ['PRICE', 'TRI']:
             raise Exception(f'Invalid indices close value type: {close_type}; must be one of [PRICE, TRI].')
 
         # catgory of indices
@@ -200,8 +196,6 @@ class Visual:
         # check filtered dataframe
         if len(df) == 0:
             raise Exception('Threshold values return an empty DataFrame.')
-        else:
-            pass
 
         # figure
         figure_title = (
@@ -291,15 +285,11 @@ class Visual:
 
         # check validity of input figure file path
         check_file = Core().is_valid_figure_extension(figure_file)
-        if check_file:
-            pass
-        else:
+        if not check_file:
             raise Exception('Input figure file extension is not supported.')
 
         # check close value type
-        if close_type in ['PRICE', 'TRI']:
-            pass
-        else:
+        if close_type not in ['PRICE', 'TRI']:
             raise Exception(f'Invalid indices close value type: {close_type}; must be one of [PRICE, TRI].')
 
         # close date
@@ -434,8 +424,6 @@ class Visual:
         # check filtered dataframe
         if len(df) == 0:
             raise Exception('Threshold values return an empty DataFrame.')
-        else:
-            pass
 
         # figure
         figure_title = (
@@ -545,9 +533,7 @@ class Visual:
 
         # check validity of input figure file path
         check_file = Core().is_valid_figure_extension(figure_file)
-        if check_file:
-            pass
-        else:
+        if not check_file:
             raise Exception('Input figure file extension is not supported.')
 
         # monthly investment amount
@@ -713,9 +699,7 @@ class Visual:
 
         # check validity of input figure file path
         check_file = Core().is_valid_figure_extension(figure_file)
-        if check_file:
-            pass
-        else:
+        if not check_file:
             raise Exception('Input figure file extension is not supported.')
 
         # monthly investment amount
@@ -895,9 +879,7 @@ class Visual:
 
         # check validity of input figure file path
         check_file = Core().is_valid_figure_extension(figure_file)
-        if check_file:
-            pass
-        else:
+        if not check_file:
             raise Exception('Input figure file extension is not supported.')
 
         # monthly investment amount
@@ -918,9 +900,7 @@ class Visual:
         # check equal close date for all DataFrames
         close_date = dataframes[0]['Close Date'].iloc[0]
         equal_closedate = all(map(lambda df: df['Close Date'].iloc[0] == close_date, dataframes))
-        if equal_closedate:
-            pass
-        else:
+        if not equal_closedate:
             raise Exception('Last date must be equal across all indices in the Excel files.')
 
         # filtered dataframes
