@@ -45,7 +45,7 @@ keywords = [
 
 [project.urls]
 "Homepage" = "https://github.com/debpal/BharatFinTrack"
-"Documentation" = "http://bharatfintrack.readthedocs.io/"
+"Documentation" = "https://bharatfintrack.readthedocs.io/en/latest/"
 
 [tool.setuptools.dynamic]
 version = {attr = "BharatFinTrack.__version__"}
