@@ -3,9 +3,9 @@
 | <big>Status</big> | <big>Description</big> |
 | --- | --- |
 | **PyPI**| ![PyPI - Version](https://img.shields.io/pypi/v/BharatFinTrack) ![PyPI - Status](https://img.shields.io/pypi/status/BharatFinTrack) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/BharatFinTrack) ![PyPI - Wheel](https://img.shields.io/pypi/wheel/BharatFinTrack) |
-| **GitHub** | ![GitHub last commit](https://img.shields.io/github/last-commit/debpal/BharatFinTrack) [![flake8](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml)	[![mypy](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml) [![pytest](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml) |
+| **GitHub** | ![GitHub commit activity](https://img.shields.io/github/commit-activity/t/debpal/BharatFinTrack) ![GitHub last commit](https://img.shields.io/github/last-commit/debpal/BharatFinTrack) [![flake8](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml)	[![mypy](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml) [![pytest](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml) |
 | **Codecov** | [![codecov](https://codecov.io/github/debpal/BharatFinTrack/graph/badge.svg?token=6DIYX8MUTM)](https://codecov.io/github/debpal/BharatFinTrack) |
-| **Read** _the_ **Docs** | [![Documentation Status](https://readthedocs.org/projects/bharatfintrack/badge/?version=latest)](https://bharatfintrack.readthedocs.io/en/latest/?badge=latest) |
+| **Read** _the_ **Docs** | ![Read the Docs](https://img.shields.io/readthedocs/BharatFinTrack) |
 | **PePy** | ![Pepy Total Downloads](https://img.shields.io/pepy/dt/BharatFinTrack)|
 | **License** | ![GitHub License](https://img.shields.io/github/license/debpal/BharatFinTrack) |
 
@@ -90,7 +90,7 @@ A brief example of how to start:
 ```
 
 ## Documentation
-For detailed information, see the [documentation](http://bharatfintrack.readthedocs.io/).
+For detailed information, see the [documentation](https://bharatfintrack.readthedocs.io/en/latest/).
 
 ## Support
 
