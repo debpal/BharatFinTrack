@@ -27,5 +27,5 @@ def test_github_action(
 ):
 
     assert core._github_action(
-        integer=4
-    ) == '4'
+        integer=1
+    ) == '1'
