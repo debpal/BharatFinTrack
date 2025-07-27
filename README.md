@@ -2,8 +2,8 @@
 
 | <big>Status</big> | <big>Description</big> |
 | --- | --- |
-| **PyPI**| ![PyPI - Version](https://img.shields.io/pypi/v/BharatFinTrack) ![PyPI - Status](https://img.shields.io/pypi/status/BharatFinTrack) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/BharatFinTrack) ![PyPI - Wheel](https://img.shields.io/pypi/wheel/BharatFinTrack) |
-| **GitHub** | ![GitHub commit activity](https://img.shields.io/github/commit-activity/t/debpal/BharatFinTrack) ![GitHub last commit](https://img.shields.io/github/last-commit/debpal/BharatFinTrack) [![flake8](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml)	[![mypy](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml) [![pytest](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml) |
+| **PyPI**| ![PyPI - Version](https://img.shields.io/pypi/v/BharatFinTrack) ![PyPI - Status](https://img.shields.io/pypi/status/BharatFinTrack) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/BharatFinTrack) ![PyPI - Format](https://img.shields.io/pypi/format/BharatFinTrack) |
+| **GitHub** | ![GitHub last commit](https://img.shields.io/github/last-commit/debpal/BharatFinTrack) ![GitHub commit activity](https://img.shields.io/github/commit-activity/t/debpal/BharatFinTrack) [![flake8](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/linting.yml)	[![mypy](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/typing.yml) [![pytest](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml/badge.svg)](https://github.com/debpal/BharatFinTrack/actions/workflows/testing.yml) ![GitHub Created At](https://img.shields.io/github/created-at/debpal/BharatFinTrack)|
 | **Codecov** | [![codecov](https://codecov.io/github/debpal/BharatFinTrack/graph/badge.svg?token=6DIYX8MUTM)](https://codecov.io/github/debpal/BharatFinTrack) |
 | **Read** _the_ **Docs** | ![Read the Docs](https://img.shields.io/readthedocs/BharatFinTrack) |
 | **PePy** | ![Pepy Total Downloads](https://img.shields.io/pepy/dt/BharatFinTrack)|
@@ -53,16 +53,16 @@
 # Example Insights
 Using `BharatFinTrack`, you can quickly gain insights into the performance of NSE equity indices. For instance, the following bar plot highlights the top five NSE equity indices by `TRI` CAGR (%) within each category since their respective launches. This snapshot provides a powerful visual overview of long-term performance trends of investment multiples (X) across different index categories over the years. Because performance data updates daily with each trading session, you can replicate and customize this analysis to generate up-to-date insights tailored to your research needs or investment strategies.
 
-![Category-wise Top Five TRI CAGR(%) of NSE Equity Indices](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/tri_top_cagr_by_category.png)
+![Category-wise Top Five TRI CAGR(%) of NSE Equity Indices](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/tri_top_cagr_by_category.png)
 
 In the above graph, the `NIFTY MIDCAP150 MOMENTUM 50` emerges as one of the best-performing NSE equity `TRI` indices in terms of long-term CAGR. The next graph illustrates a comparison of year-wise investments and returns for a monthly SIP of 1,000 Rupees between a government bond and a passive fund tracking the `TRI` data of `NIFTY MIDCAP150 MOMENTUM 50`.
 
-![Year-wise SIP comparison between Government Bond and NIFTY_MIDCAP150_MOMENTUM_50](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/sip_gsec_vs_NIFTY_MIDCAP150_MOMENTUM_50.png)
+![Year-wise SIP comparison between Government Bond and NIFTY_MIDCAP150_MOMENTUM_50](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/sip_gsec_vs_NIFTY_MIDCAP150_MOMENTUM_50.png)
 
 Additionally, the following plot compares the growth multiples (X) of a monthly SIP investment across `TRI` indices, including the popular index `NIFTY 50` and other top-performing NSE equity indices over the years.
 
 
-![Year-wise SIP growth comparison across multiple indices](https://github.com/debpal/BharatFinTrack/raw/master/docs/_static/compare_yearwise_sip_growth.png)
+![Year-wise SIP growth comparison across multiple indices](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/compare_yearwise_sip_growth.png)
 
 ## Easy Installation
 
