@@ -3,6 +3,14 @@ Release Notes
 ===============
 
 
+Version 0.2.2
+---------------
+
+* **Release date:** 27-Jul-2025
+  
+* **Compatibity:** Updated and verified compatibility with the latest versions of all required tools, including those for packaging, publishing, linting, type checking, and testing.
+
+
 Version 0.2.1
 ---------------
 
