@@ -64,16 +64,19 @@ class NSEIndex:
             features='html.parser'
         )
         for anchor in soup.find_all('a'):
-            if anchor['href'].endswith('.csv') and anchor['id'] == 'dailysnapOneDaybefore':
-                csv_link = main_url + anchor['href']
-                response = requests.get(
-                    url=csv_link,
-                    headers=headers
-                )
-                download_file = os.path.join(folder_path, 'summary_index_price_closing_value.csv')
-                with open(download_file, 'wb') as download_data:
-                    download_data.write(response.content)
-                output = pandas.read_csv(download_file)
+            if isinstance(anchor, bs4.Tag):
+                href = anchor.get('href')
+                anchor_id = anchor.get('id')
+                if isinstance(href, str) and href.endswith('.csv') and anchor_id == 'dailysnapOneDaybefore':
+                    csv_link = main_url + href
+                    response = requests.get(
+                        url=csv_link,
+                        headers=headers
+                    )
+                    download_file = os.path.join(folder_path, 'summary_index_price_closing_value.csv')
+                    with open(download_file, 'wb') as download_data:
+                        download_data.write(response.content)
+                    output = pandas.read_csv(download_file)
 
         return output
 
