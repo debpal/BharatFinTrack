@@ -2,6 +2,15 @@
 Release Notes
 ===============
 
+
+Version 0.2.1
+---------------
+
+* **Release date:** 27-Jul-2025
+  
+* **Feature Additions:** Added API support for the newly launched NSE equity index.
+
+
 Version 0.2.0
 ---------------
 

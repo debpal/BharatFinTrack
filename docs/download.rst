@@ -16,11 +16,12 @@ Let's start by instantiating the classes.
     nse_tri = BharatFinTrack.NSETRI()
 
 
-NSE Indices Summary
----------------------
+Price Index Daily Summary
+---------------------------
 
-Download the daily summary report for all NSE indices, which is uploaded daily on the `Nifty Indices Reports <https://www.niftyindices.com/reports/daily-reports/>`_, and save
-as 'summary_index_price_closing_value.csv' in the specified folder path.
+Download the daily summary report for index values, which is uploaded daily
+on the `Nifty Indices Reports <https://www.niftyindices.com/reports/daily-reports/>`_, and save
+in the specified folder path.
 
 .. code-block:: python
 
@@ -32,10 +33,10 @@ as 'summary_index_price_closing_value.csv' in the specified folder path.
 
 .. _f_download_tri:
 
-Total Return Index (`TRI`)
-----------------------------
+Historical TRI Data
+----------------------
 
-Download historical daily `TRI` data, including both price and dividend reinvestment, for the NIFTY 50 index. 
+Download historical daily ``TRI`` data, including both price and dividend reinvestment, for the ``NIFTY 50 index``. 
 Currently, the function supports only equity indices. 
 
 .. code-block:: python

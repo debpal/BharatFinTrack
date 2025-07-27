@@ -18,7 +18,7 @@ Ensure successful installation by running the following commands.
 Index Category
 ----------------
 
-Retrieve the NSE equity index categories.
+Retrieve the equity index categories.
 
 .. code-block:: python
 
@@ -31,10 +31,10 @@ Expected output:
     ['broad', 'sector', 'thematic', 'strategy', 'variant']
 
 
-Equity Index List
+Index List
 -------------------
 
-Get the list of all NSE equity indices.
+Get the list of all equity indices.
 
 .. code-block:: python
     
@@ -53,7 +53,7 @@ Expected output:
 Categorical Index
 -------------------
 
-Fetch NSE equity indices belonging to a specific category.
+Fetch equity indices belonging to a specific category.
 
 .. code-block:: python
     

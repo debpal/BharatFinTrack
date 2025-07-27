@@ -21,10 +21,10 @@ Let's start by instantiating the classes.
 
 .. _f_equity_index_price_cagr:
 
-Equity Index `Price` CAGR
---------------------------
+Price Index CAGR
+-------------------------------
 
-This functionality sorts the CAGR of the closing `Price` for all NSE equity indices from their inception and saves the results to an Excel file. 
+This functionality sorts the CAGR of the closing equity ``Price`` values from their inception and saves the results to an Excel file. 
 It enables users to make informed decisions about investments in passive funds that track these indices.
 
 .. code-block:: python
@@ -50,9 +50,9 @@ better understand the difference in index returns across various categories
 .. _f_equity_tri_cagr:
 
 
-Equity `TRI` CAGR
-------------------
-Download the closing `TRI` values for all NSE indices. These values are not updated on the website on a daily basis. 
+TRI Index CAGR
+------------------------
+Download the closing equity ``TRI`` values for all equity indices. These values are not updated on the website on a daily basis. 
 It is recommended to use this function at night when web traffic to the website is lower. The function sends several web requests to collect the required values.
 
 .. code-block:: python
@@ -84,7 +84,7 @@ The above Excel file is used to sort equity indices based on their CAGR since in
     
 CAGR Difference
 -----------------
-This method shows users the differences in CAGR between the `Price` and `TRI` of NSE equity indices.
+This method shows users the differences in CAGR between the ``Price`` and ``TRI`` of equity indices.
 
 .. code-block:: python
     
@@ -97,7 +97,7 @@ This method shows users the differences in CAGR between the `Price` and `TRI` of
     
 Year-wise SIP Growth
 ----------------------
-Computes the year-wise SIP return for a fixed monthly contribution to a specified NSE equity `TRI` index. The data required to compute the SIP must be sourced from the Excel file generated in the :ref:`Total Return Index (TRI) <f_download_tri>` section.
+Computes the year-wise SIP return for a fixed monthly contribution to a specified equity ``TRI`` index. The data required to compute the SIP must be sourced from the Excel file generated in the :ref:`Historical TRI Data <f_download_tri>` section.
 
 
 .. code-block:: python
@@ -127,9 +127,9 @@ Estimates the SIP growth over a specified number of years for a fixed investment
     
 Year-wise SIP and CAGR Comparison Across Indices
 --------------------------------------------------
-This section compares the year-wise XIRR (%) and growth multiples (X) of a fixed monthly SIP investment, along with the year-wise CAGR (%) and growth multiples of a fixed yearly investment across selected `TRI` indices, including the popular `NIFTY 50` and other top-performing NSE equity indices.
+This section compares the year-wise XIRR (%) and growth multiples (X) of a fixed monthly SIP investment, along with the year-wise CAGR (%) and growth multiples of a fixed yearly investment across selected ``TRI`` indices, including the popular ``NIFTY 50`` and other top-performing equity indices.
 
-The required data are sourced from Excel files generated in the :ref:`Total Return Index (TRI) <f_download_tri>` section. Ensure that all input Excel files are stored in the designated folder, with each file named as `{index}.xlsx` to correspond to the index names provided in the list. The output highlights the highest growth cells in green-yellow and the lowest growth cells in sandy brown.
+The required data are sourced from Excel files generated in the :ref:`Historical TRI Data <f_download_tri>` section. Ensure that all input Excel files are stored in the designated folder, with each file named as ``{index}.xlsx`` to correspond to the index names provided in the list. The output highlights the highest growth cells in green-yellow and the lowest growth cells in sandy brown.
 
 .. code-block:: python
 
@@ -157,9 +157,9 @@ The required data are sourced from Excel files generated in the :ref:`Total Retu
 Index Correction and Recovery
 ---------------------------------
 
-This functionality identifies key turning points in an index's history based on consecutive corrections and recoveries.
+This functionality identifies key turning points in an index historical values based on consecutive corrections and recoveries.
 It applies minimum gain and multiplier filters to analyze the frequency and behavior of these movements over time. 
-The required data is sourced from the :ref:`Total Return Index (TRI) <f_download_tri>` section.
+The required data is sourced from the :ref:`Historical TRI Data <f_download_tri>` section.
 
 .. code-block:: python
 
