@@ -3,12 +3,12 @@ name: flake8
 on:
   push:
     branches:
-      - master  # Your branch name
+      - main  # Your branch name
     paths:
       - '**/*.py'  # Trigger only for changes in Python files
   pull_request:
     branches:
-      - master  # Your branch name
+      - main  # Your branch name
     paths:
       - '**/*.py'  # Trigger only for changes in Python files
 
