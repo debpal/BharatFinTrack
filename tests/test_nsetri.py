@@ -196,6 +196,10 @@ def test_donwload_cagr_sip(
     message
 ):
 
+    # set up file path
+    test_folder = os.path.dirname(__file__)
+    data_folder = os.path.join(test_folder, 'sample_data')
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         # pass test for downloading indices historical daily data
         index = 'NIFTY 50'
@@ -308,6 +312,12 @@ def test_donwload_cagr_sip(
             output_excel=os.path.join(tmp_dir, 'correction_recovery.xlsx')
         )
         assert len(cr_df.columns) == 18
+        # pass test for analyzing corrections and recoveries of index values with top DataFrame length is 1
+        cr_df = nse_tri.analyze_correction_recovery(
+            input_excel=os.path.join(data_folder, 'analyzing_correction_recovery_data.xlsx'),
+            output_excel=os.path.join(tmp_dir, 'correction_recovery.xlsx')
+        )
+        assert len(cr_df.columns) == 18
         # error test for unequal end date of two indices
         nse_tri.extract_historical_daily_data(
             input_excel=os.path.join(tmp_dir, f'{index_1}.xlsx'),
@@ -326,7 +336,6 @@ def test_donwload_cagr_sip(
         # error test of unequal last date for yearwise SIP XIRR(%) and growth comparison across indicess
         with pytest.raises(Exception) as exc_info:
             nse_tri.yearwise_sip_xirr_growth_comparison_across_indices(
-                # indices=['NIFTY 50', 'NIFTY ALPHA 50'],
                 indices=[index, index_1],
                 folder_path=tmp_dir,
                 excel_file=os.path.join(tmp_dir, 'compare_yearwise_sip_xirr_across_indices.xlsx')
@@ -335,7 +344,6 @@ def test_donwload_cagr_sip(
         # error test of unequal last date for yearwise CAGR(%) and growth comparison across indicess
         with pytest.raises(Exception) as exc_info:
             nse_tri.yearwise_cagr_growth_comparison_across_indices(
-                # indices=['NIFTY 50', 'NIFTY ALPHA 50'],
                 indices=[index, index_1],
                 folder_path=tmp_dir,
                 excel_file=os.path.join(tmp_dir, 'compare_yearwise_cagr_across_indices.xlsx')
