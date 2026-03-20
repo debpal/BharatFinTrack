@@ -8,10 +8,7 @@ Welcome to BharatFinTrack's documentation!
    
    introduction
    installation
-   quickstart
-   download
-   functionality
-   visualization
+   userguide
    modules
    changelog
 
