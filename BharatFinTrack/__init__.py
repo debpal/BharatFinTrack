@@ -1,14 +1,16 @@
 from .nse_product import NSEProduct
-from .nse_index import NSEIndex
+from .nse_pri import NSEPRI
 from .nse_tri import NSETRI
-from .visual import Visual
+from .cagr import CAGR
+from .sip import SIP
 
 
 __all__ = [
     'NSEProduct',
-    'NSEIndex',
+    'NSEPRI',
     'NSETRI',
-    'Visual'
+    'CAGR',
+    'SIP'
 ]
 
 
