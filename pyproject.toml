@@ -19,13 +19,12 @@ dependencies = [
     "openpyxl",
     "xlsxwriter",
     "beautifulsoup4",
-    "matplotlib",
     "pyxirr"
 ]
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.14"
 classifiers = [
 	"Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3.13",
@@ -59,7 +58,7 @@ version = {attr = "BharatFinTrack.__version__"}
 
 [tool.setuptools.package-data]
 BharatFinTrack = [
-    "data/*"
+    "index_base/*"
 ]
 
 
