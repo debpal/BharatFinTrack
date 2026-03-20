@@ -1,149 +1,133 @@
-import os
-import datetime
 import pandas
-from .core import Core
+import typing
+from .helper import Helper
 
 
 class NSEProduct:
-
     '''
     Provides functionality for accessing the characteristics of
     NSE related financial products.
     '''
 
-    @property
-    def _dataframe_equity_index(
-        self
-    ) -> pandas.DataFrame:
-
-        '''
-        Returns a multi-index DataFrame containing
-        the characteristics of equity indices.
-        '''
-
-        file_path = os.path.join(
-            os.path.dirname(__file__), 'data', 'equity_indices.xlsx'
-        )
-
-        dataframes = pandas.read_excel(
-            io=file_path,
-            sheet_name=None
-        )
-
-        df = pandas.concat(
-            dataframes,
-            names=['Category', 'ID']
-        )
-
-        return df
-
-    def save_dataframe_equity_index_parameters(
+    def equity_base_parameter_midf(
         self,
         excel_file: str
     ) -> pandas.DataFrame:
-
         '''
-        Saves a multi-index DataFrame containing the characteristics
-        of equity indices to an Excel file.
+        Generate a MultiIndex DataFrame containing the base parameters
+        of equity indices and save it to an Excel file.
 
         Parameters
         ----------
         excel_file : str
-            Path of an Excel file to save the multi-index DataFrame.
+            Path to the Excel file where the DataFrame will be saved.
 
         Returns
         -------
         DataFrame
-            The multi-index DataFrame containing the characteristics of equity indices.
+            A MultiIndex DataFrame containing the base parameters
+            (identifier, start date, and base value) of the available equity indices.
         '''
 
-        # Excel file extension
-        excel_ext = Core()._excel_file_extension(
-            file_path=excel_file
+        # Check static type of input variable origin
+        Helper()._validate_variable_origin_static_type(
+            vars_types=typing.get_type_hints(
+                obj=self.equity_base_parameter_midf
+            ),
+            vars_values=locals()
         )
 
-        # saving the multi-index dataframe
-        if excel_ext == '.xlsx':
-            df = self._dataframe_equity_index
-            df = df[df.columns[:3]]
-            df['Base Date'] = df['Base Date'].apply(lambda x: x.date())
-            with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
-                df.to_excel(excel_writer, index=True)
-                workbook = excel_writer.book
-                worksheet = excel_writer.sheets['Sheet1']
-                worksheet.set_column(0, 1, 12, workbook.add_format({'align': 'center'}))
-                worksheet.set_column(2, 2, 60, workbook.add_format({'align': 'left'}))
-                worksheet.set_column(3, 4, 12, workbook.add_format({'align': 'right'}))
-        else:
-            raise Exception(
-                f'Input file extension "{excel_ext}" does not match the required ".xlsx".'
+        # Validate file path
+        Helper()._validate_file_path(
+            input_file=excel_file,
+            input_ext='.xlsx'
+        )
+
+        # Save the multi-index DataFrame
+        df = Helper()._equity_base_midf
+        df = df[df.columns[:3]]
+        df['Base Date'] = df['Base Date'].apply(lambda x: x.date())
+        with pandas.ExcelWriter(path=excel_file, engine='xlsxwriter') as excel_writer:
+            df.to_excel(
+                excel_writer=excel_writer,
+                index=True
             )
+            # Column cell value formatting
+            workbook = excel_writer.book
+            worksheet = excel_writer.sheets['Sheet1']
+            worksheet.set_column(
+                0, 1, 12,
+                workbook.add_format({'align': 'center', 'valign': 'vcenter'})
+            )
+            worksheet.set_column(
+                2, 2, 60,
+                workbook.add_format({'align': 'left'})
+            )
+            worksheet.set_column(
+                3, 4, 12,
+                workbook.add_format({'align': 'right'})
+            )
+            # Column header formatting
+            header_names = list(df.index.names) + list(df.columns)
+            header_format = workbook.add_format(
+                {'bold': True, 'align': 'center'}
+            )
+            for idx, col in enumerate(header_names):
+                worksheet.write(0, idx, col, header_format)
 
         return df
 
-    @property
-    def equity_index_category(
-        self
-    ) -> list[str]:
-
-        '''
-        Returns a list of categories for NSE equity indices.
-        '''
-
-        df = self._dataframe_equity_index.reset_index()
-        output = list(df['Category'].unique())
-
-        return output
-
-    def get_equity_indices_by_category(
+    def equity_categorical_indices(
         self,
         category: str
     ) -> list[str]:
-
         '''
-        Returns a list of NSE equity indices for a specified index category.
+        Return the equity index identifiers for a specified category.
 
         Parameters
         ----------
         category : str
-            The category of NSE indices.
+            Equity index category. Must be one of:
+            ``broad``, ``sector``, ``thematic``, or ``strategy``.
 
         Returns
         -------
         list
-            A list containing the equity indices for the specified category.
+            List of equity index identifiers corresponding to the specified category.
         '''
 
-        if category in self.equity_index_category:
-            df = self._dataframe_equity_index.reset_index()
-            df = df[df['Category'] == category]
-            output = list(df['Index Name'].sort_values())
-        else:
-            raise Exception(f'Input category "{category}" does not exist.')
+        # Check static type of input variable origin
+        Helper()._validate_variable_origin_static_type(
+            vars_types=typing.get_type_hints(
+                obj=self.equity_categorical_indices
+            ),
+            vars_values=locals()
+        )
+
+        # DataFrame of index base parameters
+        df = Helper()._equity_base_midf.reset_index()
+
+        # List of category
+        valid_category = list(df['Category'].unique())
+
+        # Validate input category
+        if category not in valid_category:
+            raise ValueError(
+                f'Invalid category "{category}"; must be one of {valid_category}'
+            )
+
+        # List of category indices
+        category_index = df[df['Category'] == category]['Index Name']
+        output = list(category_index.sort_values())
 
         return output
 
-    @property
-    def all_equity_indices(
-        self
-    ) -> list[str]:
-
-        '''
-        Returns a list of equity indices for all categories.
-        '''
-
-        df = self._dataframe_equity_index
-        output = list(df['Index Name'].sort_values())
-
-        return output
-
-    def is_index_exist(
+    def equity_index_base_parameters(
         self,
         index: str
-    ) -> bool:
-
+    ) -> pandas.DataFrame:
         '''
-        Returns whether the index exists in the list of equity indices.
+        Return a DataFrame of base parameters for a specified equity index.
 
         Parameters
         ----------
@@ -152,70 +136,25 @@ class NSEProduct:
 
         Returns
         -------
-        bool
-            True if the index exists, False otherwise.
+        DataFrame
+            DataFrame of base parameters for the specified equity index
         '''
 
-        output = index in self.all_equity_indices
+        # Check static type of input variable origin
+        Helper()._validate_variable_origin_static_type(
+            vars_types=typing.get_type_hints(
+                obj=self.equity_index_base_parameters
+            ),
+            vars_values=locals()
+        )
 
-        return output
+        # DataFrame of index base parameters
+        df = Helper()._equity_index_base_param(
+            index=index,
+            check_open_source=False
+        )
+        df = df.drop(
+            columns=['API TRI']
+        )
 
-    def get_equity_index_base_date(
-        self,
-        index: str
-    ) -> str:
-
-        '''
-        Returns the base date for a specified NSE equity index.
-
-        Parameters
-        ----------
-        index : str
-            Name of the index.
-
-        Returns
-        -------
-        str
-            The base date of the index in 'DD-MMM-YYYY' format.
-        '''
-
-        df = self._dataframe_equity_index
-        df = df[['Index Name', 'Base Date']]
-        df = df[df['Index Name'] == index]
-
-        if df.shape[0] > 0 and isinstance(df.iloc[-1, -1], datetime.datetime):
-            output = df.iloc[-1, -1].strftime('%d-%b-%Y')
-        else:
-            raise Exception(f'"{index}" index does not exist.')
-
-        return output
-
-    def get_equity_index_base_value(
-        self,
-        index: str
-    ) -> float:
-
-        '''
-        Returns the base value for a specified NSE equity index.
-
-        Parameters
-        ----------
-        index : str
-            Name of the index.
-
-        Returns
-        -------
-        float
-            The base value of the index.
-        '''
-
-        df = self._dataframe_equity_index
-        df = df[['Index Name', 'Base Value']]
-        df = df[df['Index Name'] == index]
-
-        if df.shape[0] > 0:
-            output = float(df.iloc[-1, -1])
-        else:
-            raise Exception(f'"{index}" index does not exist.')
-
-        return output
+        return df

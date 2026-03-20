@@ -1,179 +1,220 @@
 import typing
 import datetime
-import dateutil.relativedelta
 import pandas
-import matplotlib
-import matplotlib.pyplot
-import tempfile
-import os
-import pyxirr
-from .nse_product import NSEProduct
-from .core import Core
+from .helper import Helper
 
 
 class NSETRI:
-
     '''
-    Provides functionality for downloading and analyzing
-    NSE Equity Total Return Index (TRI) data,
+    Provide functionality for downloading and analyzing NSE Equity Total Return Index (TRI) data,
     including both price and dividend reinvestment.
     '''
 
     @property
-    def _index_api(
+    def _url(
         self
-    ) -> dict[str, str]:
-
+    ) -> str:
         '''
-        Returns a dictionary containing equity indices as keys
-        and corresponding API names as values.
+        URL used to download TRI daily data.
         '''
 
-        df = NSEProduct()._dataframe_equity_index
-        output = dict(
-            zip(df['Index Name'], df['API TRI'])
-        )
+        output = 'https://www.niftyindices.com/Backpage.aspx/getTotalReturnIndexString'
 
         return output
 
-    @property
-    def non_open_source_indices(
-        self
-    ) -> list[str]:
-
-        '''
-        Returns a list of equity indices that are not open-source.
-        '''
-
-        df = NSEProduct()._dataframe_equity_index
-        df = df[df['API TRI'] == 'NON OPEN SOURCE']
-        output = list(df['Index Name'].sort_values())
-
-        return output
-
-    def is_index_open_source(
+    def download_daily_data(
         self,
         index: str,
-    ) -> bool:
-
-        '''
-        Check whether the index data is open-source.
-
-        Parameters
-        ----------
-        index : str
-            Name of the index.
-
-        Returns
-        -------
-        bool
-            True if the index data is open-source, False otherwise.
-        '''
-
-        if not NSEProduct().is_index_exist(index):
-            raise Exception(f'"{index}" index does not exist.')
-
-        output = index not in self.non_open_source_indices
-
-        return output
-
-    def download_historical_daily_data(
-        self,
-        index: str,
-        excel_file: str,
         start_date: typing.Optional[str] = None,
         end_date: typing.Optional[str] = None,
-        http_headers: typing.Optional[dict[str, str]] = None
+        http_headers: typing.Optional[dict[str, str]] = None,
+        csv_file: typing.Optional[str] = None
     ) -> pandas.DataFrame:
-
         '''
-        Downloads historical daily closing values for the specified index
-        between the given start and end dates, both inclusive.
+        Download historical daily closing values for the specified index
+        between the given start and end dates (both inclusive).
 
         Parameters
         ----------
         index : str
-            Name of the index.
-
-        excel_file : str, optional
-            Path to an Excel file to save the DataFrame.
+            Name of the index identifier.
 
         start_date : str, optional
             Start date in the format 'DD-MMM-YYYY'.
-            Defaults to the index's base date if None is provided.
+            If None, defaults to the index base date.
 
         end_date : str, optional
             End date in the format 'DD-MMM-YYYY'.
-            Defaults to the current date if None is provided.
+            If None, defaults to the current date.
 
         http_headers : dict, optional
-            HTTP headers for the web request. If not provided, defaults to
-            :attr:`BharatFinTrack.core.Core.default_http_headers`.
+            HTTP header dictionary used for the web request. If the default header is not suitable
+            for the user's environment,a custom header must be provided. The header must include
+            the key ``content-type`` with value ``application/json; charset=UTF-8``. The default header
+            can be obtained via :attr:`BharatFinTrack.helper.Helper._default_http_headers`.
+
+        csv_file : str, optional
+            File path where the resulting DataFrame will be saved as a CSV file.
 
         Returns
         -------
         DataFrame
-            A DataFrame containing the daily closing values for the index between the specified dates.
+            DataFrame containing the daily dates and corresponding closing values
+            for the index within the specified date range.
         '''
 
-        # check the Excel file extension first
-        excel_ext = Core()._excel_file_extension(excel_file)
-        if not excel_ext == '.xlsx':
-            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
-
-        # check index name
-        if self.is_index_open_source(index):
-            index_api = self._index_api.get(index, index)
-        else:
-            raise Exception(f'"{index}" index data is not available as open-source.')
-
-        # start date
-        start_date = NSEProduct().get_equity_index_base_date(index) if start_date is None else start_date
-        date_s = Core().string_to_date(start_date)
-
-        # end date
-        end_date = datetime.date.today().strftime('%d-%b-%Y') if end_date is None else end_date
-        date_e = Core().string_to_date(end_date)
-
-        # check end date is greater than start date
-        difference_days = (date_e - date_s).days
-        if not difference_days >= 0:
-            raise Exception(f'Start date {start_date} cannot be later than end date {end_date}.')
-
-        # downloaded DataFrame
-        df = Core()._download_nse_tri(
-            index_api=index_api,
-            start_date=start_date,
-            end_date=end_date,
-            index=index,
-            http_headers=http_headers
+        # Check static type of input variable origin
+        Helper()._validate_variable_origin_static_type(
+            vars_types=typing.get_type_hints(
+                obj=self.download_daily_data
+            ),
+            vars_values=locals()
         )
 
-        # saving the DataFrame
-        with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
-            df.to_excel(excel_writer, index=False)
-            worksheet = excel_writer.sheets['Sheet1']
-            worksheet.set_column(0, 1, 12)
+        # Validate index name
+        base_df = Helper()._equity_index_base_param(
+            index=index,
+            check_open_source=True
+        )
+
+        # Start date
+        base_date = base_df.loc[0, 'Base Date'].date()
+        start_date = base_date.strftime(Helper()._date_str_fmt) if start_date is None else start_date
+
+        # End date
+        today_date = datetime.date.today()
+        end_date = today_date.strftime(Helper()._date_str_fmt) if end_date is None else end_date
+
+        # Validate end date is later than start date
+        Helper()._date_end_later_start(
+            start_date=start_date,
+            end_date=end_date
+        )
+
+        # Web request headers
+        http_headers = Helper()._http_headers_default if http_headers is None else http_headers
+
+        # Downloaded DataFrame
+        df = Helper()._download_index_data(
+            url=self._url,
+            index=index,
+            index_api=base_df.loc[0, 'API TRI'],
+            start_date=start_date,
+            end_date=end_date,
+            http_headers=http_headers,
+            price_type='TRI'
+        )
+        df = df.rename(
+            columns={
+                'TotalReturnsIndex': 'Close'
+            }
+        )
+        df = df[['Date', 'Close']]
+        df['Close'] = df['Close'].astype(float)
+
+        # Save the DataFrame
+        if csv_file is not None:
+            # Validate output file path
+            Helper()._validate_file_path(
+                input_file=csv_file,
+                input_ext='.csv'
+            )
+            # Write DataFrame to the CSV file
+            Helper()._df_date_to_csv(
+                df=df,
+                csv_file=csv_file,
+                date_cols=['Date']
+            )
 
         return df
 
-    def extract_historical_daily_data(
+    def update_daily_data(
         self,
-        input_excel: str,
+        index: str,
+        csv_file: str,
+        http_headers: typing.Optional[dict[str, str]] = None
+    ) -> pandas.DataFrame:
+        '''
+        Update historical daily closing values from the last date in the input CSV file
+        to the current and save the aggregated data to the same file.
+
+        Parameters
+        ----------
+        index : str
+            Name of the index identifier.
+
+        csv_file : str
+            Path to the CSV file generated by :meth:`BharatFinTrack.NSETRI.download_daily_data`.
+
+        http_headers : dict, optional
+            HTTP header dictionary used for the web request. If the default header is not suitable
+            for the user's environment,a custom header must be provided. The header must include
+            the key ``content-type`` with value ``application/json; charset=UTF-8``. The default header
+            can be obtained via :attr:`BharatFinTrack.helper.Helper._default_http_headers`.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame containing daily closing values from the last recorded date to the current date.
+        '''
+
+        # Check static type of input variable origin
+        Helper()._validate_variable_origin_static_type(
+            vars_types=typing.get_type_hints(
+                obj=self.update_daily_data
+            ),
+            vars_values=locals()
+        )
+
+        # Existing DataFrame
+        exist_df = Helper()._csv_date_format(
+            csv_file=csv_file,
+            date_cols=['Date']
+        )
+
+        # Web request headers
+        http_headers = Helper()._http_headers_default if http_headers is None else http_headers
+
+        # Added DataFrame
+        add_df = self.download_daily_data(
+            index=index,
+            start_date=exist_df.iloc[-1, 0].strftime(Helper()._date_str_fmt),
+            end_date=datetime.date.today().strftime(Helper()._date_str_fmt),
+            http_headers=http_headers
+        )
+
+        # Concatenate DataFrame
+        update_df = pandas.concat(
+            objs=[exist_df, add_df],
+            ignore_index=True
+        )
+        update_df = update_df.drop_duplicates().reset_index(drop=True)
+
+        # Write DataFrame to the CSV file
+        Helper()._df_date_to_csv(
+            df=update_df,
+            csv_file=csv_file,
+            date_cols=['Date']
+        )
+
+        return add_df
+
+    def extract_data_between_dates(
+        self,
+        input_csv: str,
         start_date: str,
         end_date: str,
-        output_excel: str
+        output_csv: typing.Optional[str] = None
     ) -> pandas.DataFrame:
 
         '''
-        Extracts historical daily closing values from downloaded data
+        Extract historical daily closing values from downloaded data
         between the given start and end dates, both inclusive.
 
         Parameters
         ----------
-        input_excel : str, optional
-            Path to the Excel file generated by
-            :meth:`BharatFinTrack.NSETRI.download_historical_daily_data`.
+        input_csv : str
+            Path to the CSV file generated by :meth:`BharatFinTrack.NSETRI.download_daily_data`.
 
         start_date : str
             Start date in the format 'DD-MMM-YYYY'.
@@ -181,1370 +222,252 @@ class NSETRI:
         end_date : str
             End date in the format 'DD-MMM-YYYY'.
 
-        output_excel : str
-            Path to the Excel file where the filtered data will be saved.
+        output_csv : str
+            Path to the CSV file where the filtered data will be saved.
 
         Returns
         -------
         DataFrame
-            A DataFrame containing the daily closing values between the specified dates.
+            DataFrame containing the daily closing values between the specified dates.
         '''
 
-        # check the Excel file extension first
-        excel_ext = Core()._excel_file_extension(output_excel)
-        if not excel_ext == '.xlsx':
-            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
-
-        # start date
-        date_s = Core().string_to_date(start_date)
-
-        # end date
-        date_e = Core().string_to_date(end_date)
-
-        # check end date is greater than start date
-        difference_days = (date_e - date_s).days
-        if not difference_days >= 0:
-            raise Exception(f'Start date {start_date} cannot be later than end date {end_date}.')
-
-        # DataFrame processing
-        df = pandas.read_excel(input_excel)
-        df['Date'] = df['Date'].apply(
-            lambda x: x.date()
+        # Check static type of input variable origin
+        Helper()._validate_variable_origin_static_type(
+            vars_types=typing.get_type_hints(
+                obj=self.extract_data_between_dates
+            ),
+            vars_values=locals()
         )
+
+        # Validate end date is later than start date
+        date_s, date_e = Helper()._date_end_later_start(
+            start_date=start_date,
+            end_date=end_date
+        )
+
+        # DataFrame
+        df = Helper()._csv_date_format(
+            csv_file=input_csv,
+            date_cols=['Date']
+        )
+
+        # Extract values
         df = df[(df['Date'] >= date_s) & (df['Date'] <= date_e)].reset_index(drop=True)
 
-        # saving the DataFrame
-        with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
-            df.to_excel(excel_writer, index=False)
-            worksheet = excel_writer.sheets['Sheet1']
-            worksheet.set_column(0, 1, 12)
+        # Validate non-empty DataFrame
+        Helper()._df_not_empty(
+            df=df,
+            error_str='No records found between the specified start and end dates'
+        )
+
+        # Save the DataFrame
+        if output_csv is not None:
+            # Validate output file path
+            Helper()._validate_file_path(
+                input_file=output_csv,
+                input_ext='.csv'
+            )
+            # Write DataFrame to the CSV file
+            Helper()._df_date_to_csv(
+                df=df,
+                csv_file=output_csv,
+                date_cols=['Date']
+            )
 
         return df
 
-    def update_historical_daily_data(
+    def download_equity_close(
         self,
-        index: str,
-        excel_file: str,
-        http_headers: typing.Optional[dict[str, str]] = None,
-        all_data: bool = True
-    ) -> pandas.DataFrame:
-
-        '''
-        Updates historical daily closing values from the last date in the input Excel file
-        to the present and saves the aggregated data to the same file.
-
-        Parameters
-        ----------
-        index : str
-            Name of the index.
-
-        excel_file : str
-            Path to the Excel file generated by
-            :meth:`BharatFinTrack.NSETRI.download_historical_daily_data`.
-
-        http_headers : dict, optional
-            HTTP headers for the web request. If not provided, defaults to
-            :attr:`BharatFinTrack.core.Core.default_http_headers`.
-
-        all_data : bool, optional
-            If True (default), returns the entire DataFrame including both existing and new values.
-            If False, returns only the newly fetched (updated) values.
-
-        Returns
-        -------
-        DataFrame
-            A DataFrame containing daily closing values from the last recorded date to the present.
-        '''
-
-        # read the input Excel file
-        df = pandas.read_excel(excel_file)
-        df['Date'] = df['Date'].apply(
-            lambda x: x.date()
-        )
-
-        # addition of downloaded DataFrame
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            add_df = self.download_historical_daily_data(
-                index=index,
-                excel_file=os.path.join(tmp_dir, 'temporary.xlsx'),
-                start_date=df.iloc[-1, 0].strftime('%d-%b-%Y'),
-                end_date=datetime.date.today().strftime('%d-%b-%Y'),
-                http_headers=http_headers
-            )
-
-        # updating the DataFrame
-        update_df = pandas.concat([df, add_df]) if isinstance(add_df, pandas.DataFrame) else df
-        update_df = update_df.drop_duplicates().reset_index(drop=True)
-
-        # saving the DataFrame
-        with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
-            update_df.to_excel(excel_writer, index=False)
-            worksheet = excel_writer.sheets['Sheet1']
-            worksheet.set_column(0, 1, 12)
-
-        output = update_df if all_data else add_df
-
-        return output
-
-    def download_daily_summary_equity_closing(
-        self,
-        excel_file: str,
+        csv_file: str,
         http_headers: typing.Optional[dict[str, str]] = None,
         test_mode: bool = False
     ) -> pandas.DataFrame:
-
         '''
-        Returns updated TRI closing values for all NSE indices.
+        Download closing values for all equity indices.
 
         Parameters
         ----------
-        excel_file : str
-            Path to an Excel file to save the DataFrame.
+        csv_file : str
+            Path to a CSV file to save the DataFrame.
 
         http_headers : dict, optional
-            HTTP headers for the web request. Defaults to
-            :attr:`BharatFinTrack.core.Core.default_http_headers` if not provided.
+            HTTP header dictionary used for the web request. If the default header is not suitable
+            for the user's environment,a custom header must be provided. The header must include
+            the key ``content-type`` with value ``application/json; charset=UTF-8``. The default header
+            can be obtained via :attr:`BharatFinTrack.helper.Helper._default_http_headers`.
 
         test_mode : bool, optional
             If True, the function will use a mocked DataFrame for testing purposes
             instead of the actual data. This parameter is intended for developers
             for testing purposes only and is not recommended for use by end-users.
+            Default is False.
 
         Returns
         -------
         DataFrame
-            A DataFrame containing updated TRI closing values for all NSE indices.
+            DataFrame containing closing values for all equity indices.
         '''
 
-        # processing base DataFrame
-        base_df = NSEProduct()._dataframe_equity_index
+        # Check static type of input variable origin
+        Helper()._validate_variable_origin_static_type(
+            vars_types=typing.get_type_hints(
+                obj=self.download_equity_close
+            ),
+            vars_values=locals()
+        )
+
+        # Validate output file path
+        Helper()._validate_file_path(
+            input_file=csv_file,
+            input_ext='.csv'
+        )
+
+        # Web request headers
+        http_headers = Helper()._http_headers_default if http_headers is None else http_headers
+
+        # DataFrame of base parameters
+        base_df = Helper()._equity_base_midf
         base_df = base_df.groupby(level='Category').head(2) if test_mode else base_df
         base_df = base_df.reset_index()
-        base_df = base_df.drop(columns=['ID', 'API TRI'])
-        base_df['Base Date'] = base_df['Base Date'].apply(lambda x: x.date())
 
-        # check the Excel file extension first
-        excel_ext = Core()._excel_file_extension(excel_file)
-        if not excel_ext == '.xlsx':
-            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
-
-        # downloading data
+        # Downloading data
         today = datetime.date.today()
         week_ago = today - datetime.timedelta(days=7)
-        end_date = today.strftime('%d-%b-%Y')
-        start_date = week_ago.strftime('%d-%b-%Y')
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            for base_index in base_df.index:
-                try:
-                    index_df = self.download_historical_daily_data(
-                        index=base_df.loc[base_index, 'Index Name'],
-                        excel_file=os.path.join(tmp_dir, 'temporary.xlsx'),
-                        start_date=start_date,
-                        end_date=end_date
-                    )
-                    base_df.loc[base_index, 'Close Date'] = index_df.iloc[-1, 0]
-                    base_df.loc[base_index, 'Close Value'] = index_df.iloc[-1, -1]
-                except Exception:
-                    print(base_df.loc[base_index, 'Index Name'])
-                    base_df.loc[base_index, 'Close Date'] = end_date
-                    base_df.loc[base_index, 'Close Value'] = -1000
+        start_date = week_ago.strftime(Helper()._date_str_fmt)
+        end_date = today.strftime(Helper()._date_str_fmt)
+        for idx, index in enumerate(base_df['Index Name']):
+            try:
+                index_df = Helper()._download_index_data(
+                    url=self._url,
+                    index=index,
+                    index_api=base_df.loc[idx, 'API TRI'],
+                    start_date=start_date,
+                    end_date=end_date,
+                    http_headers=http_headers,
+                    price_type='TRI'
+                )
+                index_df = index_df.rename(
+                    columns={
+                        'TotalReturnsIndex': 'Close'
+                    }
+                )
+                index_df = index_df[['Date', 'Close']]
+                index_df['Close'] = index_df['Close'].astype(float)
+                index_df['Date'] = pandas.to_datetime(
+                    arg=index_df['Date'],
+                    format='%d %b %Y'
+                ).dt.date
+                base_df.loc[idx, 'Close Date'] = index_df.iloc[-1, 0]
+                base_df.loc[idx, 'Close Value'] = index_df.iloc[-1, -1]
+            except Exception:
+                print(
+                    f'Closing data was not fetched for the index: {index}'
+                )
+                base_df.loc[idx, 'Close Date'] = today
+                base_df.loc[idx, 'Close Value'] = -1000
 
-        # removing error rows from the DataFrame
+        # Remove non fetched rows from the DataFrame and update ID column
         base_df = base_df[base_df['Close Value'] != -1000].reset_index(drop=True)
+        base_df = base_df.drop(
+            columns=['API TRI']
+        )
+        base_df['ID'] = base_df.groupby('Category').cumcount() + 1
 
-        # saving the DataFrame
-        with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
-            base_df.to_excel(excel_writer, index=False)
-            worksheet = excel_writer.sheets['Sheet1']
-            # format columns
-            for col_num, df_col in enumerate(base_df.columns):
-                if df_col == 'Index Name':
-                    worksheet.set_column(col_num, col_num, 60)
-                else:
-                    worksheet.set_column(col_num, col_num, 15)
+        # Write DataFrame to the CSV file
+        Helper()._df_date_to_csv(
+            df=base_df,
+            csv_file=csv_file,
+            date_cols=['Base Date', 'Close Date']
+        )
 
         return base_df
 
-    def sort_equity_value_from_launch(
+    def sort_equity_close(
         self,
-        input_excel: str,
-        output_excel: str,
+        csv_file: str,
+        excel_file: str,
     ) -> pandas.DataFrame:
-
         '''
-        Returns equity indices sorted in descending order by TRI values since launch.
+        Sort the DataFrame in descending order by equity TRI closing values.
 
         Parameters
         ----------
-        input_excel : str
-            Path to the input Excel file.
+        csv_file : str
+            Path to the input CSV file generated by
+            :meth:`BharatFinTrack.NSETRI.download_equity_close`.
 
-        output_excel : str
+        excel_file : str
             Path to an Excel file to save the output DataFrame.
 
         Returns
         -------
         DataFrame
-            A DataFrame sorted in descending order by TRI values since launch.
+            DataFrame sorted in descending order based on the TRI closing value column.
         '''
 
-        # check the Excel file extension first
-        excel_ext = Core()._excel_file_extension(output_excel)
-        if not excel_ext == '.xlsx':
-            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
+        # Check static type of input variable origin
+        Helper()._validate_variable_origin_static_type(
+            vars_types=typing.get_type_hints(
+                obj=self.sort_equity_close
+            ),
+            vars_values=locals()
+        )
 
-        # sorting DataFrame by TRI values
-        df = pandas.read_excel(input_excel)
-        df = df.drop(columns=['Category'])
+        # Validate output file path
+        Helper()._validate_file_path(
+            input_file=excel_file,
+            input_ext='.xlsx'
+        )
+
+        # Read DataFrame
+        df = Helper()._csv_date_format(
+            csv_file=csv_file,
+            date_cols=['Base Date', 'Close Date']
+        )
+
+        # Sort DataFrame
         df = df.sort_values(
             by=['Close Value'],
             ascending=[False]
-        )
-        df = df.reset_index(drop=True)
-        for date_col in ['Base Date', 'Close Date']:
-            df[date_col] = df[date_col].apply(lambda x: x.date())
-
-        # saving the DataFrame
-        with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
-            df.to_excel(excel_writer, index=False)
-            worksheet = excel_writer.sheets['Sheet1']
-            # format columns
-            for col_num, col_df in enumerate(df.columns):
-                if col_df == 'Index Name':
-                    worksheet.set_column(col_num, col_num, 60)
-                else:
-                    worksheet.set_column(col_num, col_num, 15)
-
-        return df
-
-    def sort_equity_cagr_from_launch(
-        self,
-        input_excel: str,
-        output_excel: str,
-    ) -> pandas.DataFrame:
-
-        '''
-        Returns equity indices sorted in descending order by CAGR (%) since launch.
-
-        Parameters
-        ----------
-        input_excel : str
-            Path to the input Excel file.
-
-        output_excel : str
-            Path to an Excel file to save the output DataFrame.
-
-        Returns
-        -------
-        DataFrame
-            A DataFrame sorted in descending order by CAGR (%) values since launch.
-        '''
-
-        # check the Excel file extension first
-        excel_ext = Core()._excel_file_extension(output_excel)
-        if not excel_ext == '.xlsx':
-            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
-
-        # DataFrame processing
-        df = pandas.read_excel(input_excel)
-        df = df.drop(columns=['Category'])
-        for date_col in ['Base Date', 'Close Date']:
-            df[date_col] = df[date_col].apply(lambda x: x.date())
-
-        df['Close/Base'] = df['Close Value'] / df['Base Value']
-        df['Years'] = list(
-            map(
-                lambda x, y: dateutil.relativedelta.relativedelta(x, y).years, df['Close Date'], df['Base Date']
-            )
-        )
-        df['Days'] = list(
-            map(
-                lambda x, y, z: (x - y.replace(year=y.year + z)).days, df['Close Date'], df['Base Date'], df['Years']
-            )
-        )
-        total_years = df['Years'] + (df['Days'] / 365)
-        df['CAGR(%)'] = 100 * (pow(df['Close Value'] / df['Base Value'], 1 / total_years) - 1)
-
-        # sorting DataFrame by CAGR (%) values
-        df = df.sort_values(
-            by=['CAGR(%)', 'Years', 'Days'],
-            ascending=[False, False, False]
-        )
-        df = df.reset_index(drop=True)
-
-        # saving the DataFrame
-        with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
-            df.to_excel(excel_writer, index=False)
-            workbook = excel_writer.book
-            worksheet = excel_writer.sheets['Sheet1']
-            # format columns
-            for col_num, col_df in enumerate(df.columns):
-                if col_df == 'Index Name':
-                    worksheet.set_column(col_num, col_num, 60)
-                elif col_df == 'Close Value':
-                    worksheet.set_column(
-                        col_num, col_num, 15,
-                        workbook.add_format({'num_format': '#,##0'})
-                    )
-                elif col_df == 'Close/Base':
-                    worksheet.set_column(
-                        col_num, col_num, 15,
-                        workbook.add_format({'num_format': '#,##0.0'})
-                    )
-                elif col_df == 'CAGR(%)':
-                    worksheet.set_column(
-                        col_num, col_num, 15,
-                        workbook.add_format({'num_format': '#,##0.00'})
-                    )
-                else:
-                    worksheet.set_column(col_num, col_num, 15)
-
-        return df
-
-    def category_sort_equity_cagr_from_launch(
-        self,
-        input_excel: str,
-        output_excel: str,
-    ) -> pandas.DataFrame:
-
-        '''
-        Returns equity indices sorted in descending order by CAGR (%) since launch
-        within each index category.
-
-        Parameters
-        ----------
-        input_excel : str
-            Path to the input Excel file.
-
-        output_excel : str
-            Path to an Excel file to save the output DataFrame.
-
-        Returns
-        -------
-        DataFrame
-            A multi-index DataFrame sorted in descending order by CAGR (%) values since launch
-            within each index category.
-        '''
-
-        # check the Excel file extension first
-        excel_ext = Core()._excel_file_extension(output_excel)
-        if not excel_ext == '.xlsx':
-            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
-
-        # DataFrame processing
-        df = pandas.read_excel(input_excel)
-        for date_col in ['Base Date', 'Close Date']:
-            df[date_col] = df[date_col].apply(lambda x: x.date())
-        df['Close/Base'] = df['Close Value'] / df['Base Value']
-        df['Years'] = list(
-            map(
-                lambda x, y: dateutil.relativedelta.relativedelta(x, y).years, df['Close Date'], df['Base Date']
-            )
-        )
-        df['Days'] = list(
-            map(
-                lambda x, y, z: (x - y.replace(year=y.year + z)).days, df['Close Date'], df['Base Date'], df['Years']
-            )
-        )
-        total_years = df['Years'] + (df['Days'] / 365)
-        df['CAGR(%)'] = 100 * (pow(df['Close Value'] / df['Base Value'], 1 / total_years) - 1)
-
-        # Convert 'Category' column to categorical data types with a defined order
-        categories = list(df['Category'].unique())
-        df['Category'] = pandas.Categorical(
-            df['Category'],
-            categories=categories,
-            ordered=True
-        )
-
-        # Sorting Dataframe
-        df = df.sort_values(
-            by=['Category', 'CAGR(%)', 'Years', 'Days'],
-            ascending=[True, False, False, False]
-        )
-        dataframes = []
-        for category in categories:
-            category_df = df[df['Category'] == category]
-            category_df = category_df.drop(columns=['Category']).reset_index(drop=True)
-            dataframes.append(category_df)
-        output = pandas.concat(
-            dataframes,
-            keys=[word.upper() for word in categories],
-            names=['Category', 'ID']
-        )
-
-        # saving the DataFrame
-        with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
-            output.to_excel(excel_writer, index=True)
-            workbook = excel_writer.book
-            worksheet = excel_writer.sheets['Sheet1']
-            # number of columns for DataFrame indices
-            index_cols = len(output.index.names)
-            # format columns
-            worksheet.set_column(0, index_cols - 1, 15)
-            for col_num, col_df in enumerate(output.columns):
-                if col_df == 'Index Name':
-                    worksheet.set_column(index_cols + col_num, index_cols + col_num, 60)
-                elif col_df == 'Close Value':
-                    worksheet.set_column(
-                        index_cols + col_num, index_cols + col_num, 15,
-                        workbook.add_format({'num_format': '#,##0'})
-                    )
-                elif col_df == 'Close/Base':
-                    worksheet.set_column(
-                        index_cols + col_num, index_cols + col_num, 15,
-                        workbook.add_format({'num_format': '#,##0.0'})
-                    )
-                elif col_df == 'CAGR(%)':
-                    worksheet.set_column(
-                        index_cols + col_num, index_cols + col_num, 15,
-                        workbook.add_format({'num_format': '#,##0.00'})
-                    )
-                else:
-                    worksheet.set_column(index_cols + col_num, index_cols + col_num, 15)
-            # Dataframe colors
-            get_colormap = matplotlib.colormaps.get_cmap('Pastel2')
-            colors = [
-                get_colormap(count / len(dataframes)) for count in range(len(dataframes))
-            ]
-            hex_colors = [
-                '{:02X}{:02X}{:02X}'.format(*[int(num * 255) for num in color]) for color in colors
-            ]
-            # coloring of DataFrames
-            start_col = index_cols - 1
-            end_col = index_cols + len(output.columns) - 1
-            start_row = 1
-            for df, color in zip(dataframes, hex_colors):
-                color_format = workbook.add_format({'bg_color': color})
-                end_row = start_row + len(df) - 1
-                worksheet.conditional_format(
-                    start_row, start_col, end_row, end_col,
-                    {'type': 'no_blanks', 'format': color_format}
-                )
-                start_row = end_row + 1
-
-        return output
-
-    def compare_cagr_over_price_from_launch(
-        self,
-        tri_excel: str,
-        price_excel: str,
-        output_excel: str
-    ) -> pandas.DataFrame:
-
-        '''
-        Compares the CAGR (%) between TRI and Price for NSE indices since launch.
-
-        Parameters
-        ----------
-        tri_excel : str
-            Path to the Excel file obtained from :meth:`BharatFinTrack.NSETRI.sort_equity_cagr_from_launch` method.
-
-        price_excel : str
-            Path to the Excel file obtained from :meth:`BharatFinTrack.NSEIndex.sort_equity_cagr_from_launch` method.
-
-        output_excel : str
-            Path to an Excel file to save the output DataFrame.
-
-        Returns
-        -------
-        DataFrame
-            A DataFrame containing the difference in CAGR (%) between TRI to Price since launch.
-        '''
-
-        # check the Excel file extension first
-        excel_ext = Core()._excel_file_extension(output_excel)
-        if not excel_ext == '.xlsx':
-            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
-
-        # TRI Dataframe
-        tri_df = pandas.read_excel(tri_excel)
-        tri_df = tri_df.rename(
-            columns={'CAGR(%)': 'TRI-CAGR(%)'}
-        )
-        for date_col in ['Base Date', 'Close Date']:
-            tri_df[date_col] = tri_df[date_col].apply(lambda x: x.date())
-
-        # Price DataFrame
-        price_df = pandas.read_excel(price_excel)
-        price_df = price_df.rename(
-            columns={'CAGR(%)': 'PRICE-CAGR(%)'}
-        )
-
-        # merge TRI and PRICE DataFrames
-        df = tri_df.merge(
-            right=price_df[['Index Name', 'PRICE-CAGR(%)']],
-            on='Index Name',
-            how='left'
-        )
-        df['Difference(%)'] = tri_df['TRI-CAGR(%)'] - price_df['PRICE-CAGR(%)']
+        ).reset_index(drop=True)
         df = df.drop(
-            columns=['Close Value', 'Close/Base']
+            columns=['ID']
         )
 
-        # saving the DataFrame
-        with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
-            df.to_excel(excel_writer, index=False)
+        # Write DataFrame to the Excel file
+        with pandas.ExcelWriter(
+            path=excel_file,
+            engine='xlsxwriter'
+        ) as excel_writer:
+            df.to_excel(
+                excel_writer=excel_writer,
+                index=False
+            )
             workbook = excel_writer.book
             worksheet = excel_writer.sheets['Sheet1']
-            # format columns
-            for col_num, col_df in enumerate(df.columns):
-                if col_df == 'Index Name':
-                    worksheet.set_column(col_num, col_num, 60)
-                elif col_df.endswith('(%)'):
-                    worksheet.set_column(
-                        col_num, col_num, 15,
-                        workbook.add_format({'num_format': '#,##0.00'})
-                    )
+            header_format = workbook.add_format(
+                {'bold': True, 'align': 'center'}
+            )
+            for idx, col in enumerate(df.columns):
+                if col == 'Index Name':
+                    worksheet.set_column(idx, idx, 60)
                 else:
-                    worksheet.set_column(col_num, col_num, 15)
+                    worksheet.set_column(idx, idx, 15)
+                worksheet.write(0, idx, col, header_format)
 
         return df
 
-    def yearwise_sip_analysis(
+    def index_correction_recovery_cycles(
         self,
-        input_excel: str,
-        monthly_invest: int,
-        output_excel: str
-    ) -> pandas.DataFrame:
-
-        '''
-        Calculates the year-wise closing value, growth multiples, and annualized XIRR (%)
-        of a fixed monthly SIP, based on contributions made on the first date of each month.
-
-        Parameters
-        ----------
-        input_excel : str
-            Path to the Excel file obtained from :meth:`BharatFinTrack.NSETRI.download_historical_daily_data`
-            and :meth:`BharatFinTrack.NSETRI.update_historical_daily_data` methods.
-
-        monthly_invest : int
-            Fixed investment amount contributed on the first date of each month.
-
-        output_excel : str
-            Path to an Excel file to save the output DataFrame.
-
-        Returns
-        -------
-        DataFrame
-            A DataFrame containing the year-wise closing value, growth multiples,
-            and annualized XIRR (%) for the fixed SIP investment.
-        '''
-
-        # check the Excel file extension first
-        excel_ext = Core()._excel_file_extension(output_excel)
-        if not excel_ext == '.xlsx':
-            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
-
-        # input DataFrame
-        df = pandas.read_excel(input_excel)
-        df['Date'] = df['Date'].apply(lambda x: x.date())
-
-        # start and end dates
-        start_date = df['Date'].min()
-        end_date = df['Date'].max()
-
-        # monthly first date
-        month_1d = pandas.date_range(
-            start=start_date,
-            end=end_date,
-            freq='MS'
-        )
-        month_1d = list(map(lambda x: x.date(), month_1d))
-        month_1d = pandas.Series([start_date] + month_1d + [end_date]).unique()
-
-        # DataFrame of monthly open and close value
-        month_df = pandas.DataFrame(
-            columns=['Date', 'Open', 'Close']
-        )
-        for idx, dates in enumerate(zip(month_1d[:-1], month_1d[1:])):
-            idx_df = df[(df['Date'] >= dates[0]) & (df['Date'] < dates[1])]
-            month_df.loc[idx, 'Date'] = idx_df.iloc[0, 0]
-            month_df.loc[idx, 'Open'] = idx_df.iloc[0, 1]
-            month_df.loc[idx, 'Close'] = idx_df.iloc[-1, -1]
-
-        # date difference
-        date_diff = dateutil.relativedelta.relativedelta(end_date, start_date)
-        year_diff = date_diff.years
-
-        # SIP DataFrame
-        index_divisor = 1000
-        sip_df = pandas.DataFrame()
-        for idx in range(year_diff + 1):
-            # year-wise SIP investment
-            if idx < year_diff:
-                sip_year = idx + 1
-                sip_start = end_date.replace(year=end_date.year - sip_year)
-                yi_df = month_df[(month_df['Date'] >= sip_start) & (month_df['Date'] < end_date)].reset_index(drop=True)
-            else:
-                sip_year = round(year_diff + (end_date.replace(year=end_date.year - year_diff) - start_date).days / 365, 1)
-                yi_df = month_df.copy()
-            yi_df['Invest'] = monthly_invest
-            yi_df['Cumm-Invest'] = yi_df['Invest'].cumsum()
-            open_nav = yi_df['Open'] / index_divisor
-            yi_df['Unit'] = (yi_df['Invest'] / open_nav)
-            yi_df['Cum-Unit'] = yi_df['Unit'].cumsum()
-            close_nav = yi_df['Close'] / index_divisor
-            yi_df['Value'] = (yi_df['Cum-Unit'] * close_nav)
-            # year-wise SIP summary
-            sip_df.loc[idx, 'Year'] = sip_year
-            sip_df.loc[idx, 'Start Date'] = yi_df.iloc[0, 0]
-            sip_df.loc[idx, 'Invest'] = yi_df.iloc[-1, -4]
-            sip_df.loc[idx, 'Close Date'] = end_date
-            sip_df.loc[idx, 'Value'] = yi_df.iloc[-1, -1]
-            sip_df.loc[idx, 'Multiple (X)'] = sip_df.loc[idx, 'Value'] / sip_df.loc[idx, 'Invest']
-            sip_dates = list(yi_df['Date']) + [end_date]
-            sip_transactions = list(-1 * yi_df['Invest']) + [yi_df['Value'].iloc[-1]]
-            xirr = pyxirr.xirr(zip(sip_dates, sip_transactions))
-            sip_df.loc[idx, 'XIRR (%)'] = 100 * (xirr if xirr is not None else 0.0)
-
-        # drop duplicates row if any
-        sip_df = sip_df.drop_duplicates(ignore_index=True)
-
-        # saving DataFrame
-        with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
-            sip_df.to_excel(excel_writer, index=False)
-            workbook = excel_writer.book
-            worksheet = excel_writer.sheets['Sheet1']
-            # format columns
-            for col_num, col_df in enumerate(sip_df.columns):
-                if any(col_df.endswith(i) for i in ['(%)', 'Year', '(X)']):
-                    worksheet.set_column(
-                        col_num, col_num, 15,
-                        workbook.add_format({'num_format': '#,##0.0'})
-                    )
-                else:
-                    worksheet.set_column(
-                        col_num, col_num, 15,
-                        workbook.add_format({'num_format': '#,##0'})
-                    )
-
-        return sip_df
-
-    def sip_summary_from_given_date(
-        self,
+        csv_file: str,
         excel_file: str,
-        start_year: int,
-        start_month: int,
-        monthly_invest: int
-    ) -> dict[str, str]:
-
-        '''
-        Calculates the closing value, growth multiples, and annualized XIRR (%) of a fixed monthly
-        SIP starting from a specified date, based on contributions made on the first date of each month.
-
-        Parameters
-        ----------
-        excel_file : str
-            Path to the Excel file obtained from :meth:`BharatFinTrack.NSETRI.download_historical_daily_data`
-            and :meth:`BharatFinTrack.NSETRI.update_historical_daily_data` methods.
-
-        start_year : int
-            Year when the SIP begins.
-
-        start_month : int
-            Month (1 to 12) when the SIP begins.
-
-        monthly_invest : int
-            Fixed investment amount contributed on the first date of each month
-
-        Returns
-        -------
-        dict
-            A dictionary containing the closing value, growth multiples, and annualized XIRR (%)
-            for the fixed SIP investment starting from a specified date.
-        '''
-
-        # SIP summary
-        summary = {}
-
-        # input DataFrame
-        df = pandas.read_excel(excel_file)
-        df['Date'] = df['Date'].apply(lambda x: x.date())
-
-        # start and end dates
-        start_date = datetime.date(
-            year=start_year,
-            month=start_month,
-            day=1
-        )
-        end_date = df.iloc[-1, 0]
-
-        # filtered DataFrame
-        if start_date > df.iloc[-1, 0]:
-            raise Exception(
-                'Given year and month return an empty DataFrame.'
-            )
-        elif df.iloc[0, 0] <= start_date <= df.iloc[-1, 0]:
-            summary['Start date'] = start_date.strftime('%d-%b-%Y')
-        else:
-            summary['Given date'] = start_date.strftime('%d-%b-%Y')
-            df = df[(df['Date'] >= start_date)].reset_index(drop=True)
-            start_date = df.iloc[0, 0]
-            summary['Actual start date'] = start_date.strftime('%d-%b-%Y')
-
-        # month first date
-        month_1d = pandas.date_range(
-            start=start_date,
-            end=end_date,
-            freq='MS'
-        )
-        month_1d = list(map(lambda x: x.date(), month_1d))
-        month_1d = pandas.Series([start_date] + month_1d + [end_date]).unique()
-
-        # DataFrame of monthly open and close value
-        month_df = pandas.DataFrame(
-            columns=['Date', 'Open', 'Close']
-        )
-        for idx, dates in enumerate(zip(month_1d[:-1], month_1d[1:])):
-            idx_df = df[(df['Date'] >= dates[0]) & (df['Date'] < dates[1])]
-            month_df.loc[idx, 'Date'] = idx_df.iloc[0, 0]
-            month_df.loc[idx, 'Open'] = idx_df.iloc[0, 1]
-            month_df.loc[idx, 'Close'] = idx_df.iloc[-1, -1]
-
-        # SIP parameters
-        index_divisor = 1000
-        date_diff = dateutil.relativedelta.relativedelta(end_date, start_date)
-        month_df['Invest'] = monthly_invest
-        month_df['Cumm-Invest'] = month_df['Invest'].cumsum()
-        open_nav = month_df['Open'] / index_divisor
-        month_df['Unit'] = (month_df['Invest'] / open_nav)
-        month_df['Cum-Unit'] = month_df['Unit'].cumsum()
-        close_nav = month_df['Close'] / index_divisor
-        month_df['Value'] = (month_df['Cum-Unit'] * close_nav)
-        # year-wise SIP summary
-        summary['Duration'] = f'{date_diff.years} years, {date_diff.months} months, {date_diff.days} days'
-        summary['Invest'] = f'{month_df.iloc[-1, -4]:.0f}'
-        summary['Value'] = f'{month_df.iloc[-1, -1]:.0f}'
-        summary['Multiple (X)'] = f'{month_df.iloc[-1, -1] / month_df.iloc[-1, -4]:.1f}'
-        sip_dates = list(month_df['Date']) + [end_date]
-        sip_transactions = list(-1 * month_df['Invest']) + [month_df['Value'].iloc[-1]]
-        xirr = pyxirr.xirr(zip(sip_dates, sip_transactions))
-        xirr_p = 100 * (xirr if xirr is not None else 0.0)
-        summary['XIRR (%)'] = f'{xirr_p:.1f}'
-
-        return summary
-
-    def yearwise_sip_xirr_growth_comparison_across_indices(
-        self,
-        indices: list[str],
-        folder_path: str,
-        excel_file: str,
+        minimum_gain: int | float = 10,
+        mult_correction: int | float = 2.5,
+        mult_recovery: int | float = 10
     ) -> pandas.DataFrame:
 
         '''
-        Generates two DataFrames that compares year-wise XIRR (%) and
-        growth multiple (X) on the first date SIP investment of each month across multiple indices.
-        The output DataFrame are saved to an Excel file, where the cells with
-        the best performance among indices for each year are highlighted in green-yellow,
-        and those with the worst performance are highlighted in sandy brown.
-
-        Additionally, a scoring mechanism is implemented for the indices based on their growth values.
-        For each year, indices are ranked in ascending order of growth, with the lowest value
-        receiving the lowest score (1), and the highest value receiving the highest score.
-        The total scores for each index are calculated by summing their yearly scores.
-        Indices are then sorted in descending order based on their total scores,
-        and the results are converted into a DataFrame with columns 'Index Name' and 'Score'.
-
-        Parameters
-        ----------
-        indices : list
-            A list of index names to compare in the monthly SIP XIRR (%) and growth multiple (X).
-
-        folder_path : str
-            Path to the directory containing Excel files with historical data for each index. Each Excel file must be
-            named as '{index}.xlsx' corresponding to the index names provided in the `indices` list. These files should
-            be obtained from :meth:`BharatFinTrack.NSETRI.download_historical_daily_data` or
-            :meth:`BharatFinTrack.NSETRI.update_historical_daily_data`.
-
-        excel_file : str
-            Path to an Excel file to save the output DataFrames.
-
-        Returns
-        -------
-        DataFrame
-            A DataFrame containing the index names and their total scores.
-        '''
-
-        # check the Excel file extension first
-        excel_ext = Core()._excel_file_extension(excel_file)
-        if not excel_ext == '.xlsx':
-            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
-
-        # monthly investment amount
-        monthly_invest = 1000
-
-        # SIP dataframe of index
-        dataframes = []
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            for index in indices:
-                index_excel = os.path.join(folder_path, f'{index}.xlsx')
-                df = NSETRI().yearwise_sip_analysis(
-                    input_excel=index_excel,
-                    monthly_invest=monthly_invest,
-                    output_excel=os.path.join(tmp_dir, 'output.xlsx')
-                )
-                dataframes.append(df)
-
-        # check equal close date for all DataFrames
-        close_date = dataframes[0]['Close Date'].iloc[0]
-        equal_closedate = all(map(lambda df: df['Close Date'].iloc[0] == close_date, dataframes))
-        if equal_closedate:
-            pass
-        else:
-            raise Exception('Last date must be equal across all indices in the Excel files.')
-
-        # filtered dataframes
-        common_year = min(
-            map(lambda df: int(df['Year'].max()), dataframes)
-        )
-        dataframes = [
-            df[df['Year'] <= common_year] for df in dataframes
-        ]
-
-        # growth DataFrames
-        growth_dataframes = [
-            df.drop(columns=['Invest', 'Value', 'XIRR (%)']) for df in dataframes
-        ]
-        growth_dataframes = [
-            df.rename(columns={'Multiple (X)': f'{index} (X)'}) for df, index in zip(growth_dataframes, indices)
-        ]
-
-        # merging the growth DataFrames
-        mgrowth_df = growth_dataframes[0]
-        common_cols = list(mgrowth_df.columns)[:-1]
-        for df in growth_dataframes[1:]:
-            mgrowth_df = pandas.merge(
-                left=mgrowth_df,
-                right=df,
-                on=common_cols,
-                how='inner'
-            )
-
-        # assing score to indices growth returns
-        score_df = mgrowth_df.copy()
-        score_df = score_df.iloc[:, len(common_cols):]
-        for idx, row in score_df.iterrows():
-            sort_growth = row.sort_values(ascending=True).index
-            score_indices = range(1, len(sort_growth) + 1)
-            score_df.loc[idx, sort_growth] = score_indices
-
-        # aggregate DataFrame of sorted total score
-        aggregate_df = score_df.sum().sort_values(ascending=False).reset_index()
-        aggregate_df.columns = ['Index Name', 'Score']
-        aggregate_df['Index Name'] = aggregate_df['Index Name'].apply(lambda x: x.replace(' (X)', ''))
-
-        # rounding of column values to catch exact maximum and minimum with floating point precision
-        for col in mgrowth_df.columns:
-            if col.endswith('(X)'):
-                mgrowth_df[col] = mgrowth_df[col].round(5)
-
-        # XIRR DataFrames
-        xirr_dataframes = [
-            df.drop(columns=['Invest', 'Value', 'Multiple (X)']) for df in dataframes
-        ]
-        xirr_dataframes = [
-            df.rename(columns={'XIRR (%)': f'{index} (XIRR)'}) for df, index in zip(xirr_dataframes, indices)
-        ]
-
-        # mergeing the XIRR DataFrames
-        mxirr_df = xirr_dataframes[0]
-        for df in xirr_dataframes[1:]:
-            mxirr_df = pandas.merge(
-                left=mxirr_df,
-                right=df,
-                on=common_cols,
-                how='inner'
-            )
-
-        # rounding of column values to catch exact maximum and minimum with floating point precision
-        for col in mxirr_df.columns:
-            if col.endswith('(XIRR)'):
-                mxirr_df[col] = mxirr_df[col].round(5)
-
-        # arrange indices columns according to aggregate score
-        mgrowth_columns = common_cols + [f'{index} (X)' for index in aggregate_df['Index Name']]
-        mgrowth_df = mgrowth_df[mgrowth_columns]
-        mxirr_columns = common_cols + [f'{index} (XIRR)' for index in aggregate_df['Index Name']]
-        mxirr_df = mxirr_df[mxirr_columns]
-
-        # saving DataFrames
-        with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
-            ##################
-            # score DataFrame
-            aggregate_df.to_excel(
-                excel_writer=excel_writer,
-                index=False,
-                sheet_name='Score'
-            )
-            workbook = excel_writer.book
-            worksheet = excel_writer.sheets['Score']
-            worksheet.set_column(0, 0, 75)
-            worksheet.set_column(1, 1, 15)
-            ##########################
-            # merged growth DataFrames
-            mgrowth_df.to_excel(
-                excel_writer=excel_writer,
-                index=False,
-                sheet_name='Multiple(X)'
-            )
-            workbook = excel_writer.book
-            worksheet = excel_writer.sheets['Multiple(X)']
-            worksheet.set_column(
-                0, len(common_cols) - 1, 15
-            )
-            worksheet.set_column(
-                len(common_cols), mgrowth_df.shape[1] - 1, 15,
-                workbook.add_format({'num_format': '#,##0.0'})
-            )
-            # header formatting
-            header_format = workbook.add_format(
-                {
-                    'bold': True,
-                    'text_wrap': True,
-                    'align': 'center',
-                    'valign': 'vcenter'
-                }
-            )
-            for col_num, col_df in enumerate(mgrowth_df.columns):
-                worksheet.write(0, col_num, col_df, header_format)
-            # formatting for maximum and minimum value in each row
-            for row in range(mgrowth_df.shape[0]):
-                # minimum value
-                worksheet.conditional_format(
-                    row + 1, len(common_cols), row + 1, mgrowth_df.shape[1] - 1,
-                    {
-                        'type': 'cell',
-                        'criteria': 'equal to',
-                        'value': mgrowth_df.iloc[row, len(common_cols):].min(),
-                        'format': workbook.add_format({'bg_color': '#F4A460'})
-                    }
-                )
-                # maximim value
-                worksheet.conditional_format(
-                    row + 1, len(common_cols), row + 1, mgrowth_df.shape[1] - 1,
-                    {
-                        'type': 'cell',
-                        'criteria': 'equal to',
-                        'value': mgrowth_df.iloc[row, len(common_cols):].max(),
-                        'format': workbook.add_format({'bg_color': '#ADFF2F'})
-                    }
-                )
-            ########################
-            # merged XIRR DataFrames
-            mxirr_df.to_excel(
-                excel_writer=excel_writer,
-                index=False,
-                sheet_name='XIRR(%)'
-            )
-            workbook = excel_writer.book
-            worksheet = excel_writer.sheets['XIRR(%)']
-            worksheet.set_column(
-                0, len(common_cols) - 1, 15
-            )
-            worksheet.set_column(
-                len(common_cols), mxirr_df.shape[1] - 1, 15,
-                workbook.add_format({'num_format': '#,##0.0'})
-            )
-            # header formatting
-            header_format = workbook.add_format(
-                {
-                    'bold': True,
-                    'text_wrap': True,
-                    'align': 'center',
-                    'valign': 'vcenter'
-                }
-            )
-            for col_num, col_df in enumerate(mxirr_df.columns):
-                worksheet.write(0, col_num, col_df, header_format)
-            # formatting for maximum and minimum value in each row
-            for row in range(mxirr_df.shape[0]):
-                # minimum value
-                worksheet.conditional_format(
-                    row + 1, len(common_cols), row + 1, mxirr_df.shape[1] - 1,
-                    {
-                        'type': 'cell',
-                        'criteria': 'equal to',
-                        'value': mxirr_df.iloc[row, len(common_cols):].min(),
-                        'format': workbook.add_format({'bg_color': '#F4A460'})
-                    }
-                )
-                # maximim value
-                worksheet.conditional_format(
-                    row + 1, len(common_cols), row + 1, mxirr_df.shape[1] - 1,
-                    {
-                        'type': 'cell',
-                        'criteria': 'equal to',
-                        'value': mxirr_df.iloc[row, len(common_cols):].max(),
-                        'format': workbook.add_format({'bg_color': '#ADFF2F'})
-                    }
-                )
-
-        return aggregate_df
-
-    def yearwise_cagr_analysis(
-        self,
-        input_excel: str,
-        output_excel: str
-    ) -> pandas.DataFrame:
-
-        '''
-        Calculates the year-wise CAGR (%) for a given index. Here, year-wise refers to the
-        CAGR calculated for periods ending on the present date, going back one year, two years,
-        three years, and so on, up to the available data range.
-
-        Parameters
-        ----------
-        input_excel : str
-            Path to the Excel file obtained from :meth:`BharatFinTrack.NSETRI.download_historical_daily_data`
-            and :meth:`BharatFinTrack.NSETRI.update_historical_daily_data` methods.
-
-        output_excel : str
-            Path to an Excel file to save the output DataFrame.
-
-        Returns
-        -------
-        DataFrame
-            A DataFrame containing the year-wise CAGR (%) and Growth (X) for any amount.
-        '''
-
-        # check the Excel file extension first
-        excel_ext = Core()._excel_file_extension(output_excel)
-        if excel_ext == '.xlsx':
-            pass
-        else:
-            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
-
-        # input DataFrame
-        df = pandas.read_excel(input_excel)
-        df['Date'] = df['Date'].apply(lambda x: x.date())
-
-        # start and end dates
-        start_date = df['Date'].min()
-        end_date = df['Date'].max()
-
-        # date difference
-        date_diff = dateutil.relativedelta.relativedelta(end_date, start_date)
-        year_diff = date_diff.years
-
-        # CAGR DataFrame
-        cagr_df = pandas.DataFrame()
-        for idx in range(year_diff + 1):
-            if idx < year_diff:
-                cagr_year = idx + 1
-                cagr_start = end_date.replace(year=end_date.year - cagr_year)
-                while True:
-                    if df['Date'].isin([cagr_start]).any():
-                        break
-                    else:
-                        cagr_start = cagr_start - datetime.timedelta(days=1)
-                yi_df = df[df['Date'].isin([cagr_start])]
-            else:
-                cagr_year = round(year_diff + (end_date.replace(year=end_date.year - year_diff) - start_date).days / 365, 1)
-                yi_df = df.iloc[:1, :]
-            # year-wise CAGR summary
-            cagr_df.loc[idx, 'Year'] = cagr_year
-            cagr_df.loc[idx, 'Start Date'] = yi_df.iloc[0, 0]
-            cagr_df.loc[idx, 'Start Value'] = yi_df.iloc[0, 1]
-            cagr_df.loc[idx, 'Close Date'] = end_date
-            cagr_df.loc[idx, 'Close Value'] = df.iloc[-1, -1]
-            cagr_df.loc[idx, 'CAGR (%)'] = 100 * (pow(df.iloc[-1, -1] / yi_df.iloc[0, 1], 1 / cagr_year) - 1)
-            cagr_df.loc[idx, 'Multiple (X)'] = cagr_df.loc[idx, 'Close Value'] / cagr_df.loc[idx, 'Start Value']
-
-        cagr_df['Cumulative (X)'] = cagr_df['Multiple (X)'].cumsum()
-
-        # drop duplicates row if any
-        cagr_df = cagr_df.drop_duplicates(ignore_index=True)
-
-        # saving DataFrame
-        with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
-            cagr_df.to_excel(excel_writer, index=False)
-            workbook = excel_writer.book
-            worksheet = excel_writer.sheets['Sheet1']
-            # format columns
-            for col_num, col_df in enumerate(cagr_df.columns):
-                if any(col_df.endswith(i) for i in ['(%)', 'Year', '(X)', 'Value']):
-                    worksheet.set_column(
-                        col_num, col_num, 15,
-                        workbook.add_format({'num_format': '#,##0.0'})
-                    )
-                else:
-                    worksheet.set_column(
-                        col_num, col_num, 15,
-                        workbook.add_format({'num_format': '#,##0'})
-                    )
-
-        return cagr_df
-
-    def yearwise_cagr_growth_comparison_across_indices(
-        self,
-        indices: list[str],
-        folder_path: str,
-        excel_file: str,
-    ) -> pandas.DataFrame:
-
-        '''
-        Generates two DataFrames that compare year-wise CAGR (%) and growth multiple (X)
-        of a yearly fixed investment across multiple indices. Here, year-wise refers to the
-        CAGR calculated for periods ending on the present date, going back one year, two years, and so on,
-        up to the available data range. The output DataFrames are saved to an Excel file,
-        where the cells with the best performance among indices for each year are highlighted
-        in green-yellow, and those with the worst performance are highlighted in sandy brown.
-
-        Additionally, a scoring mechanism is implemented for the indices based on their growth values.
-        For each year, indices are ranked in ascending order of growth, with the lowest value
-        receiving the lowest score (1), and the highest value receiving the highest score.
-        The total scores for each index are calculated by summing their yearly scores.
-        Indices are then sorted in descending order based on their total scores,
-        and the results are converted into a DataFrame with columns 'Index Name' and 'Score'.
-
-        Parameters
-        ----------
-        indices : list
-            A list of index names to compare in the CAGR (%) and growth multiple (X).
-
-        folder_path : str
-            Path to the directory containing Excel files with historical data for each index. Each Excel file must be
-            named as '{index}.xlsx' corresponding to the index names provided in the `indices` list. These files should
-            be obtained from :meth:`BharatFinTrack.NSETRI.download_historical_daily_data` or
-            :meth:`BharatFinTrack.NSETRI.update_historical_daily_data`.
-
-        excel_file : str
-            Path to an Excel file to save the output DataFrames.
-
-        Returns
-        -------
-        DataFrame
-            A DataFrame containing the index names and their total scores.
-        '''
-
-        # check the Excel file extension first
-        excel_ext = Core()._excel_file_extension(excel_file)
-        if not excel_ext == '.xlsx':
-            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
-
-        # SIP dataframe of index
-        dataframes = []
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            for index in indices:
-                index_excel = os.path.join(folder_path, f'{index}.xlsx')
-                df = NSETRI().yearwise_cagr_analysis(
-                    input_excel=index_excel,
-                    output_excel=os.path.join(tmp_dir, 'output.xlsx')
-                )
-                dataframes.append(df)
-
-        # check equal close date for all DataFrames
-        close_date = dataframes[0]['Close Date'].iloc[0]
-        equal_closedate = all(map(lambda df: df['Close Date'].iloc[0] == close_date, dataframes))
-        if equal_closedate:
-            pass
-        else:
-            raise Exception('Last date must be equal across all indices in the Excel files.')
-
-        # filtered dataframes
-        common_year = min(
-            map(lambda df: int(df['Year'].max()), dataframes)
-        )
-        dataframes = [
-            df[df['Year'] <= common_year] for df in dataframes
-        ]
-
-        # Growth DataFrames
-        growth_dataframes = [
-            df.drop(columns=['Start Value', 'Close Value', 'CAGR (%)', 'Cumulative (X)']) for df in dataframes
-        ]
-        growth_dataframes = [
-            df.rename(columns={'Multiple (X)': f'{index} (X)'}) for df, index in zip(growth_dataframes, indices)
-        ]
-
-        # merging the growth DataFrames
-        mgrowth_df = growth_dataframes[0]
-        common_cols = list(mgrowth_df.columns)[:-1]
-        for df in growth_dataframes[1:]:
-            mgrowth_df = pandas.merge(
-                left=mgrowth_df,
-                right=df,
-                on=common_cols,
-                how='inner'
-            )
-
-        # assing score to indices growth returns
-        score_df = mgrowth_df.copy()
-        score_df = score_df.iloc[:, len(common_cols):]
-        for idx, row in score_df.iterrows():
-            sort_growth = row.sort_values(ascending=True).index
-            score_indices = range(1, len(sort_growth) + 1)
-            score_df.loc[idx, sort_growth] = score_indices
-
-        # aggregate DataFrame of sorted total score
-        aggregate_df = score_df.sum().sort_values(ascending=False).reset_index()
-        aggregate_df.columns = ['Index Name', 'Score']
-        aggregate_df['Index Name'] = aggregate_df['Index Name'].apply(lambda x: x.replace(' (X)', ''))
-
-        # rounding of column values to catch exact maximum and minimum with floating point precision
-        for col in mgrowth_df.columns:
-            if col.endswith('(X)'):
-                mgrowth_df[col] = mgrowth_df[col].round(5)
-            else:
-                pass
-
-        # CAGR DataFrames
-        cagr_dataframes = [
-            df.drop(columns=['Start Value', 'Close Value', 'Multiple (X)', 'Cumulative (X)']) for df in dataframes
-        ]
-        cagr_dataframes = [
-            df.rename(columns={'CAGR (%)': f'{index} (CAGR)'}) for df, index in zip(cagr_dataframes, indices)
-        ]
-
-        # mergeing the CAGR DataFrames
-        mcagr_df = cagr_dataframes[0]
-        for df in cagr_dataframes[1:]:
-            mcagr_df = pandas.merge(
-                left=mcagr_df,
-                right=df,
-                on=common_cols,
-                how='inner'
-            )
-
-        # arrange indices columns according to aggregate score
-        mgrowth_columns = common_cols + [f'{index} (X)' for index in aggregate_df['Index Name']]
-        mgrowth_df = mgrowth_df[mgrowth_columns]
-        mcagr_columns = common_cols + [f'{index} (CAGR)' for index in aggregate_df['Index Name']]
-        mcagr_df = mcagr_df[mcagr_columns]
-
-        # rounding of column values to catch exact maximum and minimum with floating point precision
-        for col in mcagr_df.columns:
-            if col.endswith('(CAGR)'):
-                mcagr_df[col] = mcagr_df[col].round(5)
-            else:
-                pass
-
-        # saving DataFrames
-        with pandas.ExcelWriter(excel_file, engine='xlsxwriter') as excel_writer:
-            ##################
-            # score DataFrame
-            aggregate_df.to_excel(
-                excel_writer=excel_writer,
-                index=False,
-                sheet_name='Score'
-            )
-            workbook = excel_writer.book
-            worksheet = excel_writer.sheets['Score']
-            worksheet.set_column(0, 0, 75)
-            worksheet.set_column(1, 1, 15)
-            ##########################
-            # merged growth DataFrames
-            mgrowth_df.to_excel(
-                excel_writer=excel_writer,
-                index=False,
-                sheet_name='Multiple(X)'
-            )
-            workbook = excel_writer.book
-            worksheet = excel_writer.sheets['Multiple(X)']
-            worksheet.set_column(
-                0, len(common_cols) - 1, 15
-            )
-            worksheet.set_column(
-                len(common_cols), mgrowth_df.shape[1] - 1, 15,
-                workbook.add_format({'num_format': '#,##0.0'})
-            )
-            # header formatting
-            header_format = workbook.add_format(
-                {
-                    'bold': True,
-                    'text_wrap': True,
-                    'align': 'center',
-                    'valign': 'vcenter'
-                }
-            )
-            for col_num, col_df in enumerate(mgrowth_df.columns):
-                worksheet.write(0, col_num, col_df, header_format)
-            # formatting for maximum and minimum value in each row
-            for row in range(mgrowth_df.shape[0]):
-                # minimum value
-                worksheet.conditional_format(
-                    row + 1, len(common_cols), row + 1, mgrowth_df.shape[1] - 1,
-                    {
-                        'type': 'cell',
-                        'criteria': 'equal to',
-                        'value': mgrowth_df.iloc[row, len(common_cols):].min(),
-                        'format': workbook.add_format({'bg_color': '#F4A460'})
-                    }
-                )
-                # maximim value
-                worksheet.conditional_format(
-                    row + 1, len(common_cols), row + 1, mgrowth_df.shape[1] - 1,
-                    {
-                        'type': 'cell',
-                        'criteria': 'equal to',
-                        'value': mgrowth_df.iloc[row, len(common_cols):].max(),
-                        'format': workbook.add_format({'bg_color': '#ADFF2F'})
-                    }
-                )
-            ########################
-            # merged CAGR DataFrames
-            mcagr_df.to_excel(
-                excel_writer=excel_writer,
-                index=False,
-                sheet_name='CAGR(%)'
-            )
-            workbook = excel_writer.book
-            worksheet = excel_writer.sheets['CAGR(%)']
-            worksheet.set_column(
-                0, len(common_cols) - 1, 15
-            )
-            worksheet.set_column(
-                len(common_cols), mcagr_df.shape[1] - 1, 15,
-                workbook.add_format({'num_format': '#,##0.0'})
-            )
-            # header formatting
-            header_format = workbook.add_format(
-                {
-                    'bold': True,
-                    'text_wrap': True,
-                    'align': 'center',
-                    'valign': 'vcenter'
-                }
-            )
-            for col_num, col_df in enumerate(mcagr_df.columns):
-                worksheet.write(0, col_num, col_df, header_format)
-            # formatting for maximum and minimum value in each row
-            for row in range(mcagr_df.shape[0]):
-                # minimum value
-                worksheet.conditional_format(
-                    row + 1, len(common_cols), row + 1, mcagr_df.shape[1] - 1,
-                    {
-                        'type': 'cell',
-                        'criteria': 'equal to',
-                        'value': mcagr_df.iloc[row, len(common_cols):].min(),
-                        'format': workbook.add_format({'bg_color': '#F4A460'})
-                    }
-                )
-                # maximim value
-                worksheet.conditional_format(
-                    row + 1, len(common_cols), row + 1, mcagr_df.shape[1] - 1,
-                    {
-                        'type': 'cell',
-                        'criteria': 'equal to',
-                        'value': mcagr_df.iloc[row, len(common_cols):].max(),
-                        'format': workbook.add_format({'bg_color': '#ADFF2F'})
-                    }
-                )
-
-        return aggregate_df
-
-    def analyze_correction_recovery(
-        self,
-        input_excel: str,
-        output_excel: str,
-        minimum_gain: float = 10,
-        multiplier_correction: float = 2.5,
-        multiplier_recovery: float = 10
-    ) -> pandas.DataFrame:
-
-        '''
-        Identifies significant turning points in the index's historical performance, focusing on consecutive
+        Identify significant turning points in the index's historical performance, focusing on consecutive
         corrections and recoveries. A minimum percentage gain is required between two consecutive recoveries
         to qualify as significant. The function also calculates the frequency of corrections
         (declines from a peak to the next trough) and recoveries (gains from a trough to the next peak),
@@ -1553,20 +476,20 @@ class NSETRI:
 
         Parameters
         ----------
-        input_excel : str
-            Path to the Excel file obtained from :meth:`BharatFinTrack.NSETRI.download_historical_daily_data`
-            and :meth:`BharatFinTrack.NSETRI.update_historical_daily_data` methods.
+        csv_file : str
+            Path to the CSV file obtained from :meth:`BharatFinTrack.NSETRI.download_daily_data`
+            and :meth:`BharatFinTrack.NSETRI.update_daily_data` methods.
 
-        output_excel : str
+        excel_file : str
             Path to an Excel file to save the output DataFrame.
 
         minimum_gain : float, optional
             The minimum percentage gain required between two consecutive tops. Default is 10.
 
-        multiplier_correction : float, optional
+        mult_correction : float, optional
             Multiplier applied to calculate the magnitude of corrections (top to bottom). Default is 2.5.
 
-        multiplier_recovery : float, optional
+        mult_recovery : float, optional
             Multiplier applied to calculate the magnitude of recoveries (bottom to top). Default is 10.
 
         Returns
@@ -1576,31 +499,43 @@ class NSETRI:
             bottoms, corrections, recoveries, and their respective multipliers.
         '''
 
-        # check the Excel file extension first
-        excel_ext = Core()._excel_file_extension(output_excel)
-        if not excel_ext == '.xlsx':
-            raise Exception(f'Input file extension "{excel_ext}" does not match the required ".xlsx".')
+        # Check static type of input variable origin
+        Helper()._validate_variable_origin_static_type(
+            vars_types=typing.get_type_hints(
+                obj=self.index_correction_recovery_cycles
+            ),
+            vars_values=locals()
+        )
 
-        # input DataFrame
-        df = pandas.read_excel(input_excel)
-        df['Date'] = df['Date'].apply(lambda x: x.date())
+        # Validate output file path
+        Helper()._validate_file_path(
+            input_file=excel_file,
+            input_ext='.xlsx'
+        )
 
-        # start and end dates
+        # Read DataFrame
+        df = Helper()._csv_date_format(
+            csv_file=csv_file,
+            date_cols=['Date']
+        )
+
+        # Start and end dates
         start_date = df['Date'].min()
         end_date = df['Date'].max()
 
-        # monthly first date
-        month_1d = pandas.date_range(
+        # Monthly first date
+        ms_dates = pandas.date_range(
             start=start_date,
             end=end_date,
             freq='MS'
-        )
-        month_1d = list(map(lambda x: x.date(), month_1d))
-        month_1d = pandas.Series([start_date] + month_1d + [end_date]).unique()
+        ).date
+        ms_dates = pandas.Series(
+            [start_date] + list(ms_dates) + [end_date]
+        ).unique()
 
         # DataFrame of monthly open and close value
         month_df = pandas.DataFrame()
-        for idx, dates in enumerate(zip(month_1d[:-1], month_1d[1:])):
+        for idx, dates in enumerate(zip(ms_dates[:-1], ms_dates[1:])):
             idx_df = df[(df['Date'] >= dates[0]) & (df['Date'] < dates[1])]
             month_df.loc[idx, 'Date'] = idx_df.iloc[0, 0]
             month_df.loc[idx, 'Open'] = idx_df.iloc[0, 1]
@@ -1608,20 +543,23 @@ class NSETRI:
             month_df.loc[idx, 'Low'] = idx_df.iloc[:, 1].min()
             month_df.loc[idx, 'Close'] = idx_df.iloc[-1, -1]
 
-        # summary
+        # Summary
         summary = {}
         summary['Start date'] = start_date
         summary['End date'] = end_date
-        age = dateutil.relativedelta.relativedelta(end_date, start_date)
-        summary['Age'] = f'{age.years}Y-{age.months}M-{age.days}D'
-        total_years = age.years + (age.months / 12) + (age.days / 365)
+        date_diff = Helper()._date_difference(
+            start_date=month_df['Date'].iloc[0],
+            end_date=end_date
+        )
+        summary['Age'] = f'{date_diff['years']}Y-{date_diff['months']}M-{date_diff['days']}D'
+        total_years = date_diff['years'] + (date_diff['months'] / 12) + (date_diff['days'] / 365)
         summary['Open'] = month_df.iloc[0, 1]
         summary['High(H)'] = month_df.iloc[:, 2].max()
         summary['Close(C)'] = month_df.iloc[-1, -1]
         summary['CAGR(%)'] = 100 * (pow(summary['Close(C)'] / summary['Open'], 1 / total_years) - 1)
         summary['Correction(%)'] = 100 * (month_df.iloc[-1, -1] - summary['High(H)']) / summary['High(H)']
 
-        # top dataframe with minimum gain
+        # Top value DataFrame with minimum gain
         top_df = pandas.DataFrame()
         i = 0
         while i <= month_df.shape[0] - 1:
@@ -1642,7 +580,7 @@ class NSETRI:
         )
         top_df['Gain-H(%)'] = 100 * top_df['Value-H'].pct_change(fill_method=None)
 
-        # bottom dataframe with recovery
+        # Bottom value DataFrame
         bottom_df = pandas.DataFrame()
         if len(top_df) == 1:
             low_df = month_df[month_df['Low'] == month_df['Low'].min()].iloc[-1, :].to_frame().T
@@ -1661,39 +599,41 @@ class NSETRI:
             }
         )
 
-        # add last bottom to close value in the Summary dictonary
-        summary['Recent Low(L)'] = bottom_df.iloc[-1, -1]
-        summary['Recovery(%)'] = round(100 * (month_df.iloc[-1, -1] - summary['Recent Low(L)']) / summary['Recent Low(L)'], 1)
-        summary_df = pandas.DataFrame(data=summary.values(), index=summary.keys()).reset_index()
-        summary_df.columns = ['Feature', 'Value']
-
-        # combine top and bottom dataframes
+        # Combine top and bottom DataFrames
         tb_df = pandas.concat([top_df, bottom_df], axis=1)
         tb_df['Gain-L(%)'] = 100 * tb_df['Value-L'].pct_change(fill_method=None)
 
-        # coutning mohths of correction
-        difference_correction = [
-            dateutil.relativedelta.relativedelta(rd, od) for rd, od in zip(tb_df['Month-L'], tb_df['Month-H'])
+        # Coutning months of correction
+        correction_time = [
+            Helper()._date_difference(
+                start_date=sd,
+                end_date=ed
+            ) for sd, ed in zip(tb_df['Month-H'], tb_df['Month-L'])
         ]
-        month_correction = [
-            diff.years * 12 + diff.months for diff in difference_correction
+        correction_month = [
+            ct['years'] * 12 + ct['months'] for ct in correction_time
         ]
-        tb_df['Month(H-L)'] = month_correction
+        tb_df['Month(H-L)'] = correction_month
         tb_df['H-L(%)'] = 100 * (tb_df['Value-L'] - tb_df['Value-H']) / tb_df['Value-H']
 
-        # counting months of recovery
-        difference_recovery = [
-            dateutil.relativedelta.relativedelta(rd, od) for rd, od in zip(tb_df['Month-H'], tb_df['Month-L'].shift(periods=1))
+        # Counting months of recovery
+        recovery_time = [
+            Helper()._date_difference(
+                start_date=sd,
+                end_date=ed
+            ) for sd, ed in zip(tb_df['Month-L'].shift(periods=1), tb_df['Month-H'])
         ]
-        month_recovery = [
-            diff.years * 12 + diff.months for diff in difference_recovery
+        recovery_month = [
+            rt['years'] * 12 + rt['months'] for rt in recovery_time
         ]
-        tb_df['Month(L-H)'] = month_recovery
+        tb_df['Month(L-H)'] = recovery_month
         tb_df['L-H(%)'] = 100 * (tb_df['Value-H'] - tb_df['Value-L'].shift(periods=1)) / tb_df['Value-L'].shift(periods=1)
         tb_df.iloc[0, -2] = tb_df.iloc[0, -1]
 
-        # counting correction
-        count_correction = multiplier_correction * (tb_df['H-L(%)'] / multiplier_correction).apply(lambda x: round(x) if pandas.notnull(x) else x)
+        # Counting correction
+        count_correction = mult_correction * (tb_df['H-L(%)'] / mult_correction).apply(
+            lambda x: round(x) if pandas.notnull(x) else x
+        )
         correction_df = count_correction.value_counts().to_frame().reset_index()
         correction_df['Count(%)'] = 100 * correction_df['count'] / correction_df['count'].sum()
         correction_df = correction_df.sort_values(
@@ -1703,13 +643,15 @@ class NSETRI:
         )
         correction_df = correction_df.rename(
             columns={
-                'H-L(%)': f'H-L({-multiplier_correction}%)',
+                'H-L(%)': f'H-L({-mult_correction}%)',
                 'count': 'Count'
             }
         )
 
-        # counting recovery
-        count_recovery = multiplier_recovery * (tb_df['L-H(%)'] / multiplier_recovery).apply(lambda x: round(x) if pandas.notnull(x) else x)
+        # Counting recovery
+        count_recovery = mult_recovery * (tb_df['L-H(%)'] / mult_recovery).apply(
+            lambda x: round(x) if pandas.notnull(x) else x
+        )
         recovery_df = count_recovery.value_counts().to_frame().reset_index()
         recovery_df['Count(%)'] = 100 * recovery_df['count'] / recovery_df['count'].sum()
         recovery_df = recovery_df.sort_values(
@@ -1719,21 +661,36 @@ class NSETRI:
         )
         recovery_df = recovery_df.rename(
             columns={
-                'L-H(%)': f'L-H({multiplier_recovery}%)',
+                'L-H(%)': f'L-H({mult_recovery}%)',
                 'count': 'Count'
             }
         )
 
-        # concatenate dataframes
-        dataframes = [
+        # Summay DataFrame
+        summary['Recent Low(L)'] = bottom_df.iloc[-1, -1]
+        summary['Recovery(%)'] = round(100 * (month_df.iloc[-1, -1] - summary['Recent Low(L)']) / summary['Recent Low(L)'], 1)
+        summary_df = pandas.DataFrame(
+            data=summary.values(),
+            index=summary.keys()
+        ).reset_index()
+        summary_df.columns = [
+            'Feature',
+            'Value'
+        ]
+
+        # Concatenate dataframes
+        dfs = [
             summary_df,
             tb_df,
             correction_df,
             recovery_df
         ]
-        level_names = ['Analysis', 'Column name']
+        level_names = [
+            'Analysis',
+            'Column name'
+        ]
         output_df = pandas.concat(
-            dataframes,
+            objs=dfs,
             axis=1,
             keys=[
                 'Summary',
@@ -1744,21 +701,35 @@ class NSETRI:
             names=level_names
         )
 
-        # saving DataFrames
-        with pandas.ExcelWriter(output_excel, engine='xlsxwriter') as excel_writer:
-            output_df.to_excel(excel_writer, index_label=['Row number'])
+        # Saving DataFrames
+        with pandas.ExcelWriter(
+            path=excel_file,
+            engine='xlsxwriter'
+        ) as excel_writer:
+            output_df.to_excel(
+                excel_writer=excel_writer,
+                index_label=['Row number']
+            )
             workbook = excel_writer.book
             worksheet = excel_writer.sheets['Sheet1']
-            # column formatting
-            worksheet.set_column(0, 0, 15, workbook.add_format({'align': 'left'}))
+            worksheet.set_column(0, 0, 15, workbook.add_format({'align': 'center'}))
             for idx, col in enumerate(output_df.columns, start=1):
                 if col[1] == 'Feature':
-                    worksheet.set_column(idx, idx, 15, workbook.add_format({'align': 'left'}))
+                    worksheet.set_column(
+                        idx, idx, 15,
+                        workbook.add_format({'align': 'left'})
+                    )
                 elif any(col[1].startswith(j) for j in ['Month', 'Count']):
-                    worksheet.set_column(idx, idx, 15, workbook.add_format({'align': 'right', 'num_format': '#,##0'}))
+                    worksheet.set_column(
+                        idx, idx, 15,
+                        workbook.add_format({'align': 'right', 'num_format': '#,##0'})
+                    )
                 else:
-                    worksheet.set_column(idx, idx, 15, workbook.add_format({'align': 'right', 'num_format': '#,##0.0'}))
-            # header formatting
+                    worksheet.set_column(
+                        idx, idx, 15,
+                        workbook.add_format({'align': 'right', 'num_format': '#,##0.0'})
+                    )
+            # Header formatting
             header_format = workbook.add_format(
                 {
                     'bold': True,
@@ -1772,14 +743,16 @@ class NSETRI:
             for i, col in enumerate(output_df.columns):
                 worksheet.write(0, i + 1, col[0], header_format)
                 worksheet.write(1, i + 1, col[1], header_format)
-            # color DataFrames
-            colormap = matplotlib.colormaps.get_cmap('Pastel2')
-            color_list = [colormap(i / len(dataframes)) for i in range(len(dataframes))]
+            # Coloring the DataFrames
             colors = [
-                '{:02X}{:02X}{:02X}'.format(*[int(j * 255) for j in i]) for i in color_list
+                'FFB6C1',
+                'FFD700',
+                '7CFC00',
+                '00FFFF'
             ]
             current_col = 1
-            for df, color in zip(dataframes, colors[::-1]):
+            for df, color in zip(dfs, colors):
+                # Non-blank cell coloring
                 worksheet.conditional_format(
                     0, current_col, df.shape[0] + len(level_names), current_col + len(df.columns) - 1,
                     {
@@ -1787,6 +760,7 @@ class NSETRI:
                         'format': workbook.add_format({'bg_color': color})
                     }
                 )
+                # Blank cell coloring
                 worksheet.conditional_format(
                     0, current_col, df.shape[0] + len(level_names), current_col + len(df.columns) - 1,
                     {
