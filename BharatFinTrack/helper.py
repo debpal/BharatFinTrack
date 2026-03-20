@@ -410,7 +410,7 @@ class Helper:
             axis=1
         )
         df['Y-M-D'] = df.apply(
-            lambda row: f'{row['Years']:02d}Y-{row['Months']:02d}M-{row['Days']:02d}D',
+            lambda row: f"{row['Years']:02d}Y-{row['Months']:02d}M-{row['Days']:02d}D",
             axis=1
         )
         df['tot_years'] = df['Years'] + (df['Months'] / 12) + (df['Days'] / 365)
