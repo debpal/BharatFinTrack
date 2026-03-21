@@ -19,37 +19,22 @@ def helper():
     yield BharatFinTrack.helper.Helper()
 
 
-# @pytest.fixture(scope='class')
-# def visual():
+@pytest.fixture(scope='class')
+def cagr():
 
-#     yield BharatFinTrack.Visual()
+    yield BharatFinTrack.CAGR()
 
-
-# @pytest.fixture
-# def message():
-
-#     output = {
-#         'error_date1': "time data '16-Sep-202' does not match format '%d-%b-%Y'",
-#         'error_date2': "time data '20-Se-2024' does not match format '%d-%b-%Y'",
-#         'error_date3': 'Start date 27-Sep-2024 cannot be later than end date 26-Sep-2024.',
-#         'error_lastdate': 'Last date must be equal across all indices in the Excel files.',
-#         'error_index1': '"INVALID" index does not exist.',
-#         'error_index2': '"NIFTY50 USD" index data is not available as open-source.',
-#         'error_df': 'Threshold values return an empty DataFrame.',
-#         'error_close': 'Invalid indices close value type: TRII; must be one of [PRICE, TRI].'
-
-#     }
-
-#     return output
 
 def test_download(
     nse_tri,
+    cagr,
     helper
 ):
 
     with tempfile.TemporaryDirectory() as tmp_dir:
+
+        # Download daily data of index
         index = 'NIFTY ALPHA 50'
-        # Download daily data
         daily_df = nse_tri.download_daily_data(
             index=index,
             start_date='01-Jan-2021',
@@ -61,6 +46,7 @@ def test_download(
         assert daily_df['Date'].iloc[-1].strftime(helper._date_str_fmt) == '31-Dec-2025'
         assert int(daily_df['Close'].iloc[-1]) == 61247
         assert os.path.exists(os.path.join(tmp_dir, f'{index}.csv'))
+
         # Update of downloaded daily data
         update_df = nse_tri.update_daily_data(
             index=index,
@@ -70,6 +56,7 @@ def test_download(
         assert len(update_df) > 0
         assert update_df['Date'].iloc[0].strftime(helper._date_str_fmt) == '31-Dec-2025'
         assert int(update_df['Close'].iloc[0]) == 61247
+
         # Extraction of downloaded daily data
         extract_df = nse_tri.extract_data_between_dates(
             input_csv=os.path.join(tmp_dir, f'{index}.csv'),
@@ -80,6 +67,36 @@ def test_download(
         assert len(extract_df) > 0
         assert extract_df['Date'].iloc[0].strftime(helper._date_str_fmt) != '01-Jun-2025'
         assert extract_df['Date'].iloc[-1].strftime(helper._date_str_fmt) == '01-Aug-2025'
+
+        # Download daily data of another index
+        index1 = 'NIFTY 50'
+        daily_df = nse_tri.download_daily_data(
+            index=index1,
+            start_date='01-Jan-2021',
+            csv_file=os.path.join(tmp_dir, f'{index1}.csv')
+        )
+        assert isinstance(daily_df, pandas.DataFrame)
+        assert len(daily_df) > 0
+        assert os.path.exists(os.path.join(tmp_dir, f'{index1}.csv'))
+
+        # CAGR yearly return
+        cagr_df = cagr.index_yearly_return(
+            csv_file=os.path.join(tmp_dir, f'{index}.csv')
+        )
+        assert isinstance(cagr_df, pandas.DataFrame)
+        assert len(cagr_df) > 5
+
+        # CAGR indices comparison
+        compare_df = cagr.indices_comparison(
+            indices=[
+                'NIFTY 50',
+                'NIFTY ALPHA 50'
+            ],
+            dir_path=tmp_dir,
+            excel_file=os.path.join(tmp_dir, 'cagr_compare.xlsx')
+        )
+        assert isinstance(compare_df, pandas.DataFrame)
+        assert len(compare_df) == 2
 
 
 # def test_equity_tri_daily_closing(
