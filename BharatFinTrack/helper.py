@@ -367,16 +367,22 @@ class Helper:
         historical daily data.
         '''
 
-        # Monthly start dates
+        # All required dates
         ms_dates = pandas.date_range(
             start=start_date,
             end=end_date,
             freq='MS'
-        ).date.tolist()
+        ).date
+        total_dates = pandas.concat(
+            objs=[
+                pandas.Series(ms_dates),
+                pandas.Series([end_date])
+            ]
+        ).drop_duplicates(ignore_index=True).tolist()
 
         # DataFrame of monthly open close value
         month_df = pandas.DataFrame()
-        for idx, dates in enumerate(zip(ms_dates[:-1], ms_dates[1:])):
+        for idx, dates in enumerate(zip(total_dates[:-1], total_dates[1:])):
             idx_df = df[(df['Date'] >= dates[0]) & (df['Date'] < dates[1])]
             month_df.loc[idx, 'Date'] = idx_df.iloc[0, 0]
             month_df.loc[idx, 'Open'] = idx_df.iloc[0, 1]

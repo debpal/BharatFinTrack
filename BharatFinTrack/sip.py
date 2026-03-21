@@ -182,6 +182,7 @@ class SIP:
         # Start and end dates
         start_date = df['Date'].min()
         end_date = df['Date'].max()
+        print(end_date)
 
         # DataFrame of monthly open and close values
         month_df = Helper()._df_tri_monthly_open_close(
@@ -209,6 +210,7 @@ class SIP:
             else:
                 sip_year = year_diff + (date_diff['months'] / 12)
                 yi_df = month_df.copy()
+            # print(yi_df)
             yi_df['Investment'] = invest
             yi_df['Cumulative Investment'] = yi_df['Investment'].cumsum()
             open_nav = yi_df['Open'] / index_divisor
