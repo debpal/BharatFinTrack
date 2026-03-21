@@ -25,9 +25,16 @@ def cagr():
     yield BharatFinTrack.CAGR()
 
 
+@pytest.fixture(scope='class')
+def sip():
+
+    yield BharatFinTrack.SIP()
+
+
 def test_download(
     nse_tri,
     cagr,
+    sip,
     helper
 ):
 
@@ -81,22 +88,47 @@ def test_download(
 
         # CAGR yearly return
         cagr_df = cagr.index_yearly_return(
-            csv_file=os.path.join(tmp_dir, f'{index}.csv')
+            csv_file=os.path.join(tmp_dir, f'{index}.csv'),
+            excel_file=os.path.join(tmp_dir, f'{index}_cagr_yearly.xlsx')
         )
         assert isinstance(cagr_df, pandas.DataFrame)
         assert len(cagr_df) > 5
+        assert os.path.exists(os.path.join(tmp_dir, f'{index}_cagr_yearly.xlsx'))
+
+        # SIP yearly return
+        sip_df = sip.index_yearly_return(
+            csv_file=os.path.join(tmp_dir, f'{index}.csv'),
+            excel_file=os.path.join(tmp_dir, f'{index}_sip_yearly.xlsx')
+        )
+        assert isinstance(sip_df, pandas.DataFrame)
+        assert len(sip_df) > 5
+        assert os.path.exists(os.path.join(tmp_dir, f'{index}_sip_yearly.xlsx'))
+
+        # Index list
+        index_list = [
+            index,
+            index1
+        ]
 
         # CAGR indices comparison
         compare_df = cagr.indices_comparison(
-            indices=[
-                'NIFTY 50',
-                'NIFTY ALPHA 50'
-            ],
+            indices=index_list,
             dir_path=tmp_dir,
             excel_file=os.path.join(tmp_dir, 'cagr_compare.xlsx')
         )
         assert isinstance(compare_df, pandas.DataFrame)
         assert len(compare_df) == 2
+        assert os.path.exists(os.path.join(tmp_dir, 'cagr_compare.xlsx'))
+
+        # SIP indices comparison
+        compare_df = sip.indices_comparison(
+            indices=index_list,
+            dir_path=tmp_dir,
+            excel_file=os.path.join(tmp_dir, 'sip_compare.xlsx')
+        )
+        assert isinstance(compare_df, pandas.DataFrame)
+        assert len(compare_df) == 2
+        assert os.path.exists(os.path.join(tmp_dir, 'sip_compare.xlsx'))
 
 
 # def test_equity_tri_daily_closing(
