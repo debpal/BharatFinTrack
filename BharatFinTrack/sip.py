@@ -126,7 +126,7 @@ class SIP:
                 pandas.Series(
                     {
                         'End Date': end_date,
-                        'Duration': f'{date_diff['years']}Y-{date_diff['months']}M-{date_diff['days']}D'
+                        'Duration': f"{date_diff['years']}Y-{date_diff['months']}M-{date_diff['days']}D"
                     }
                 ),
                 summary.iloc[idx2_loc:]
