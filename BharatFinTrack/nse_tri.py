@@ -551,7 +551,7 @@ class NSETRI:
             start_date=month_df['Date'].iloc[0],
             end_date=end_date
         )
-        summary['Age'] = f'{date_diff['years']}Y-{date_diff['months']}M-{date_diff['days']}D'
+        summary['Age'] = f"{date_diff['years']}Y-{date_diff['months']}M-{date_diff['days']}D"
         total_years = date_diff['years'] + (date_diff['months'] / 12) + (date_diff['days'] / 365)
         summary['Open'] = month_df.iloc[0, 1]
         summary['High(H)'] = month_df.iloc[:, 2].max()
