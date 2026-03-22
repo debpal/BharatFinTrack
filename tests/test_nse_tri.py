@@ -40,7 +40,7 @@ def test_download(
 
     with tempfile.TemporaryDirectory() as tmp_dir:
 
-        # Download daily data of index
+        # Pass test for download daily data of index
         index = 'NIFTY ALPHA 50'
         daily_df = nse_tri.download_daily_data(
             index=index,
@@ -54,7 +54,7 @@ def test_download(
         assert int(daily_df['Close'].iloc[-1]) == 61247
         assert os.path.exists(os.path.join(tmp_dir, f'{index}.csv'))
 
-        # Update of downloaded daily data
+        # Pass test for updation of downloaded daily data
         update_df = nse_tri.update_daily_data(
             index=index,
             csv_file=os.path.join(tmp_dir, f'{index}.csv')
@@ -64,7 +64,7 @@ def test_download(
         assert update_df['Date'].iloc[0].strftime(helper._date_str_fmt) == '31-Dec-2025'
         assert int(update_df['Close'].iloc[0]) == 61247
 
-        # Extraction of downloaded daily data
+        # Pass test for extraction of downloaded daily data
         extract_df = nse_tri.extract_data_between_dates(
             input_csv=os.path.join(tmp_dir, f'{index}.csv'),
             start_date='01-Jun-2025',
@@ -74,6 +74,16 @@ def test_download(
         assert len(extract_df) > 0
         assert extract_df['Date'].iloc[0].strftime(helper._date_str_fmt) != '01-Jun-2025'
         assert extract_df['Date'].iloc[-1].strftime(helper._date_str_fmt) == '01-Aug-2025'
+
+        # Pass test for correction and recovery cycles
+        cr_df = nse_tri.index_correction_recovery_cycles(
+            csv_file=os.path.join(tmp_dir, f'{index}.csv'),
+            excel_file=os.path.join(tmp_dir, f'{index}_correction_recovery.xlsx')
+        )
+        assert isinstance(cr_df, pandas.DataFrame)
+        assert cr_df.shape[1] == 18
+        assert os.path.exists(os.path.join(tmp_dir, f'{index}_correction_recovery.xlsx'))
+        assert True
 
         # Download daily data of another index
         index1 = 'NIFTY 50'
@@ -137,6 +147,13 @@ def test_download(
         )
         assert isinstance(sip_value, pandas.Series)
         assert len(sip_value) == 8
+        # Error test
+        with pytest.raises(Exception) as exc_info:
+            sip.index_return_from_given_date(
+                csv_file=os.path.join(tmp_dir, f'{index}.csv'),
+                yr_mon=(2020, 6)
+            )
+        assert 'SIP start date 01-Jun-2020 is outside the CSV date range' in exc_info.value.args[0]
 
         # SIP investment growth
         growth_df = sip.investment_growth(
