@@ -83,7 +83,6 @@ def test_download(
         assert isinstance(cr_df, pandas.DataFrame)
         assert cr_df.shape[1] == 18
         assert os.path.exists(os.path.join(tmp_dir, f'{index}_correction_recovery.xlsx'))
-        assert True
 
         # Download daily data of another index
         index1 = 'NIFTY 50'
