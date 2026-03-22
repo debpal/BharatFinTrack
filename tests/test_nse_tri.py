@@ -130,6 +130,27 @@ def test_download(
         assert len(compare_df) == 2
         assert os.path.exists(os.path.join(tmp_dir, 'sip_compare.xlsx'))
 
+        # SIP from a give date
+        sip_value = sip.index_return_from_given_date(
+            csv_file=os.path.join(tmp_dir, f'{index}.csv'),
+            yr_mon=(2022, 6)
+        )
+        assert isinstance(sip_value, pandas.Series)
+        assert len(sip_value) == 8
+
+        # SIP investment growth
+        growth_df = sip.investment_growth(
+            invest=1000,
+            frequency='weekly',
+            annual_return=15,
+            years=15,
+            excel_file=os.path.join(tmp_dir, 'sip_growth.xlsx')
+        )
+        assert isinstance(growth_df, pandas.DataFrame)
+        assert len(growth_df) == 15
+        assert round(growth_df.iloc[-1, -1], 2) == 3.41
+        assert os.path.exists(os.path.join(tmp_dir, 'sip_growth.xlsx'))
+
 
 # def test_equity_tri_daily_closing(
 #     nse_tri,

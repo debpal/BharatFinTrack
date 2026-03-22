@@ -182,7 +182,6 @@ class SIP:
         # Start and end dates
         start_date = df['Date'].min()
         end_date = df['Date'].max()
-        print(end_date)
 
         # DataFrame of monthly open and close values
         month_df = Helper()._df_tri_monthly_open_close(
