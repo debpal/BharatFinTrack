@@ -12,18 +12,6 @@ class NSEPRI:
     excluding dividend reinvestment.
     '''
 
-    @property
-    def _url(
-        self
-    ) -> str:
-        '''
-        URL used to download PRI daily data.
-        '''
-
-        output = 'https://www.niftyindices.com/Backpage.aspx/getHistoricaldatatabletoString'
-
-        return output
-
     def _download_daily_summary(
         self,
         http_headers: dict[str, str]
@@ -94,7 +82,7 @@ class NSEPRI:
         self,
         csv_file: str,
         http_headers: typing.Optional[dict[str, str]] = None,
-        untracked_base_equity: bool = False,
+        untracked_base_equity: bool = False
     ) -> pandas.DataFrame:
         '''
         Download closing values for all equity indices.
@@ -111,7 +99,8 @@ class NSEPRI:
             can be obtained via :attr:`BharatFinTrack.helper.Helper._default_http_headers`.
 
         untracked_base_equity : bool, optional
-            If True, print equity indices present in the downloaded data but missing from the in-built base file.
+            If True, print equity indices present in the downloaded data
+            but missing from the in-built base file. Default is False.
 
         Returns
         -------
