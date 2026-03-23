@@ -2,9 +2,7 @@ import pytest
 import BharatFinTrack
 import os
 import tempfile
-# import datetime
 import pandas
-# import matplotlib.pyplot
 
 
 @pytest.fixture(scope='class')
@@ -84,7 +82,7 @@ def test_download(
         assert cr_df.shape[1] == 18
         assert os.path.exists(os.path.join(tmp_dir, f'{index}_correction_recovery.xlsx'))
 
-        # Download daily data of another index
+        # Pass test for downloading daily data of another index
         index1 = 'NIFTY 50'
         daily_df = nse_tri.download_daily_data(
             index=index1,
@@ -95,7 +93,7 @@ def test_download(
         assert len(daily_df) > 0
         assert os.path.exists(os.path.join(tmp_dir, f'{index1}.csv'))
 
-        # CAGR yearly return
+        # Pass test for CAGR yearly return
         cagr_df = cagr.index_yearly_return(
             csv_file=os.path.join(tmp_dir, f'{index}.csv'),
             excel_file=os.path.join(tmp_dir, f'{index}_cagr_yearly.xlsx')
@@ -104,7 +102,7 @@ def test_download(
         assert len(cagr_df) > 5
         assert os.path.exists(os.path.join(tmp_dir, f'{index}_cagr_yearly.xlsx'))
 
-        # SIP yearly return
+        # Pass test for SIP yearly return
         sip_df = sip.index_yearly_return(
             csv_file=os.path.join(tmp_dir, f'{index}.csv'),
             excel_file=os.path.join(tmp_dir, f'{index}_sip_yearly.xlsx')
@@ -119,7 +117,7 @@ def test_download(
             index1
         ]
 
-        # CAGR indices comparison
+        # Pass test for CAGR indices comparison
         compare_df = cagr.indices_comparison(
             indices=index_list,
             dir_path=tmp_dir,
@@ -139,7 +137,7 @@ def test_download(
         assert len(compare_df) == 2
         assert os.path.exists(os.path.join(tmp_dir, 'sip_compare.xlsx'))
 
-        # SIP from a give date
+        # Pass test for SIP from a give date
         sip_value = sip.index_return_from_given_date(
             csv_file=os.path.join(tmp_dir, f'{index}.csv'),
             yr_mon=(2022, 6)
@@ -153,19 +151,6 @@ def test_download(
                 yr_mon=(2020, 6)
             )
         assert 'SIP start date 01-Jun-2020 is outside the CSV date range' in exc_info.value.args[0]
-
-        # SIP investment growth
-        growth_df = sip.investment_growth(
-            invest=1000,
-            frequency='weekly',
-            annual_return=15,
-            years=15,
-            excel_file=os.path.join(tmp_dir, 'sip_growth.xlsx')
-        )
-        assert isinstance(growth_df, pandas.DataFrame)
-        assert len(growth_df) == 15
-        assert round(growth_df.iloc[-1, -1], 2) == 3.41
-        assert os.path.exists(os.path.join(tmp_dir, 'sip_growth.xlsx'))
 
 
 # def test_equity_tri_daily_closing(

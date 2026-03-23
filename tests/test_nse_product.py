@@ -20,7 +20,7 @@ def test_equity_base_parameter_midf(
     nse_product
 ):
 
-    # Pass test
+    # Pass test for MultiIndex DataFrame for base parameters of equity indices
     with tempfile.TemporaryDirectory() as tmp_dir:
         excel_file = os.path.join(tmp_dir, 'equity.xlsx')
         df = nse_product.equity_base_parameter_midf(
@@ -33,7 +33,7 @@ def test_equity_categorical_indices(
     nse_product
 ):
 
-    # Pass test
+    # Pass test for categorical indices
     assert 'NIFTY 500' in nse_product.equity_categorical_indices('broad')
     assert 'NIFTY IT' in nse_product.equity_categorical_indices('sector')
     assert 'NIFTY HOUSING' in nse_product.equity_categorical_indices('thematic')
@@ -45,7 +45,7 @@ def test_equity_index_base_parameters(
     helper
 ):
 
-    # Pass test
+    # Pass test of base parameters for equity indices
     index_df = nse_product.equity_index_base_parameters(
         index='NIFTY100 EQUAL WEIGHT'
     )
