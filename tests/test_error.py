@@ -68,4 +68,4 @@ def test_sip(
 
 def test_github():
 
-    assert str(2) == '2'
+    assert str(1) == '1'

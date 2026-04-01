@@ -3,18 +3,19 @@ import BharatFinTrack
 import os
 import tempfile
 import pandas
-
-
-@pytest.fixture(scope='class')
-def nse_tri():
-
-    yield BharatFinTrack.NSETRI()
+import matplotlib.figure
 
 
 @pytest.fixture(scope='class')
 def helper():
 
     yield BharatFinTrack.helper.Helper()
+
+
+@pytest.fixture(scope='class')
+def nse_tri():
+
+    yield BharatFinTrack.NSETRI()
 
 
 @pytest.fixture(scope='class')
@@ -35,11 +36,18 @@ def analyzer():
     yield BharatFinTrack.Analyzer()
 
 
+@pytest.fixture(scope='class')
+def visual():
+
+    yield BharatFinTrack.Visual()
+
+
 def test_download(
     nse_tri,
     cagr,
     sip,
     analyzer,
+    visual,
     helper
 ):
 
@@ -83,7 +91,7 @@ def test_download(
         assert os.path.exists(os.path.join(tmp_dir, f'{index}_extract.csv'))
 
         # Pass test for correction and recovery cycles
-        cr_df = analyzer.index_correction_recovery_cycles(
+        cr_df = analyzer.correction_recovery_cycles(
             csv_file=os.path.join(tmp_dir, f'{index}.csv'),
             excel_file=os.path.join(tmp_dir, f'{index}_correction_recovery.xlsx')
         )
@@ -103,7 +111,7 @@ def test_download(
         assert os.path.exists(os.path.join(tmp_dir, f'{index1}.csv'))
 
         # Pass test for CAGR yearly return
-        cagr_df = cagr.index_yearly_return(
+        cagr_df = cagr.yearly_return(
             csv_file=os.path.join(tmp_dir, f'{index}.csv'),
             excel_file=os.path.join(tmp_dir, f'{index}_cagr_yearly.xlsx')
         )
@@ -112,7 +120,7 @@ def test_download(
         assert os.path.exists(os.path.join(tmp_dir, f'{index}_cagr_yearly.xlsx'))
 
         # Pass test for SIP yearly return
-        sip_df = sip.index_yearly_return(
+        sip_df = sip.yearly_return(
             csv_file=os.path.join(tmp_dir, f'{index}.csv'),
             excel_file=os.path.join(tmp_dir, f'{index}_sip_yearly.xlsx')
         )
@@ -127,7 +135,7 @@ def test_download(
         ]
 
         # Pass test for CAGR indices comparison
-        compare_df = cagr.indices_comparison(
+        compare_df = cagr.compare_performance(
             indices=index_list,
             dir_path=tmp_dir,
             excel_file=os.path.join(tmp_dir, 'cagr_compare.xlsx')
@@ -137,7 +145,7 @@ def test_download(
         assert os.path.exists(os.path.join(tmp_dir, 'cagr_compare.xlsx'))
 
         # SIP indices comparison
-        compare_df = sip.indices_comparison(
+        compare_df = sip.compare_performance(
             indices=index_list,
             dir_path=tmp_dir,
             excel_file=os.path.join(tmp_dir, 'sip_compare.xlsx')
@@ -147,7 +155,7 @@ def test_download(
         assert os.path.exists(os.path.join(tmp_dir, 'sip_compare.xlsx'))
 
         # Pass test for SIP from a give date
-        sip_value = sip.index_return_from_given_date(
+        sip_value = sip.growth_from_given_date(
             csv_file=os.path.join(tmp_dir, f'{index}.csv'),
             yr_mon=(2022, 6)
         )
@@ -155,8 +163,44 @@ def test_download(
         assert len(sip_value) == 8
         # Error test
         with pytest.raises(Exception) as exc_info:
-            sip.index_return_from_given_date(
+            sip.growth_from_given_date(
                 csv_file=os.path.join(tmp_dir, f'{index}.csv'),
                 yr_mon=(2020, 6)
             )
         assert 'SIP start date 01-Jun-2020 is outside the CSV date range' in exc_info.value.args[0]
+
+        # Pass test of visual for comparing SIP performance
+        figure = visual.compare_sip_to_bond_benchmark(
+            excel_file=os.path.join(tmp_dir, f'{index}_sip_yearly.xlsx'),
+            figure_file=os.path.join(tmp_dir, f'{index}_vs_bond.png'),
+            fig_title='SIP vs bond',
+            gui_window=False
+        )
+        assert isinstance(figure, matplotlib.figure.Figure)
+        assert os.path.exists(os.path.join(tmp_dir, f'{index}_vs_bond.png'))
+
+        # Pass test of visual for comparing SIP performance
+        figure = visual.compare_performance(
+            excel_file=os.path.join(tmp_dir, 'sip_compare.xlsx'),
+            figure_file=os.path.join(tmp_dir, 'sip_compare.png'),
+            fig_title='SIP compare',
+            gui_window=False
+        )
+        assert isinstance(figure, matplotlib.figure.Figure)
+        assert os.path.exists(os.path.join(tmp_dir, 'sip_compare.png'))
+
+
+def test_download_close(
+    nse_tri
+):
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+
+        # Pass test for downloading index close values
+        cv_df = nse_tri.download_equity_close(
+            csv_file=os.path.join(tmp_dir, 'closing_value_test.csv'),
+            test_mode=True
+        )
+        assert isinstance(cv_df, pandas.DataFrame)
+        assert len(cv_df) == 7
+        assert os.path.exists(os.path.join(tmp_dir, 'closing_value_test.csv'))
