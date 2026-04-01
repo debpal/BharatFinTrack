@@ -10,15 +10,15 @@ class CAGR:
     Provide functionalities for computing and analyzing Compound Annual Growth Rate (CAGR).
     '''
 
-    def sort_indices_since_launch(
+    def sort_since_inception(
         self,
         csv_file: str,
         within_category: bool = False,
         excel_file: typing.Optional[str] = None
     ) -> pandas.DataFrame:
         '''
-        Sort indices in descending order by PRI or TRI CAGR (%) since launch,
-        either across all indices or within each category.
+        Sort securities in descending order by CAGR (%) since inception,
+        either across all securities or within each category.
 
         Parameters
         ----------
@@ -28,7 +28,7 @@ class CAGR:
             :meth:`BharatFinTrack.NSEPRI.download_equity_close`.
 
         within_category : bool, optional
-            If True, sort indices within each category; otherwise, sort across all indices.
+            If True, sort securities within each category; otherwise, sort across all securities.
             Default is False.
 
         excel_file : str, optional
@@ -37,13 +37,13 @@ class CAGR:
         Returns
         -------
         DataFrame
-            DataFrame sorted in descending order by either PRI or TRI CAGR (%) since launch.
+            DataFrame sorted in descending order by CAGR (%) since launch.
         '''
 
         # Check static type of input variable origin
         Helper()._validate_variable_origin_static_type(
             vars_types=typing.get_type_hints(
-                obj=self.sort_indices_since_launch
+                obj=self.sort_since_inception
             ),
             vars_values=locals()
         )
@@ -122,22 +122,21 @@ class CAGR:
 
         return df
 
-    def index_yearly_return(
+    def yearly_return(
         self,
         csv_file: str,
         excel_file: typing.Optional[str] = None
     ) -> pandas.DataFrame:
 
         '''
-        Calculate the year-wise CAGR (%) for a given index. Here, year-wise refers to the
+        Calculate the year-wise CAGR (%) for a given security. Here, year-wise refers to the
         CAGR calculated for periods ending on the present date, going back one year, two years,
         three years, and so on, up to the available data range.
 
         Parameters
         ----------
         csv_file : str
-            Path to the CSV file obtained from :meth:`BharatFinTrack.NSETRI.download_daily_data`
-            and :meth:`BharatFinTrack.NSETRI.update_daily_data` methods.
+            Path to the CSV file obtained from :meth:`BharatFinTrack.NSETRI.download_daily_data`.
 
         excel_file : str, optional
             Path to an Excel file to save the output DataFrame. Default is None.
@@ -145,13 +144,13 @@ class CAGR:
         Returns
         -------
         DataFrame
-            A DataFrame containing the yearly CAGR (%).
+            DataFrame containing the yearly CAGR (%).
         '''
 
         # Check static type of input variable origin
         Helper()._validate_variable_origin_static_type(
             vars_types=typing.get_type_hints(
-                obj=self.index_yearly_return
+                obj=self.yearly_return
             ),
             vars_values=locals()
         )
@@ -233,7 +232,7 @@ class CAGR:
 
         return cagr_df
 
-    def indices_comparison(
+    def compare_performance(
         self,
         indices: list[str],
         dir_path: str,
@@ -241,23 +240,22 @@ class CAGR:
     ) -> pandas.DataFrame:
         '''
         Generate two DataFrames that compare year-wise CAGR (%) and growth multiple (X)
-        of a yearly fixed investment across multiple indices. Here, year-wise refers to the
+        of a yearly fixed investment across multiple securities. Here, year-wise refers to the
         CAGR calculated for periods ending on the present date, going back one year, two years, and so on,
         up to the available data range. The output DataFrames are saved to an Excel file,
-        where the cells with the best performance among indices for each year are highlighted
+        where the cells with the best performance among securities for each year are highlighted
         in green-yellow, and those with the worst performance are highlighted in sandy brown.
 
-        Additionally, a scoring mechanism is implemented for the indices based on their growth values.
-        For each year, indices are ranked in ascending order of growth, with the lowest value
+        Additionally, a scoring mechanism is implemented for the securities based on their growth values.
+        For each year, securities are ranked in ascending order of growth, with the lowest value
         receiving the lowest score (1), and the highest value receiving the highest score.
-        The total scores for each index are calculated by summing their yearly scores.
-        Indices are then sorted in descending order based on their total scores,
-        and the results are converted into a DataFrame with columns 'Index Name' and 'Score'.
+        The total scores for each security are calculated by summing their yearly scores.
+        Securities are then sorted in descending order based on their total scores.
 
         Parameters
         ----------
         indices : list
-            A list of index names to compare in the CAGR (%) and growth multiple (X).
+            A list of index (security) names to compare in the CAGR (%) and growth multiple (X).
 
         dir_path : str
             Path to the directory containing CSV files with historical data for each index.
@@ -278,7 +276,7 @@ class CAGR:
         # Check static type of input variable origin
         Helper()._validate_variable_origin_static_type(
             vars_types=typing.get_type_hints(
-                obj=self.indices_comparison
+                obj=self.compare_performance
             ),
             vars_values=locals()
         )
@@ -289,15 +287,15 @@ class CAGR:
             input_ext='.xlsx'
         )
 
-        # Validate equal close date across all indices
+        # Validate equal close date across all securities
         Helper()._validate_same_end_date_in_dfs(
             indices=indices,
             dir_path=dir_path,
         )
 
-        # Year-wise CAGR analysis for all indices
+        # Year-wise CAGR analysis for all securities
         dfs = [
-            self.index_yearly_return(
+            self.yearly_return(
                 csv_file=os.path.join(dir_path, f'{index}.csv')
             ) for index in indices
         ]

@@ -10,7 +10,7 @@ class SIP:
     Provide functionalities for computing and analyzing Systematic Investment Plan (SIP).
     '''
 
-    def index_return_from_given_date(
+    def growth_from_given_date(
         self,
         csv_file: str,
         yr_mon: typing.Optional[tuple[int, int]] = None,
@@ -24,8 +24,7 @@ class SIP:
         Parameters
         ----------
         csv_file : str
-            Path to the CSV file obtained from :meth:`BharatFinTrack.NSETRI.download_daily_data`
-            and :meth:`BharatFinTrack.NSETRI.update_daily_data` methods.
+            Path to the CSV file obtained from :meth:`BharatFinTrack.NSETRI.download_daily_data`.
 
         yr_mon : tuple, optional
             Tuple containing the year and month (1–12), respectively, from which the SIP investment begins.
@@ -43,7 +42,7 @@ class SIP:
         # Check static type of input variable origin
         Helper()._validate_variable_origin_static_type(
             vars_types=typing.get_type_hints(
-                obj=self.index_return_from_given_date
+                obj=self.growth_from_given_date
             ),
             vars_values=locals()
         )
@@ -135,7 +134,7 @@ class SIP:
 
         return summary
 
-    def index_yearly_return(
+    def yearly_return(
         self,
         csv_file: str,
         invest: int = 1000,
@@ -143,14 +142,13 @@ class SIP:
     ) -> pandas.DataFrame:
         '''
         Compute the year-wise closing value, growth multiples, and annualized XIRR (%)
-        of a fixed monthly SIP tracking an index, assuming investments are made on the
+        of a fixed monthly SIP tracking a security, assuming investments are made on the
         first available trading date of each month.
 
         Parameters
         ----------
         csv_file : str
-            Path to the CSV file obtained from :meth:`BharatFinTrack.NSETRI.download_daily_data`
-            and :meth:`BharatFinTrack.NSETRI.update_daily_data` methods.
+            Path to the CSV file obtained from :meth:`BharatFinTrack.NSETRI.download_daily_data`.
 
         invest : int
             Fixed investment amount contributed on the first date of each month.
@@ -168,7 +166,7 @@ class SIP:
         # Check static type of input variable origin
         Helper()._validate_variable_origin_static_type(
             vars_types=typing.get_type_hints(
-                obj=self.index_yearly_return
+                obj=self.yearly_return
             ),
             vars_values=locals()
         )
@@ -209,7 +207,6 @@ class SIP:
             else:
                 sip_year = year_diff + (date_diff['months'] / 12)
                 yi_df = month_df.copy()
-            # print(yi_df)
             yi_df['Investment'] = invest
             yi_df['Cumulative Investment'] = yi_df['Investment'].cumsum()
             open_nav = yi_df['Open'] / index_divisor
@@ -217,7 +214,7 @@ class SIP:
             yi_df['Cumulative Unit'] = yi_df['Unit'].cumsum()
             close_nav = yi_df['Close'] / index_divisor
             yi_df['Portfolio Value'] = yi_df['Cumulative Unit'] * close_nav
-            # year-wise SIP summary
+            # Year-wise SIP summary
             sip_df.loc[idx, 'Year'] = sip_year
             sip_df.loc[idx, 'Start Date'] = yi_df.loc[0, 'Date']
             sip_df.loc[idx, 'Investment'] = yi_df['Cumulative Investment'].iloc[-1]
@@ -265,7 +262,7 @@ class SIP:
 
         return sip_df
 
-    def indices_comparison(
+    def compare_performance(
         self,
         indices: list[str],
         dir_path: str,
@@ -273,22 +270,21 @@ class SIP:
     ) -> pandas.DataFrame:
         '''
         Generate two DataFrames that compares year-wise XIRR (%) and
-        growth multiple (X) on the first date SIP investment of each month across multiple indices.
+        growth multiple (X) on the first date SIP investment of each month across multiple securities.
         The output DataFrame are saved to an Excel file, where the cells with
-        the best performance among indices for each year are highlighted in green-yellow,
+        the best performance among securities for each year are highlighted in green-yellow,
         and those with the worst performance are highlighted in sandy brown.
 
-        Additionally, a scoring mechanism is implemented for the indices based on their growth values.
+        Additionally, a scoring mechanism is implemented for the securities based on their growth values.
         For each year, indices are ranked in ascending order of growth, with the lowest value
         receiving the lowest score (1), and the highest value receiving the highest score.
-        The total scores for each index are calculated by summing their yearly scores.
-        Indices are then sorted in descending order based on their total scores,
-        and the results are converted into a DataFrame with columns 'Index Name' and 'Score'.
+        The total scores for each security are calculated by summing their yearly scores.
+        Securities are then sorted in descending order based on their total scores.
 
         Parameters
         ----------
         indices : list
-            A list of index names to compare in the monthly SIP XIRR (%) and growth multiple (X).
+            A list of index (security) names to compare in the monthly SIP XIRR (%) and growth multiple (X).
 
         dir_path : str
             Path to the directory containing CSV files with historical data for each index.
@@ -309,7 +305,7 @@ class SIP:
         # Check static type of input variable origin
         Helper()._validate_variable_origin_static_type(
             vars_types=typing.get_type_hints(
-                obj=self.indices_comparison
+                obj=self.compare_performance
             ),
             vars_values=locals()
         )
@@ -320,15 +316,15 @@ class SIP:
             input_ext='.xlsx'
         )
 
-        # Validate equal close date across all indices
+        # Validate equal close date across all securities
         Helper()._validate_same_end_date_in_dfs(
             indices=indices,
             dir_path=dir_path,
         )
 
-        # Year-wise SIP analysis for all indices
+        # Year-wise SIP analysis for all securities
         dfs = [
-            self.index_yearly_return(
+            self.yearly_return(
                 csv_file=os.path.join(dir_path, f'{index}.csv')
             ) for index in indices
         ]
@@ -364,7 +360,6 @@ class SIP:
         years: int,
         excel_file: typing.Optional[str] = None
     ) -> pandas.DataFrame:
-
         '''
         Calculate the SIP growth over a specified number of years for a fixed investment amount.
 
@@ -423,12 +418,12 @@ class SIP:
         for yr in range(years):
             df.loc[yr, 'Year'] = yr + 1
             if yr == 0:
-                df.loc[yr, 'Invest'] = freq_value[frequency] * invest
+                df.loc[yr, 'Investment'] = freq_value[frequency] * invest
             else:
-                df.loc[yr, 'Invest'] = df.loc[yr - 1, 'Invest'] + freq_value[frequency] * invest
+                df.loc[yr, 'Investment'] = df.loc[yr - 1, 'Investment'] + freq_value[frequency] * invest
             total_freq = (yr + 1) * freq_value[frequency]
-            df.loc[yr, 'Value'] = invest * (1 + cagr) * (((1 + cagr) ** total_freq - 1) / cagr)
-        df['Multiple(X)'] = df['Value'] / df['Invest']
+            df.loc[yr, 'Close Value'] = invest * (1 + cagr) * (((1 + cagr) ** total_freq - 1) / cagr)
+        df['Multiple(X)'] = df['Close Value'] / df['Investment']
 
         # Save the DataFrame
         if excel_file is not None:
