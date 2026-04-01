@@ -4,6 +4,7 @@ from .nse_tri import NSETRI
 from .cagr import CAGR
 from .sip import SIP
 from .analyzer import Analyzer
+from .visual import Visual
 
 
 __all__ = [
@@ -12,7 +13,8 @@ __all__ = [
     'NSETRI',
     'CAGR',
     'SIP',
-    'Analyzer'
+    'Analyzer',
+    'Visual'
 ]
 
 
