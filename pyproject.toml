@@ -19,7 +19,8 @@ dependencies = [
     "openpyxl",
     "xlsxwriter",
     "beautifulsoup4",
-    "pyxirr"
+    "pyxirr",
+    "matplotlib"
 ]
 readme = "README.md"
 license = "MIT"
