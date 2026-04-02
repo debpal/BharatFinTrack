@@ -23,16 +23,15 @@
     
 * Provides access to detailed information about equity indices.
 * Enables downloading and updating daily Total Return Index (`TRI`) data for all equity indices.
-* Fetches closing values for both `Price` (excluding dividend reinvestment) and `TRI` for all equity indices.
+* Fetches closing values for both Price Return Index (`PRI`), excluding dividend reinvestment, and `TRI` for all equity indices.
 * Identifies key turning points in consecutive corrections and recoveries over the historical values of an index.
 
 
 ## Compound Annual Growth Rate (CAGR)
     
-* Calculates CAGR for both `Price` and `TRI` indices since the inception.
-* Compare CAGR (%) between `Price` and `TRI` indices.
-* Sorts `Price` and `TRI` indices by CAGR (%) values.
-* Sorts `Price` and `TRI` indices by CAGR (%) within each category.
+* Calculates CAGR for both `PRI` and `TRI` indices since the inception.
+* Sorts `PRI` and `TRI` indices by CAGR (%) values.
+* Sorts `PRI` and `TRI` indices by CAGR (%) within each category.
 * Compares the year-wise CAGR (%) and growth of a fixed yearly investment across multiple `TRI` indices.
 
     
@@ -44,33 +43,28 @@
 * Estimates annual SIP performance, including investment amount, closing balance, and cumulative growth over a specified number of years and expected annual return, with options for yearly, quarterly, monthly, or weekly contributions.
 
 
-
 ## Visualization
 
-* Displays bar graphs of `Price` and `TRI` index closing values with descending CAGR (%) since inception, both overall and by index category.
 * Shows bar graphs of top-performing `Price` and `TRI` indices by CAGR (%) since launch, with options to view a specified number of top indices, either overall or within each category.
-* Depicts a bar graph of year-wise investments and returns for a monthly SIP of 1,000 Rupees in a specified `TRI` index since its inception.
-* Provides a return comparison between a specified index and government bonds for a monthly SIP of 1,000 Rupees over the years.
+* Compares returns between a specified index and government securities for a monthly SIP of 1 Rupee over time.
 * Illustrates a line plot comparing the growth of a monthly SIP investment across multiple NSE equity `TRI` indices over the years.
+* Depicts a line plot comparing the growth of a one-time investment across multiple NSE equity `TRI` indices over the years.
 
 
+# Application
+`BharatFinTrack` provides insights into the performance of equity indices. For instance, the following bar plot highlights the top five equity indices by `TRI` CAGR (%) within each category since their respective launches. This snapshot provides a powerful visual overview of long-term performance trends of CAGR (%) across different index categories over the years.
 
+![Category-wise Top Five TRI CAGR(%) of NSE Equity Indices](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/sort_cagr_within_category.png)
 
-# Example Insights
-Using `BharatFinTrack`, you can quickly gain insights into the performance of equity indices. For instance, the following bar plot highlights the top five equity indices by `TRI` CAGR (%) within each category since their respective launches. This snapshot provides a powerful visual overview of long-term performance trends of investment multiples (X) across different index categories over the years. Because performance data updates daily with each trading session, you can replicate and customize this analysis to generate up-to-date insights tailored to your research needs or investment strategies.
+In the above graph, the `NIFTY MIDCAP150 MOMENTUM 50` stands out as one of the best-performing NSE equity indices within the strategy category in terms of long-term CAGR (%). The following graph presents a comparison of year-wise investments and returns for a monthly SIP of 1 Rupee between government securities and a passive fund tracking the TRI of `NIFTY MIDCAP150 MOMENTUM 50`.
 
-![Category-wise Top Five TRI CAGR(%) of NSE Equity Indices](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/tri_top_cagr_by_category.png)
-
-In the above graph, the `NIFTY MIDCAP150 MOMENTUM 50` emerges as one of the best-performing NSE equity `TRI` indices in terms of long-term CAGR. The next graph illustrates a comparison of year-wise investments and returns for a monthly SIP of 1,000 Rupees between a government bond and a passive fund tracking the `TRI` data of `NIFTY MIDCAP150 MOMENTUM 50`.
-
-![Year-wise SIP comparison between Government Bond and NIFTY_MIDCAP150_MOMENTUM_50](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/sip_gsec_vs_NIFTY_MIDCAP150_MOMENTUM_50.png)
+![Year-wise SIP comparison between NIFTY_MIDCAP150_MOMENTUM_50 and Government Bond](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/sip_growth_vs_bond.png)
 
 Additionally, the following plot compares the growth multiples (X) of a monthly SIP investment across `TRI` indices, including the popular index `NIFTY 50` and other top-performing NSE equity indices over the years.
 
+![Year-wise SIP growth comparison across multiple indices](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/compare_sip.png)
 
-![Year-wise SIP growth comparison across multiple indices](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/compare_yearwise_sip_growth.png)
-
-## Easy Installation
+## Installation
 
 To install, use pip:
 
@@ -78,21 +72,11 @@ To install, use pip:
 pip install BharatFinTrack
 ```
 
-## Quickstart
-A brief example of how to start:
+After a successful installation, the following code should run without errors:
 
 ```python
->>> import BharatFinTrack
->>> nse_product = BharatFinTrack.NSEProduct()
->>> nse_product.equity_index_category
-['broad', 'sector', 'thematic', 'strategy', 'variant']
-
-# list of all NSE equity indices
->>> nse_product.all_equity_indices
-['NIFTY 100',
- 'NIFTY 200',
- 'NIFTY 50',
- ...]
+import BharatFinTrack
+nse_product = BharatFinTrack.NSEProduct()
 ```
 
 ## Documentation
