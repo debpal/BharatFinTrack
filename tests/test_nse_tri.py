@@ -99,6 +99,17 @@ def test_download(
         assert cr_df.shape[1] == 18
         assert os.path.exists(os.path.join(tmp_dir, f'{index}_correction_recovery.xlsx'))
 
+        # Pass test for correction and recovery cycles with length of top DataFrame is 1
+        cr_df = analyzer.correction_recovery_cycles(
+            csv_file=os.path.join(
+                os.path.dirname(__file__), 'sample_data', 'daily_data', 'index_1.csv'
+            ),
+            excel_file=os.path.join(tmp_dir, f'{index}_correction_recovery_tdf1.xlsx')
+        )
+        assert isinstance(cr_df, pandas.DataFrame)
+        assert cr_df.shape[1] == 18
+        assert os.path.exists(os.path.join(tmp_dir, f'{index}_correction_recovery_tdf1.xlsx'))
+
         # Pass test for downloading daily data of another index
         index1 = 'NIFTY 50'
         daily_df = nse_tri.download_daily_data(
