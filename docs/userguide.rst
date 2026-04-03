@@ -213,7 +213,7 @@ The following code plots the top five equity indices by ``TRI`` CAGR (%) within 
 
 SIP Comparison with Government Securities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The following code displays a bar plot comparing SIP returns over time for the ``TRI`` data of the ``NIFTY MIDCAP150 MOMENTUM 50`` index and government securities with an assumed yield.
+The following code displays a bar plot comparing SIP returns over time for the ``TRI`` data of an index and government securities with an assumed yield.
 
 .. code-block:: python
     

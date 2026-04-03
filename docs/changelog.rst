@@ -2,6 +2,16 @@
 Release Notes
 ===============
 
+Version 0.3.0
+---------------
+
+* **Release date:** 03-Apr-2026
+  
+* **Feature Additions:**
+
+    * Refactored and renamed classes and methods.
+    * Consolidated similar methods.
+    * Removed non-essential methods.
 
 Version 0.2.2
 ---------------
@@ -27,7 +37,7 @@ Version 0.2.0
 * **Feature Additions:**
 
     * Added API support for newly launched NSE equity indices.
-    * Enhanced the correction and recovery analysis in index history via the :meth:`BharatFinTrack.NSETRI.analyze_correction_recovery` method.
+    * Enhanced the correction and recovery analysis in index history.
     
 * **Documentation:** Updated to reflect the newly introduced features.
 
@@ -41,8 +51,6 @@ Version 0.1.10
 
     * Added support for newly launched NSE equity indices.
     * Ensured compatibility with Python 3.13.
-    
-* **Bug Fixes:** Issues with the API used to fetch data.
 
 
 Version 0.1.9
@@ -54,7 +62,6 @@ Version 0.1.9
 
     * Added support for newly launched NSE equity indices.
     * Enhanced functionality for SIP comparison across indices in the :class:`BharatFinTrack.NSETRI` class.
-    
     
 * **Development Status:** Upgraded from Beta to Production/Stable.
 
@@ -79,7 +86,7 @@ Version 0.1.7
 * **Feature Additions:** 
 
     * Added support for newly launched NSE equity indices.
-    * Enhanced functionality for calculating the CAGR difference between `Price` and `TRI` indices in the :class:`BharatFinTrack.NSETRI` class.
+    * Enhanced functionality for calculating the CAGR difference between Price Return Index and Total Return Index in the :class:`BharatFinTrack.NSETRI` class.
     * Improved data visualization capabilities in the :class:`BharatFinTrack.Visual` class.
 
 
@@ -102,7 +109,7 @@ Version 0.1.5
 * **Feature Additions:**
 
     * Introduced the :class:`BharatFinTrack.Visual` class for data visualization.
-    * Added the :meth:`BharatFinTrack.Visual.plot_category_sort_index_cagr_from_launch` method for plotting the descending sort of CAGR (%) by index category since inception.
+    * Added a method for plotting the descending sort of CAGR (%) by index category since inception.
 
 
 Version 0.1.4
@@ -111,8 +118,6 @@ Version 0.1.4
 * **Release date:** 09-Oct-2024
   
 * **Feature Additions:** Updates the pre-downloaded Excel file of daily Total Return Index data for a specified index from the last date to the present.
-    
-* **Changes:** Deprecated :meth:`BharatFinTrack.NSETRI.download_equity_indices_updated_value` and renamed :meth:`BharatFinTrack.NSETRI.download_daily_summary_equity_closing`.
 
 
 Version 0.1.3
@@ -125,8 +130,6 @@ Version 0.1.3
     * Fetches updated Total Return Index values for all NSE equity indices.
     * Sorts the CAGR (%) of all NSE equity TRI values since launch.
 
-* **Bug Fixes:** Issues with the API used to fetch Total Return Index data.
-
 * **Development Status:** Upgraded from Alpha to Beta.
 
 
@@ -134,8 +137,6 @@ Version 0.1.2
 ---------------
 
 * **Release date:** 04-Oct-2024
-  
-* **Changes:** Deprecated :meth:`BharatFinTrack.NSEIndex.all_equity_index_cagr_from_inception`.
     
 * **Feature Additions:** Added functionality for sorting the CAGR (%) of all NSE equity index prices since launch.
 
@@ -146,7 +147,7 @@ Version 0.1.1
 * **Release date:** 02-Oct-2024
 
 * **Feature Additions:** Introduced the :class:`BharatFinTrack.NSEIndex` class, which currently calculates the CAGR(%) of all NSE equity indices
-  (excluding dividend reinvestment) from inception. Additional features are planned for future releases.
+  (excluding dividend reinvestment) from inception.
 
 * **Documentation:** Updated to reflect the newly introduced features.
 
@@ -158,10 +159,9 @@ Version 0.1.0
 
 * **Release date:** 30-Sep-2024.
 
-* **Feature Additions:** Introduced :class:`BharatFinTrack.NSETRI` class, which facilitates downloading Total Return Index data for all NSE equity indices.
- 
-* **Changes:** 
+* **Feature Additions:**
 
+    * Introduced :class:`BharatFinTrack.NSETRI` class, which facilitates downloading Total Return Index data for all NSE equity indices.
     * Renamed class :class:`BharatFinTrack.NSETrack` to :class:`BharatFinTrack.NSEProduct` for improved clarity.
     * Updated and renamed methods in the new class :class:`BharatFinTrack.NSEProduct`.
 
