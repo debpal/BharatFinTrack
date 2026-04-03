@@ -10,12 +10,6 @@
 | **License** | ![GitHub License](https://img.shields.io/github/license/debpal/BharatFinTrack) |
 
 
-> ⚠️ **Warning**
->
-> BharatFinTrack is currently undergoing a significant revision.
-> A new version will be released soon, which may include breaking changes.
-
-
 `BharatFinTrack` is a Python package designed to simplify the process of downloading and analyzing financial data from India. Conceptualized on September 1, 2024, and launched on September 8, 2024, this package is tailored for long-term investors seeking to streamline their financial data workflows. The package focuses on open-source financial data, with an initial emphasis on analyzing [Nifty Equity Indices](https://www.niftyindices.com/). However, it is important to note that the package does not include features for technical indicators or real-time trading. Active development is ongoing, with exciting new features planned for future releases. The package aims to empower users by providing easy access to open-source data, enabling them to make informed financial decisions. Currently, the package offers the following features:
 
 
