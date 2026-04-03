@@ -49,9 +49,8 @@ class NSETRI:
 
         http_headers : dict, optional
             HTTP header dictionary used for the web request. If the default header is not suitable
-            for the user's environment,a custom header must be provided. The header must include
-            the key ``content-type`` with value ``application/json; charset=UTF-8``. The default header
-            can be obtained via :attr:`BharatFinTrack.helper.Helper._default_http_headers`.
+            for the user's environment, a custom header must be provided. The header must include
+            the key ``content-type`` with value ``application/json; charset=UTF-8``.
 
         csv_file : str, optional
             File path where the resulting DataFrame will be saved as a CSV file.
@@ -148,9 +147,8 @@ class NSETRI:
 
         http_headers : dict, optional
             HTTP header dictionary used for the web request. If the default header is not suitable
-            for the user's environment,a custom header must be provided. The header must include
-            the key ``content-type`` with value ``application/json; charset=UTF-8``. The default header
-            can be obtained via :attr:`BharatFinTrack.helper.Helper._default_http_headers`.
+            for the user's environment, a custom header must be provided. The header must include
+            the key ``content-type`` with value ``application/json; charset=UTF-8``.
 
         Returns
         -------
@@ -215,9 +213,8 @@ class NSETRI:
 
         http_headers : dict, optional
             HTTP header dictionary used for the web request. If the default header is not suitable
-            for the user's environment,a custom header must be provided. The header must include
-            the key ``content-type`` with value ``application/json; charset=UTF-8``. The default header
-            can be obtained via :attr:`BharatFinTrack.helper.Helper._default_http_headers`.
+            for the user's environment, a custom header must be provided. The header must include
+            the key ``content-type`` with value ``application/json; charset=UTF-8``.
 
         test_mode : bool, optional
             If True, the function will use a mocked DataFrame for testing purposes

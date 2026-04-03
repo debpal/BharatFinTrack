@@ -94,9 +94,8 @@ class NSEPRI:
 
         http_headers : dict, optional
             HTTP header dictionary used for the web request. If the default header is not suitable
-            for the user's environment,a custom header must be provided. The header must include
-            the key ``content-type`` with value ``application/json; charset=UTF-8``. The default header
-            can be obtained via :attr:`BharatFinTrack.helper.Helper._default_http_headers`.
+            for the user's environment, a custom header must be provided. The header must include
+            the key ``content-type`` with value ``application/json; charset=UTF-8``.
 
         untracked_base_equity : bool, optional
             If True, print equity indices present in the downloaded data
