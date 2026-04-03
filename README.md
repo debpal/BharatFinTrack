@@ -30,8 +30,7 @@
 ## Compound Annual Growth Rate (CAGR)
     
 * Calculates CAGR for both `PRI` and `TRI` indices since the inception.
-* Sorts `PRI` and `TRI` indices by CAGR (%) values.
-* Sorts `PRI` and `TRI` indices by CAGR (%) within each category.
+* Sorts `PRI` and `TRI` indices by CAGR (%) either overall or within each category.
 * Compares the year-wise CAGR (%) and growth of a fixed yearly investment across multiple `TRI` indices.
 
     
@@ -45,7 +44,7 @@
 
 ## Visualization
 
-* Shows bar graphs of top-performing `Price` and `TRI` indices by CAGR (%) since launch, with options to view a specified number of top indices, either overall or within each category.
+* Shows bar graphs of top-performing `PRI` and `TRI` indices by CAGR (%) since launch, with options to view a specified number of top indices, either overall or within each category.
 * Compares returns between a specified index and government securities for a monthly SIP of 1 Rupee over time.
 * Illustrates a line plot comparing the growth of a monthly SIP investment across multiple NSE equity `TRI` indices over the years.
 * Depicts a line plot comparing the growth of a one-time investment across multiple NSE equity `TRI` indices over the years.
@@ -58,7 +57,7 @@
 
 In the above graph, the `NIFTY MIDCAP150 MOMENTUM 50` stands out as one of the best-performing NSE equity indices within the strategy category in terms of long-term CAGR (%). The following graph presents a comparison of year-wise investments and returns for a monthly SIP of 1 Rupee between government securities and a passive fund tracking the TRI of `NIFTY MIDCAP150 MOMENTUM 50`.
 
-![Year-wise SIP comparison between NIFTY_MIDCAP150_MOMENTUM_50 and Government Bond](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/sip_growth_vs_bond.png)
+![Year-wise SIP comparison between NIFTY_MIDCAP150_MOMENTUM_50 and Government Bond](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/sip_growth_vs_bond_benchmark.png)
 
 Additionally, the following plot compares the growth multiples (X) of a monthly SIP investment across `TRI` indices, including the popular index `NIFTY 50` and other top-performing NSE equity indices over the years.
 
