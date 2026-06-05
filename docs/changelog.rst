@@ -2,6 +2,14 @@
 Release Notes
 ===============
 
+Version 0.3.1
+---------------
+
+* **Release date:** 05-Jun-2026
+  
+* **Compatibity:** Verified compatibility with Python 3.14, including packaging, publishing, linting, type checking, and testing.
+
+
 Version 0.3.0
 ---------------
 
@@ -12,6 +20,7 @@ Version 0.3.0
     * Refactored and renamed classes and methods.
     * Consolidated similar methods.
     * Removed non-essential methods.
+
 
 Version 0.2.2
 ---------------
