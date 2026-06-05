@@ -164,4 +164,4 @@ def test_visual(
 
 def test_github():
 
-    assert str(1) == '1'
+    assert str(2) == '2'
