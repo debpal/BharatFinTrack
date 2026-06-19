@@ -95,7 +95,7 @@ class Helper:
         '''
 
         file_path = os.path.join(
-            os.path.dirname(__file__), 'index_base', 'base_equity.xlsx'
+            os.path.dirname(__file__), 'base_data', 'base_equity_index.xlsx'
         )
 
         dataframes = pandas.read_excel(
