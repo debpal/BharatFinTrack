@@ -23,6 +23,12 @@ def sip():
 
 
 @pytest.fixture(scope='class')
+def nps():
+
+    yield BharatFinTrack.NPS()
+
+
+@pytest.fixture(scope='class')
 def visual():
 
     yield BharatFinTrack.Visual()
@@ -160,6 +166,25 @@ def test_visual(
                 figure_file=os.path.join(tmp_dir, 'fig_ext.pn')
             )
         assert 'Input figure_file extension ".pn" is not supported' in exc_info.value.args[0]
+
+
+def test_nps(
+    nps
+):
+
+    # Error test for invalid PFM name
+    with pytest.raises(Exception) as exc_info:
+        nps._validate_pfm_name(
+            pfm_name='invalid_pfm'
+        )
+    assert 'Invalid PFM name: invalid_pfm' in exc_info.value.args[0]
+
+    # Error test for invalid PFM scheme identifier
+    with pytest.raises(Exception) as exc_info:
+        nps._validate_scheme_ids(
+            scheme_ids=['invalid_id']
+        )
+    assert exc_info.value.args[0] == 'Invalid scheme identifier: invalid_id'
 
 
 def test_github():
