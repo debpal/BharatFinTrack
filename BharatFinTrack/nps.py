@@ -57,7 +57,8 @@ class NPS:
         return None
 
     def _download_base_parameters(
-        self
+        self,
+        save_base: bool = False
     ) -> pandas.DataFrame:
         '''
         Download, clean, and return the latest NPS base parameters DataFrame.
@@ -92,13 +93,14 @@ class NPS:
         df = df[['PFM', 'SCHEME', 'ID']]
 
         # Writing Dataframe
-        excel_file = os.path.join(
-            os.path.dirname(__file__), 'base_data', 'base_nps.xlsx'
-        )
-        self._base_df_to_excel(
-            df=df,
-            excel_file=excel_file
-        )
+        if save_base:
+            excel_file = os.path.join(
+                os.path.dirname(__file__), 'base_data', 'base_nps.xlsx'
+            )
+            self._base_df_to_excel(
+                df=df,
+                excel_file=excel_file
+            )
 
         return df
 
@@ -295,13 +297,13 @@ class NPS:
 
         return None
 
-    def schemes_nav(
+    def schemes_latest_nav(
         self,
         scheme_ids: typing.Optional[list[str]] = None,
         excel_file: typing.Optional[str] = None
     ) -> pandas.DataFrame:
         '''
-        Fetch the Net Asset Value (NAV) history for the specified NPS schemes.
+        Fetch the latest NAV for the specified NPS schemes across different Pension Fund Managers.
 
         Parameters
         ----------
@@ -322,7 +324,7 @@ class NPS:
         # Check static type of input variable origin
         Helper()._validate_variable_origin_static_type(
             vars_types=typing.get_type_hints(
-                obj=self.schemes_nav
+                obj=self.schemes_latest_nav
             ),
             vars_values=locals()
         )
