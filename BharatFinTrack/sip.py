@@ -24,7 +24,10 @@ class SIP:
         Parameters
         ----------
         csv_file : str
-            Path to the CSV file obtained from :meth:`BharatFinTrack.NSETRI.download_daily_data`.
+            Path to the CSV file obtained from the following methods:
+
+            - :meth:`BharatFinTrack.NSETRI.download_daily_data`
+            - :meth:`BharatFinTrack.NPS.scheme_historical_nav`
 
         yr_mon : tuple, optional
             Tuple containing the year and month (1–12), respectively, from which the SIP investment begins.
@@ -148,7 +151,10 @@ class SIP:
         Parameters
         ----------
         csv_file : str
-            Path to the CSV file obtained from :meth:`BharatFinTrack.NSETRI.download_daily_data`.
+            Path to the CSV file obtained from the following methods:
+
+            - :meth:`BharatFinTrack.NSETRI.download_daily_data`
+            - :meth:`BharatFinTrack.NPS.scheme_historical_nav`
 
         invest : int
             Fixed investment amount contributed on the first date of each month.
@@ -289,9 +295,10 @@ class SIP:
         dir_path : str
             Path to the directory containing CSV files with historical data for each index.
             Each CSV file must be named as ``{index}.csv`` corresponding to the index names
-            provided in the ``indices`` list. These files should be obtained from
-            :meth:`BharatFinTrack.NSETRI.download_daily_data` and
-            :meth:`BharatFinTrack.NSETRI.update_daily_data` methods.
+            provided in the ``indices`` list. These files should be obtained from:
+
+            - :meth:`BharatFinTrack.NSETRI.download_daily_data`
+            - :meth:`BharatFinTrack.NPS.scheme_historical_nav`
 
         excel_file : str
             Path to an Excel file to save the output DataFrames.
