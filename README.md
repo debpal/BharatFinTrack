@@ -18,30 +18,43 @@
 ![PyPI - License](https://img.shields.io/pypi/l/BharatFinTrack)
 
 
-`BharatFinTrack` is a Python package designed to simplify the process of downloading and analyzing financial data from India. Conceptualized on September 1, 2024, and launched on September 8, 2024, this package is tailored for long-term investors seeking to streamline their financial data workflows. The package focuses on open-source financial data, with an initial emphasis on analyzing [Nifty Equity Indices](https://www.niftyindices.com/). However, it is important to note that the package does not include features for technical indicators or real-time trading. Active development is ongoing, with exciting new features planned for future releases. The package aims to empower users by providing easy access to open-source data, enabling them to make informed financial decisions. Currently, the package offers the following features:
+
+`BharatFinTrack` is a Python package designed to simplify the process of downloading and analyzing financial data from India. Conceptualized on September 1, 2024, and launched on September 8, 2024, the package is tailored for long-term investors looking to streamline their financial data workflows using reliable public sources. This package focuses on historical data and fundamental tracking; it does not include features for technical indicators or real-time trading. The package aims to empower users by providing easy access to open-source data, enabling them to make informed financial decisions. Currently, the package offers the following features:
 
 
-## Nifty Equity Indices
+## [Nifty Equity Indices](https://www.niftyindices.com/)
     
 * Provides access to detailed information about equity indices.
 * Enables downloading and updating daily Total Return Index (`TRI`) data for all equity indices.
 * Fetches closing values for both Price Return Index (`PRI`), excluding dividend reinvestment, and `TRI` for all equity indices.
-* Identifies key turning points in consecutive corrections and recoveries over the historical values of an index.
+
+
+## [National Pension System](https://npstrust.org.in/weekly-snapshot-nps-schemes)
+    
+* Provides complete access to Pension Fund Manager (`PFM`) information alongside their respective schemes and unique identifiers.
+* Enables downloading full historical Net Asset Value (`NAV`) data from inception for any given PFM and specified scheme.
+* Fetches the most recent `NAV` values for selected schemes across multiple PFMs in a single workflow.
 
 
 ## Compound Annual Growth Rate (CAGR)
     
-* Calculates CAGR for both `PRI` and `TRI` indices since the inception.
-* Sorts `PRI` and `TRI` indices by CAGR (%) either overall or within each category.
-* Compares the year-wise CAGR (%) and growth of a fixed yearly investment across multiple `TRI` indices.
+* Sorts `PRI` and `TRI` indices by CAGR (%) either globally or filtered within specific categories.
+* Calculates year-wise CAGR rolling backward from the present date for a specified asset (either a `TRI` index or an `NPS` scheme).
+* Compares the year-wise CAGR (%) and the compounding growth of a fixed annual investment across multiple assets (chosen from `TRI` indices or `NPS` schemes).
 
     
 ## Systematic Investment Plan (SIP)
-    
-* Computes the year-wise SIP return for a fixed monthly contribution to a specified `TRI` index. 
-* Calculates the closing summary of an SIP with a fixed monthly contribution to a specified `TRI` index, starting from a given date.
-* Compares the year-wise XIRR (%) and growth of a fixed monthly SIP investment across multiple `TRI` indices.
+
 * Estimates annual SIP performance, including investment amount, closing balance, and cumulative growth over a specified number of years and expected annual return, with options for yearly, quarterly, monthly, or weekly contributions.
+* Calculates the terminal closing summary of an SIP with a fixed monthly contribution to a specified asset (either a `TRI` index or an `NPS` scheme) starting from a given date.
+* Computes year-wise SIP returns rolling backward from the present date for a fixed monthly contribution, accepting either a specific `TRI` index or an `NPS` scheme as the asset.
+* Compares the year-wise XIRR (%) and compounding growth of a fixed monthly SIP investment across multiple assets (chosen from `TRI` indices or `NPS` schemes).
+
+
+## Analysis
+
+* Identifies key turning points, peak-to-trough corrections, and recoveries over the historical timeline of an specified asset.
+* Extracts historical values from downloaded data between the specified given start and end dates.
 
 
 ## Visualization
