@@ -2,6 +2,14 @@
 Release Notes
 ===============
 
+Version 0.4.0
+---------------
+
+* **Release date:** 25-Jun-2026
+  
+* **Feature Additions:** Introduced the :class:`BharatFinTrack.NPS` class to download and analyze data of National Pension Scheme (NPS).
+
+
 Version 0.3.1
 ---------------
 
