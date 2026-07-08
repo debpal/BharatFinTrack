@@ -2,6 +2,15 @@
 Release Notes
 ===============
 
+
+Version 0.4.1
+---------------
+
+* **Release date:** 08-Jul-2026
+  
+* **Bug Fix:** Resolved a connectivity issue in the :class:`BharatFinTrack.NSETRI` class caused by a change in the Nifty Indices API endpoint; successfully restored the retrieval of historical closing values for all Nifty Equity Indices.
+
+
 Version 0.4.0
 ---------------
 
