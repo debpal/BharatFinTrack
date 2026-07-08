@@ -42,9 +42,9 @@ classifiers = [
 ]
 keywords = [
 	"NSE Index",
+    "NPS",
 	"Download",
-    "CAGR",
-	"SIP",
+    "Analysis",
     "Visualization"
 ]
 
