@@ -18,7 +18,7 @@ class NSETRI:
         URL used to download TRI daily data.
         '''
 
-        output = 'https://www.niftyindices.com/Backpage.aspx/getTotalReturnIndexString'
+        output = 'https://www.niftyindices.com/Backpage/getTotalReturnIndexString'
 
         return output
 

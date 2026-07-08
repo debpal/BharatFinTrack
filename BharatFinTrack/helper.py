@@ -291,8 +291,9 @@ class Helper:
 
         # DataFrame
         response_data = response.json()
-        records = json.loads(response_data['d'])
-        df = pandas.DataFrame.from_records(records)
+        df = pandas.DataFrame.from_records(
+            data=response_data
+        )
         self._df_not_empty(
             df=df,
             error_str='No records found between the specified start and end dates'
