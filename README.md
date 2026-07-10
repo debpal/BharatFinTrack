@@ -66,15 +66,19 @@
 
 
 # Application
-`BharatFinTrack` provides insights into the performance of equity indices. For instance, the following bar plot highlights the top five equity indices by `TRI` CAGR (%) within each category since their respective launches. This snapshot provides a powerful visual overview of long-term performance trends of CAGR (%) across different index categories over the years.
 
-![Category-wise Top Five TRI CAGR(%) of NSE Equity Indices](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/sort_cagr_within_category.png)
+`BharatFinTrack` provides analytical insights into the performance of equity indices and various financial assets. The visualizations below highlight the top-performing `TRI` indices based on CAGR (%), both overall and categorized by their market segments, since inception. These snapshots offer a powerful overview of long-term performance trends.
 
-In the above graph, the `NIFTY MIDCAP150 MOMENTUM 50` stands out as one of the best-performing NSE equity indices within the strategy category in terms of long-term CAGR (%). The following graph presents a comparison of year-wise investments and returns for a monthly SIP of 1 Rupee between government securities and a passive fund tracking the TRI of `NIFTY MIDCAP150 MOMENTUM 50`.
+![Overall Top TRI CAGR(%) of NSE Equity Indices](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/sort_cagr.png)
+
+![Category-wise Top TRI CAGR(%) of NSE Equity Indices](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/sort_cagr_within_category.png)
+
+In the analysis above, the `NIFTY MIDCAP150 MOMENTUM 50` index stands out as a top-performing NSE equity index in terms of long-term CAGR (%). The following graph illustrates a comparative study of year-wise investments and terminal values for a fixed monthly SIP of ₹1, comparing government securities against a passive fund tracking the `NIFTY MIDCAP150 MOMENTUM 50 TRI`.
 
 ![Year-wise SIP comparison between NIFTY_MIDCAP150_MOMENTUM_50 and Government Bond](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/sip_growth_vs_bond_benchmark.png)
 
-Additionally, the following plot compares the growth multiples (X) of a monthly SIP investment across `TRI` indices, including the popular index `NIFTY 50` and other top-performing NSE equity indices over the years.
+
+Furthermore, the plot below compares the growth multiples ($X$) of monthly SIP investments across multiple `TRI` indices. This comparison highlights the performance delta between the `NIFTY MIDCAP150 MOMENTUM 50`, the broader `NIFTY MIDCAP 150` (excluding the momentum factor), and the benchmark `NIFTY 50`.
 
 ![Year-wise SIP growth comparison across multiple indices](https://github.com/debpal/BharatFinTrack/raw/main/docs/_static/compare_sip.png)
 
@@ -90,7 +94,6 @@ After a successful installation, the following code should run without errors:
 
 ```python
 import BharatFinTrack
-nse_product = BharatFinTrack.NSEProduct()
 ```
 
 ## Documentation
