@@ -40,7 +40,7 @@ class NSEPRI:
             if isinstance(anchor, bs4.Tag):
                 href = anchor.get('href')
                 anchor_id = anchor.get('id')
-                if isinstance(href, str) and href.endswith('.csv') and anchor_id == 'dailysnapOneDaybefore':
+                if isinstance(href, str) and '.csv' in href and anchor_id == 'dailysnapOneDaybefore':
                     csv_link = main_url + href
                     response = requests.get(
                         url=csv_link,
