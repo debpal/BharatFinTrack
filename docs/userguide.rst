@@ -33,27 +33,16 @@ A brief overview of features related to data downloading. Start by instantiating
 
 .. code-block:: python
 
-    nse_pri = BharatFinTrack.NSEIndex()
-    nse_tri = BharatFinTrack.NSETRI()
-
-
-PRI Summary
-^^^^^^^^^^^^^^^^^
-Download the daily summary report of ``PRI`` closing values, published daily
-on the `Nifty Indices Reports <https://www.niftyindices.com/reports/daily-reports/>`_, and save
-it as a CSV file.
-
-.. code-block:: python
-
-    nse_pri.download_equity_close(
-        csv_file=r"C:\Users\Username\Folder\PRI_closing.csv"
-    )
+    nse_pri = BharatFinTrack.NSEIndex()  # Price Return Index 
+    nse_tri = BharatFinTrack.NSETRI()  # Total Return Index
+    nps = BharatFinTrack.NPS()  # National Pension Scheme
 
 
 .. _f_download_daily_tri:
 
-Historical TRI Daily Data
+Historical Data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Download historical daily ``TRI`` data for the ``NIFTY 50`` index. Currently, the function supports only equity indices.
 
 .. code-block:: python
@@ -72,6 +61,18 @@ Download historical daily ``TRI`` data for the ``NIFTY 50`` index. Currently, th
         csv_file=r"C:\Users\Username\Folder\NIFTY 50.csv"
     )
 
+Downloads historical daily Net Asset Value (NAV) data for a specific 
+Pension Fund Manager and scheme identifier.
+
+.. code-block:: python
+    
+    nps.scheme_historical_nav(
+        pfm_name='HDFC',
+        scheme_id='SM008019',
+        csv_file=r"C:\Users\Username\Folder\SM008019.csv"
+    )
+
+
 TRI Closing Values
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Download the closing ``TRI`` values for all equity indices. These values are not updated daily on the website. 
@@ -81,6 +82,19 @@ It is recommended to run this function at night when web traffic is lower, as it
     
     nse_tri.download_equity_close(
         csv_file=r"C:\Users\Username\Folder\TRI_closing.csv"
+    )
+
+
+PRI Closing Summary
+^^^^^^^^^^^^^^^^^^^^^
+Download the daily summary report of ``PRI`` closing values, published daily
+on the `Nifty Indices Reports <https://www.niftyindices.com/reports/daily-reports/>`_, and save
+it as a CSV file.
+
+.. code-block:: python
+
+    nse_pri.download_equity_close(
+        csv_file=r"C:\Users\Username\Folder\PRI_closing.csv"
     )
 
 
@@ -116,7 +130,7 @@ The following methods can be used to compute CAGR (%) of all equity indices sinc
     
 Year-wise SIP Growth
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Compute the year-wise SIP returns for a fixed monthly contribution to a specified equity ``TRI`` index.
+Compute the year-wise SIP returns for a fixed monthly contribution to a specified asset (either a ``TRI`` index or an ``NPS`` scheme).
 
 .. code-block:: python
     
@@ -129,7 +143,7 @@ Compute the year-wise SIP returns for a fixed monthly contribution to a specifie
     
 Year-wise SIP and CAGR Comparison
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This section compares the year-wise XIRR (%) and growth multiples (X) of a fixed monthly SIP investment, along with the year-wise CAGR (%) and growth multiples of a one-time investment across selected ``TRI`` indices.
+This section compares the year-wise XIRR (%) and growth multiples (X) of a fixed monthly SIP investment, along with the year-wise CAGR (%) and growth multiples of a one-time investment across selected assets.
 
 The required data are sourced from CSV files generated in the :ref:`Historical TRI Daily Data <f_download_daily_tri>` section. Ensure that all input CSV files are stored in the designated folder, with each file named as ``{index}.csv`` to match the index names provided in the list. The output highlights the highest growth cells in green-yellow and the lowest growth cells in sandy brown.
 
@@ -231,7 +245,7 @@ The resulting plot will resemble the example shown below.
 SIP Comparison Across Indices
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This section presents a plot comparing the year-wise growth multiples (X) of a monthly SIP investment across ``TRI`` indices.
+This section presents a plot comparing the year-wise growth multiples (X) of a monthly SIP investment across assets.
 
 .. code-block:: python
     
