@@ -19,13 +19,13 @@ def test_fecth_data(
 
         # Pass test for downloading base parameters
         df = nps._download_base_parameters()
-        assert len(df) == 262
+        assert len(df) == 263
 
         # Pass test for saving base DataFrame
         df = nps.base_df(
             excel_file=os.path.join(tmp_dir, 'base_df.xlsx')
         )
-        assert len(df) == 262
+        assert len(df) == 263
         assert os.path.exists(os.path.join(tmp_dir, 'base_df.xlsx'))
 
         # Pass test for NPS schemes latest NAV
