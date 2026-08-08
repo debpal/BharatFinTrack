@@ -3,6 +3,14 @@ Release Notes
 ===============
 
 
+Version 0.4.5
+---------------
+
+* **Release date:** 08-Aug-2026
+  
+* **Feature Additions:** Added API support for newly launched NSE equity indices.
+
+
 Version 0.4.4
 ---------------
 
